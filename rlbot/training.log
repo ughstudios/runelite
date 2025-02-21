@@ -1,0 +1,20 @@
+2025-02-21 09:47:24,038 - INFO - Starting training with log directory: ./logs/combat_bot_20250221_094724
+2025-02-21 09:47:25,343 - INFO - Using MPS device
+2025-02-21 09:47:25,348 - ERROR - Program failed with error: generalized State-Dependent Exploration (gSDE) can only be used with continuous actions.
+2025-02-21 09:49:34,486 - INFO - Starting training with log directory: ./logs/combat_bot_20250221_094934
+2025-02-21 09:49:35,574 - INFO - Using MPS device
+2025-02-21 09:49:35,574 - ERROR - Program failed with error: You must use `MultiInputPolicy` when working with dict observation space, not MlpPolicy
+2025-02-21 09:49:53,221 - INFO - Starting training with log directory: ./logs/combat_bot_20250221_094953
+2025-02-21 09:49:54,308 - INFO - Using MPS device
+2025-02-21 09:49:56,016 - INFO - Starting model training
+2025-02-21 09:50:01,219 - ERROR - Training failed with error: You must install tqdm and rich in order to use the progress bar callback. It is included if you install stable-baselines with the extra packages: `pip install stable-baselines3[extra]`
+2025-02-21 09:50:11,233 - ERROR - Program failed with error: You must install tqdm and rich in order to use the progress bar callback. It is included if you install stable-baselines with the extra packages: `pip install stable-baselines3[extra]`
+2025-02-21 09:50:28,571 - INFO - Starting training with log directory: ./logs/combat_bot_20250221_095028
+2025-02-21 09:50:29,634 - INFO - Using MPS device
+2025-02-21 09:50:31,214 - INFO - Starting model training
+2025-02-21 09:50:36,424 - ERROR - Training failed with error: You must install tqdm and rich in order to use the progress bar callback. It is included if you install stable-baselines with the extra packages: `pip install stable-baselines3[extra]`
+2025-02-21 09:50:36,424 - ERROR - Program failed with error: You must install tqdm and rich in order to use the progress bar callback. It is included if you install stable-baselines with the extra packages: `pip install stable-baselines3[extra]`
+2025-02-21 10:02:22,825 - INFO - Starting training with log directory: ./logs/combat_bot_20250221_100222
+2025-02-21 10:02:23,903 - INFO - Using MPS device
+2025-02-21 10:02:25,592 - INFO - Starting model training
+2025-02-21 10:16:57,081 - WARNING - Training interrupted by user
