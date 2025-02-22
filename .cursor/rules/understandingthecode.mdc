@@ -1,0 +1,12 @@
+---
+description: How does it work?
+globs: 
+---
+The project is setup of a few files. 
+
+[train.py](mdc:rlbot/train.py) which is for training the reinforcement learning agent
+[runescape_env.py](mdc:rlbot/runescape_env.py) which defines the environment for the agent and communicates with [RLBotPlugin.java](mdc:runelite/runelite-client/src/main/java/net/runelite/client/plugins/rlbot/RLBotPlugin.java).
+
+[RLBotConfig.java](mdc:runelite/runelite-client/src/main/java/net/runelite/client/plugins/rlbot/RLBotConfig.java)[RLBotOverlay.java](mdc:runelite/runelite-client/src/main/java/net/runelite/client/plugins/rlbot/RLBotOverlay.java)[RLBotPlugin.java](mdc:runelite/runelite-client/src/main/java/net/runelite/client/plugins/rlbot/RLBotPlugin.java) these files work together to communicate with the [train.py](mdc:rlbot/train.py) module to train the RL agent. I need you to ensure that it works together. 
+
+These are the only files that make up my project as of now. 

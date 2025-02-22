@@ -1,0 +1,5 @@
+---
+description: Debugging
+globs: 
+---
+When debuging please review logs in [rlbot.log](mdc:rlbot/rlbot.log) and @rlbot's log folder "logs"

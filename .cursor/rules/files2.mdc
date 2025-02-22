@@ -3,3 +3,6 @@ description: Python code for the gymnasium training must be in this directory
 globs: 
 ---
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot
+
+
+So if you need to update a requirements.txt file, look at [requirements.txt](mdc:rlbot/requirements.txt) do

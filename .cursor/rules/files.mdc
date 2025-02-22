@@ -3,3 +3,5 @@ description: RLBot plugin for Runelite must be in this directory
 globs: 
 ---
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/runelite/runelite-client/src/main/java/net/runelite/client/plugins/rlbot
+
+Every time you make changes to the client, please compile the changes. 

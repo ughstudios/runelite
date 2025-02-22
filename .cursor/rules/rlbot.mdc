@@ -1,0 +1,5 @@
+---
+description: The rlbot plugin and rlbot python agent should log to here
+globs: 
+---
+/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot/logs
