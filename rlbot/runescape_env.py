@@ -59,9 +59,10 @@ class RuneScapeEnv(gym.Env):
         # Action rate limiting
         self.GAME_TICK = 0.6  # RuneScape game tick in seconds
         self.MIN_ACTION_DELAY = self.GAME_TICK  # Minimum time between actions
-        self.MAX_ACTIONS_PER_MINUTE = 60  # Maximum actions per minute (roughly 1 action per second)
-        self.action_timestamps = []  # Track recent action times
-        self.last_action_time = 0
+        self.MAX_ACTIONS_PER_MINUTE = 30  # More reasonable action limit (1 action per 2 seconds on average)
+        self.action_timestamps: List[float] = []  # Track recent action times
+        self.last_action_time = 0.0
+        self.action_window = 60.0  # Time window for rate limiting in seconds
         
         # Define action spaces based on task
         self.task = task
@@ -288,20 +289,32 @@ class RuneScapeEnv(gym.Env):
         """Execute the given action in the game with rate limiting"""
         current_time = time.time()
         
-        # Clean up old timestamps (older than 1 minute)
-        self.action_timestamps = [t for t in self.action_timestamps if current_time - t < 60]
+        # Clean up old timestamps (older than our window)
+        self.action_timestamps = [t for t in self.action_timestamps if current_time - t < self.action_window]
         
-        # Check if we've exceeded our actions per minute limit
-        if len(self.action_timestamps) >= self.MAX_ACTIONS_PER_MINUTE:
-            logger.info("[yellow]Action rate limit reached, waiting...[/yellow]")
-            time.sleep(self.MIN_ACTION_DELAY)
-            return
+        # Calculate current action rate
+        if self.action_timestamps:
+            window_duration = current_time - min(self.action_timestamps)
+            current_rate = len(self.action_timestamps) / window_duration if window_duration > 0 else float('inf')
+            target_rate = self.MAX_ACTIONS_PER_MINUTE / 60.0  # Convert to actions per second
+            
+            # If we're acting too fast, calculate delay needed to maintain target rate
+            if current_rate > target_rate:
+                # Calculate ideal time between actions to maintain target rate
+                ideal_delay = 1.0 / target_rate
+                # Calculate how long we should wait to get back to target rate
+                required_delay = max(
+                    ideal_delay - (current_time - self.last_action_time),
+                    self.MIN_ACTION_DELAY
+                )
+                logger.debug(f"[blue]Rate limiting: current rate {current_rate:.2f}/s, target {target_rate:.2f}/s, waiting {required_delay:.2f}s[/blue]")
+                time.sleep(required_delay)
         
         # Ensure minimum delay between actions
         time_since_last_action = current_time - self.last_action_time
         if time_since_last_action < self.MIN_ACTION_DELAY:
             sleep_time = self.MIN_ACTION_DELAY - time_since_last_action
-            logger.debug(f"[blue]Waiting {sleep_time:.2f}s between actions[/blue]")
+            logger.debug(f"[blue]Enforcing minimum delay: waiting {sleep_time:.2f}s[/blue]")
             time.sleep(sleep_time)
         
         # Record this action
