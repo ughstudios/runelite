@@ -1,0 +1,122 @@
+{
+  "title": "RLBot Game State Schema",
+  "description": "Schema for game state information sent from RuneLite plugin to Python agent",
+  "type": "object",
+  "properties": {
+    "player": {
+      "type": "object",
+      "properties": {
+        "location": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "integer" },
+            "y": { "type": "integer" },
+            "plane": { "type": "integer" }
+          },
+          "required": ["x", "y", "plane"]
+        },
+        "health": {
+          "type": "object",
+          "properties": {
+            "current": { "type": "integer" },
+            "maximum": { "type": "integer" }
+          },
+          "required": ["current", "maximum"]
+        },
+        "inCombat": { "type": "boolean" },
+        "runEnergy": { "type": "number" },
+        "skills": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Z_]+$": {
+              "type": "object",
+              "properties": {
+                "level": { "type": "integer" },
+                "realLevel": { "type": "integer" },
+                "experience": { "type": "integer" }
+              },
+              "required": ["level", "realLevel", "experience"]
+            }
+          }
+        }
+      },
+      "required": ["location", "health", "inCombat", "runEnergy", "skills"]
+    },
+    "npcs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "combatLevel": { "type": "integer" },
+          "location": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "integer" },
+              "y": { "type": "integer" },
+              "plane": { "type": "integer" }
+            },
+            "required": ["x", "y", "plane"]
+          },
+          "health": {
+            "type": "object",
+            "properties": {
+              "current": { "type": "integer" },
+              "maximum": { "type": "integer" }
+            }
+          },
+          "interacting": { "type": "boolean" },
+          "distance": { "type": "number" }
+        },
+        "required": ["id", "name", "combatLevel", "location", "interacting", "distance"]
+      }
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "location": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "integer" },
+              "y": { "type": "integer" },
+              "plane": { "type": "integer" }
+            },
+            "required": ["x", "y", "plane"]
+          },
+          "actions": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["id", "name", "location", "actions"]
+      }
+    },
+    "groundItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "quantity": { "type": "integer" },
+          "location": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "integer" },
+              "y": { "type": "integer" },
+              "plane": { "type": "integer" }
+            },
+            "required": ["x", "y", "plane"]
+          }
+        },
+        "required": ["id", "name", "quantity", "location"]
+      }
+    }
+  },
+  "required": ["player", "npcs", "objects", "groundItems"]
+} 

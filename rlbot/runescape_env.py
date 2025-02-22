@@ -8,16 +8,19 @@ import json
 import logging
 import asyncio
 import websockets
-try:
-    import nest_asyncio
-except ImportError:
-    import nest_asyncio  # type: ignore
+import nest_asyncio
 import threading
 import time
-from typing import Optional, Dict, Any, Tuple, List, Set, TypeVar, cast, Union, TYPE_CHECKING
+from typing import Optional, Dict, Any, Tuple, List, Set, Union, TYPE_CHECKING, cast
 from enum import Enum
 from dataclasses import dataclass
-from command_schema import Command, ActionType, TargetType, MoveAndClickData, CameraRotateData, CameraZoomData
+from jsonschema import validate, ValidationError
+import os
+import base64
+from io import BytesIO
+from PIL import Image
+from PIL.ImageFile import ImageFile
+from gymnasium.spaces import Dict as GymDict
 
 if TYPE_CHECKING:
     from gymnasium.spaces.dict import Dict as GymDict
@@ -25,15 +28,13 @@ if TYPE_CHECKING:
 
 # Type aliases
 StateDict = Dict[str, Any]
-SpaceDict = Dict[str, 'Space']
-FloatArray = np.ndarray[Any, np.dtype[np.float32]]
+FloatArray = np.ndarray
 
-# Apply nest_asyncio to allow nested event loops
 nest_asyncio.apply()
 
-# Configure logging
+# Configure logging to be less verbose
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.WARNING,  # Change from INFO to WARNING
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
@@ -42,1008 +43,276 @@ class Action(Enum):
     MOVE_BACKWARD = 1
     MOVE_LEFT = 2
     MOVE_RIGHT = 3
-    ATTACK_NEAREST = 4
-    TAKE_NEAREST = 5
-    ROTATE_LEFT = 6
-    ROTATE_RIGHT = 7
-    ZOOM_IN = 8
-    ZOOM_OUT = 9
-    DO_NOTHING = 10
+    DO_NOTHING = 4
+    ROTATE_LEFT = 5
+    ROTATE_RIGHT = 6
+    ZOOM_IN = 7
+    ZOOM_OUT = 8
+    ATTACK = 9
 
 class RuneScapeEnv(gym.Env):
     """
-    Gymnasium Environment for RuneScape with enhanced capabilities
+    Gymnasium Environment for RuneScape focused on combat training.
     """
-    
-    def __init__(self, websocket_url: str = "ws://localhost:43594", task: str = "combat"):
+
+    def __init__(self, websocket_url: str = "ws://localhost:43595", task: str = "combat"):
         super().__init__()
+        self.logger = logging.getLogger("RuneScapeEnv")
+        self.logger.setLevel(logging.INFO)  # Keep important env logs at INFO
         
-        # Set up logger first thing
-        self.logger = logging.getLogger("rlbot.env")
-        self.logger.setLevel(logging.INFO)
+        # Add a handler that only shows WARNING and above for websockets
+        logging.getLogger('websockets').setLevel(logging.WARNING)
         
-        # Ensure we have a handler
-        if not self.logger.handlers:
-            handler = logging.StreamHandler()
-            handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-            self.logger.addHandler(handler)
-        
-        self.logger.info("Initializing RuneScape Environment")
-        self.logger.info(f"WebSocket URL: {websocket_url}")
-        self.logger.info(f"Task: {task}")
-        
-        # Action rate limiting
-        self.GAME_TICK = 0.6  # RuneScape game tick in seconds
-        self.MIN_ACTION_DELAY = self.GAME_TICK  # Minimum time between actions
-        self.MAX_ACTIONS_PER_MINUTE = 30  # More reasonable action limit (1 action per 2 seconds on average)
-        self.action_timestamps: List[float] = []  # Track recent action times
-        self.last_action_time = 0.0
-        self.action_window = 60.0  # Time window for rate limiting in seconds
-        
-        # WebSocket setup
         self.websocket_url = websocket_url
-        self.ws = None
-        self.loop = None
         self.task = task
-        self.ws_task = None
-        self.ws_connected = threading.Event()
-        self.ws_should_close = threading.Event()  # New flag to control WebSocket shutdown
+        self.screenshot_shape = (480, 640, 3)  # Default size, will be updated on first screenshot
+
+        # Load JSON schemas
+        schema_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(schema_dir, 'command_schema.json')) as f:
+            self.command_schema = json.load(f)
+        with open(os.path.join(schema_dir, 'state_schema.json')) as f:
+            self.state_schema = json.load(f)
+
+        # Environment state variables
+        self.current_state: Optional[Dict] = None
+        self.last_combat_exp = 0
+        self.visited_areas: Set[Tuple[int, int]] = set()
+        self.interfaces_open = False
+        self.path_obstructed = False
+        self.last_action: Optional[Action] = None
+        self.last_action_time: float = 0.0
+        self.action_cooldown = 0.2
+        self.last_position = None
+        self.consecutive_same_pos = 0
+        self.last_command: Optional[str] = None
+        self.command_time: float = 0.0
+        self.min_command_interval = 0.1
+        self.last_target_id = None
         
+        # Websocket setup
+        self.ws = None
+        self.loop = asyncio.new_event_loop()
+        self.ws_thread = threading.Thread(target=self._run_websocket_loop, daemon=True)
+        self.ws_thread.start()
+        
+        # Wait for initial connection
+        timeout = 30
+        start_time = time.time()
+        while not self.ws and time.time() - start_time < timeout:
+            time.sleep(0.1)
+        if not self.ws:
+            self.logger.error(f"Failed to connect within {timeout} seconds")
+            
         # Initialize observation and action spaces
         self.observation_space = gym.spaces.Dict({
+            'screenshot': gym.spaces.Box(low=0, high=255, shape=self.screenshot_shape, dtype=np.uint8),
             'player_position': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32),
             'player_combat_stats': gym.spaces.Box(low=1, high=99, shape=(7,), dtype=np.int32),
             'player_health': gym.spaces.Box(low=0, high=99, shape=(1,), dtype=np.int32),
             'player_prayer': gym.spaces.Box(low=0, high=99, shape=(1,), dtype=np.int32),
             'player_run_energy': gym.spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32),
-            'npcs': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(10, 8), dtype=np.float32),
-            'inventory': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(28, 3), dtype=np.float32),
             'skills': gym.spaces.Box(low=1, high=99, shape=(23,), dtype=np.int32),
-            'ground_items': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(20, 8), dtype=np.float32),
-            'ground_items_total_ge_value': gym.spaces.Box(low=0, high=np.inf, shape=(1,), dtype=np.float32),
-            'ground_items_total_ha_value': gym.spaces.Box(low=0, high=np.inf, shape=(1,), dtype=np.float32),
-            'ground_items_nearest_distance': gym.spaces.Box(low=0, high=np.inf, shape=(1,), dtype=np.float32),
-            'interfaces_open': gym.spaces.Box(low=0, high=1, shape=(1,), dtype=np.int32),
-            'path_obstructed': gym.spaces.Box(low=0, high=1, shape=(1,), dtype=np.int32),
+            'npcs': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(10, 6), dtype=np.float32),  # 10 nearest NPCs, 6 features each
+            'in_combat': gym.spaces.Discrete(2),
+            'interfaces_open': gym.spaces.Discrete(2),
+            'path_obstructed': gym.spaces.Discrete(2),
             'current_chunk': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.int32),
             'visited_chunks_count': gym.spaces.Box(low=0, high=np.inf, shape=(1,), dtype=np.int32),
             'nearby_areas': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(9, 5), dtype=np.float32),
             'exploration_score': gym.spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32)
         })
         self.action_space = gym.spaces.Discrete(len(Action))
-        
-        # Initialize state variables
-        self.last_observation: Optional[np.ndarray] = None
-        self.last_reward: float = 0
-        self.last_combat_exp: int = 0
-        self.last_inventory: List[Dict[str, Any]] = []
-        self.last_npcs: List[Dict[str, Any]] = []
-        self.last_objects: List[Dict[str, Any]] = []
-        self.current_state: Optional[StateDict] = None
-        self.path_obstructed: bool = False
-        self.interfaces_open: bool = False
-        self.visited_areas: Set[Tuple[int, int]] = set()
-        
-        # Set up WebSocket connection
-        self._setup_websocket()
-        
-        # Wait for WebSocket connection
-        if not self.ws_connected.wait(timeout=10):
-            self.logger.error("Failed to connect to RuneLite WebSocket after 10 seconds")
-            raise ConnectionError("Failed to connect to RuneLite WebSocket")
-        
-        # Exploration tracking
-        self.area_scores: Dict[Tuple[int, int], float] = {}
-        self.last_exploration_time: Dict[Tuple[int, int], float] = {}
-        self.exploration_cooldown = 300  # 5 minutes cooldown for revisiting areas
-        
-        # Movement tracking
-        self.is_moving = False
-        self.last_position = None
-        self.movement_timeout = 10  # Maximum seconds to wait for movement
-        self.position_check_interval = 0.1  # How often to check position
-        self.stationary_threshold = 3  # How many position checks must be same to consider stopped
-        self.stationary_count = 0
-    
-    def _setup_websocket(self):
-        """Set up WebSocket connection to RuneLite"""
-        try:
-            def run_websocket():
-                try:
-                    # Create new event loop for this thread
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    self.loop = loop
-                    
-                    # Run the websocket handler
-                    loop.run_until_complete(self.websocket_handler())
-                except Exception as e:
-                    self.logger.error("WebSocket handler error: " + str(e))
-                finally:
-                    try:
-                        # Only close the loop if it's not already closed and we're shutting down
-                        if not loop.is_closed() and self.ws_should_close.is_set():
-                            pending = asyncio.all_tasks(loop)
-                            loop.run_until_complete(asyncio.gather(*pending))
-                            loop.close()
-                    except Exception as e:
-                        self.logger.error("Error closing event loop: " + str(e))
-            
-            self.ws_task = threading.Thread(target=run_websocket)
-            self.ws_task.daemon = True
-            self.ws_task.start()
-            
-        except Exception as e:
-            self.logger.error("Failed to setup WebSocket: " + str(e))
-            raise
 
-    async def websocket_handler(self):
-        """Handle WebSocket connection and messages"""
-        self.logger.info("Attempting to connect to RuneLite...")
-        retry_count = 0
-        max_retries = 3
+    def _run_websocket_loop(self):
+        """Run the websocket event loop in a separate thread."""
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_until_complete(self._websocket_client())
         
-        while retry_count < max_retries:
+    async def _websocket_client(self):
+        """Handle websocket connection and message processing."""
+        while True:
             try:
                 async with websockets.connect(self.websocket_url) as websocket:
                     self.ws = websocket
-                    self.logger.info("Connected to RuneLite successfully!")
-                    self.ws_connected.set()  # Signal that we're connected
+                    self.logger.info("Connected to RuneLite")
                     
                     while True:
                         try:
                             message = await websocket.recv()
-                            data = json.loads(message)
+                            state = json.loads(message)
+                            # Validate state against schema
+                            validate(instance=state, schema=self.state_schema)
+                            self.current_state = state
                             
-                            # Handle status updates
-                            if isinstance(data, dict) and 'status' in data:
-                                if data['status'] == 'obstructed':
-                                    self.path_obstructed = True
-                                    self.logger.warning(f"Path obstructed to {data.get('target', 'unknown location')}")
-                                continue
+                            # Update environment flags based on state
+                            self.interfaces_open = state.get('interfacesOpen', False)
+                            self.path_obstructed = state.get('pathObstructed', False)
                             
-                            # Handle regular state updates
-                            self.current_state = data
-                            
-                            # Update interface state
-                            self.interfaces_open = data.get('interfacesOpen', False)
-                            
-                            # Log significant state changes
-                            if self._has_significant_changes(data):
-                                self._log_state_changes(data)
-                            
-                        except websockets.exceptions.ConnectionClosed:
-                            self.logger.error("WebSocket connection closed")
+                        except ValidationError as e:
+                            self.logger.error(f"Invalid state received: {e}")
+                        except websockets.ConnectionClosed:
+                            self.logger.warning("WebSocket connection closed")
                             break
                         except json.JSONDecodeError as e:
                             self.logger.error(f"Failed to parse message: {e}")
                         except Exception as e:
-                            self.logger.error(f"WebSocket error: {e}")
-                            break
+                            self.logger.error(f"Error processing message: {e}")
                             
             except Exception as e:
-                retry_count += 1
-                self.logger.error(f"Failed to connect to RuneLite (attempt {retry_count}/{max_retries}): {e}")
-                if retry_count < max_retries:
-                    await asyncio.sleep(5)  # Wait before retrying
-                else:
-                    self.logger.error("Max retries reached, giving up on WebSocket connection")
-                    raise ConnectionError("Failed to establish WebSocket connection after max retries")
-
-    def _has_significant_changes(self, new_state: Dict) -> bool:
-        """Check if there are significant changes in the state"""
-        if not self.current_state:
-            return True
-            
-        significant_changes = [
-            new_state.get('playerHealth') != self.current_state.get('playerHealth'),
-            new_state.get('playerPrayer') != self.current_state.get('playerPrayer'),
-            len(new_state.get('npcs', [])) != len(self.current_state.get('npcs', [])),
-            new_state.get('playerAnimation') != self.current_state.get('playerAnimation'),
-            new_state.get('playerInteracting') != self.current_state.get('playerInteracting')
-        ]
-        
-        return any(significant_changes)
-    
-    def _log_state_changes(self, state: Dict):
-        """Log significant state changes"""
-        if not self.current_state:
-            self.logger.info("Initial state received")
-            return
-            
-        # Log health changes
-        if state.get('playerHealth') != self.current_state.get('playerHealth'):
-            self.logger.info("Health changed: " + str(self.current_state.get('playerHealth')) + " -> " + str(state.get('playerHealth')))
-        
-        # Log prayer changes
-        if state.get('playerPrayer') != self.current_state.get('playerPrayer'):
-            self.logger.info("Prayer changed: " + str(self.current_state.get('playerPrayer')) + " -> " + str(state.get('playerPrayer')))
-        
-        # Log NPC changes
-        new_npcs = len(state.get('npcs', []))
-        old_npcs = len(self.current_state.get('npcs', []))
-        if new_npcs != old_npcs:
-            self.logger.info("NPCs in range changed: " + str(old_npcs) + " -> " + str(new_npcs))
-        
-        # Log animation changes
-        if state.get('playerAnimation') != self.current_state.get('playerAnimation'):
-            self.logger.info("Animation changed: " + str(self.current_state.get('playerAnimation')) + " -> " + str(state.get('playerAnimation')))
-    
-    def connect_websocket(self):
-        """Initialize WebSocket connection to RuneLite"""
-        def run_websocket():
-            asyncio.set_event_loop(self.loop)
-            self.loop.run_until_complete(self.websocket_handler())
-        
-        self.ws_task = threading.Thread(target=run_websocket)
-        self.ws_task.daemon = True
-        self.ws_task.start()
-        
-        # Wait for WebSocket to connect with timeout
-        start_time = time.time()
-        while not self.ws and time.time() - start_time < 10:  # Wait up to 10 seconds
-            time.sleep(0.1)
-        
-        if not self.ws:
-            self.logger.error("Failed to connect to RuneLite WebSocket after 10 seconds")
-            raise ConnectionError("Failed to connect to RuneLite WebSocket")
-    
-    async def _send_command(self, command: Command) -> None:
-        """Send a command to the RuneLite client via WebSocket"""
-        if not self.ws_connected.is_set():
-            self.logger.error("Cannot send command - WebSocket not connected")
-            return
-        
-        try:
-            cmd_dict = command.to_dict()
-            if self.ws is not None:
-                self.logger.info("Sending command: " + json.dumps(cmd_dict))
-                await self.ws.send(json.dumps(cmd_dict))
-                self.logger.debug("Command sent successfully: " + json.dumps(cmd_dict))
-            else:
-                self.logger.error("WebSocket connection not established")
-                raise ConnectionError("WebSocket connection not established")
-        except websockets.exceptions.ConnectionClosed:
-            self.logger.error("WebSocket connection closed unexpectedly")
-            self.ws_connected.clear()
-            # Attempt to reconnect
-            self._setup_websocket()
-        except Exception as e:
-            self.logger.error("Error sending command: " + str(e))
-            raise
-
-    def _move_and_click(self, target_type: TargetType, **kwargs) -> None:
-        """Send a move and click command with validation"""
-        if not self.ws_connected.is_set():
-            self.logger.error("Cannot send move and click - WebSocket not connected")
-            return
-        
-        try:
-            data = MoveAndClickData(targetType=target_type, **kwargs)
-            data.validate()  # This will raise ValueError if data is invalid
-            cmd = Command(action=ActionType.MOVE_AND_CLICK, data=data)
-            
-            if self.loop is not None and not self.loop.is_closed():
-                self.logger.info("Executing move and click: " + str(kwargs))
-                future = asyncio.run_coroutine_threadsafe(self._send_command(cmd), self.loop)
-                # Wait for the command to complete with a timeout
-                future.result(timeout=5)
-            else:
-                self.logger.error("Event loop not initialized or closed")
-                raise RuntimeError("Event loop not initialized or closed")
-        except asyncio.TimeoutError:
-            self.logger.error("Move and click command timed out")
-        except ValueError as e:
-            self.logger.error("Invalid move and click data: " + str(e))
-            raise
-        except Exception as e:
-            self.logger.error("Error in move and click: " + str(e))
-            raise
-
-    def _rotate_camera(self, right: bool) -> None:
-        """Rotate the camera left or right"""
-        if not self.ws_connected.is_set():
-            self.logger.error("Cannot rotate camera - WebSocket not connected")
-            return
-        
-        try:
-            cmd = Command(
-                action=ActionType.CAMERA_ROTATE,
-                data=CameraRotateData(right=right)
-            )
-            if self.loop is not None and not self.loop.is_closed():
-                self.logger.info("Rotating camera " + ("right" if right else "left"))
-                future = asyncio.run_coroutine_threadsafe(self._send_command(cmd), self.loop)
-                future.result(timeout=5)
-            else:
-                self.logger.error("Event loop not initialized or closed")
-                raise RuntimeError("Event loop not initialized or closed")
-        except asyncio.TimeoutError:
-            self.logger.error("Camera rotation command timed out")
-        except Exception as e:
-            self.logger.error("Error rotating camera: " + str(e))
-            raise
-
-    def _zoom_camera(self, zoom_in: bool) -> None:
-        """Zoom the camera in or out"""
-        if not self.ws_connected.is_set():
-            self.logger.error("Cannot zoom camera - WebSocket not connected")
-            return
-        
-        try:
-            cmd = Command(
-                action=ActionType.CAMERA_ZOOM,
-                data=CameraZoomData(in_=zoom_in)
-            )
-            if self.loop is not None and not self.loop.is_closed():
-                self.logger.info("Zooming camera " + ("in" if zoom_in else "out"))
-                future = asyncio.run_coroutine_threadsafe(self._send_command(cmd), self.loop)
-                future.result(timeout=5)
-            else:
-                self.logger.error("Event loop not initialized or closed")
-                raise RuntimeError("Event loop not initialized or closed")
-        except asyncio.TimeoutError:
-            self.logger.error("Camera zoom command timed out")
-        except Exception as e:
-            self.logger.error("Error zooming camera: " + str(e))
-            raise
-
-    def _execute_action(self, action: Action):
-        """Execute the given action in the game with rate limiting"""
-        current_time = time.time()
-        
-        # Clean up old timestamps (older than our window)
-        self.action_timestamps = [t for t in self.action_timestamps if current_time - t < self.action_window]
-        
-        # Calculate current action rate
-        if self.action_timestamps:
-            window_duration = current_time - min(self.action_timestamps)
-            current_rate = len(self.action_timestamps) / window_duration if window_duration > 0 else float('inf')
-            target_rate = self.MAX_ACTIONS_PER_MINUTE / 60.0  # Convert to actions per second
-            
-            # If we're acting too fast, calculate delay needed to maintain target rate
-            if current_rate > target_rate:
-                ideal_delay = 1.0 / target_rate
-                required_delay = max(
-                    ideal_delay - (current_time - self.last_action_time),
-                    self.MIN_ACTION_DELAY
-                )
-                self.logger.debug("Rate limiting: current rate " + str(current_rate) + "/s, target " + str(target_rate) + "/s, waiting " + str(required_delay) + "s")
-                time.sleep(required_delay)
-        
-        # Ensure minimum delay between actions
-        time_since_last_action = current_time - self.last_action_time
-        if time_since_last_action < self.MIN_ACTION_DELAY:
-            sleep_time = self.MIN_ACTION_DELAY - time_since_last_action
-            self.logger.debug("Enforcing minimum delay: waiting " + str(sleep_time) + "s")
-            time.sleep(sleep_time)
-        
-        # Record this action
-        self.last_action_time = time.time()
-        self.action_timestamps.append(self.last_action_time)
-        
-        if not self.current_state:
-            self.logger.warning("No state available, skipping action")
-            return
-
-        if action == Action.DO_NOTHING:
-            if self.current_state.get('inCombat', False):
-                self.logger.info("In combat, waiting...")
-            else:
-                self.logger.info("Doing nothing...")
-            return
-
-        try:
-            # Movement actions
-            if action in [Action.MOVE_FORWARD, Action.MOVE_BACKWARD, Action.MOVE_LEFT, Action.MOVE_RIGHT]:
-                if not all(key in self.current_state for key in ['playerLocation']):
-                    self.logger.warning("Missing player location data")
-                    return
-                    
-                current_x = self.current_state['playerLocation']['x']
-                current_y = self.current_state['playerLocation']['y']
+                self.logger.error(f"WebSocket connection error: {e}")
+                self.ws = None
+                await asyncio.sleep(5)
                 
-                dx, dy = {
-                    Action.MOVE_FORWARD: (0, 3),
-                    Action.MOVE_BACKWARD: (0, -3),
-                    Action.MOVE_LEFT: (-3, 0),
-                    Action.MOVE_RIGHT: (3, 0)
-                }[action]
-                
-                target_x = current_x + dx
-                target_y = current_y + dy
-                
-                self.logger.info("Moving " + action.name.split('_')[1].lower() + " from (" + str(current_x) + ", " + str(current_y) + ") to (" + str(target_x) + ", " + str(target_y) + ")")
-                
-                if self.loop and not self.loop.is_closed():
-                    asyncio.run_coroutine_threadsafe(
-                        self._send_command(Command(
-                            action=ActionType.MOVE_AND_CLICK,
-                            data=MoveAndClickData(
-                                targetType=TargetType.COORDINATES,
-                                action="Move",
-                                x=target_x,
-                                y=target_y
-                            )
-                        )),
-                        self.loop
-                    )
-                else:
-                    self.logger.error("Event loop not available for sending command")
-                
-            elif action == Action.ATTACK_NEAREST:
-                target = self._find_nearest_goblin()
-                if target:
-                    self.logger.info("Attacking " + target.get('name', 'Unknown') + " at (" + str(target['location']['x']) + ", " + str(target['location']['y']) + ")")
-                    if self.loop and not self.loop.is_closed():
-                        asyncio.run_coroutine_threadsafe(
-                            self._send_command(Command(
-                                action=ActionType.MOVE_AND_CLICK,
-                                data=MoveAndClickData(
-                                    targetType=TargetType.NPC,
-                                    action="Attack",
-                                    npcId=target['id']
-                                )
-                            )),
-                            self.loop
-                        )
-                    else:
-                        self.logger.error("Event loop not available for sending command")
-                else:
-                    self.logger.warning("No valid target found for attack")
-                    
-            elif action == Action.ROTATE_LEFT:
-                self.logger.info("Rotating camera left")
-                if self.loop and not self.loop.is_closed():
-                    asyncio.run_coroutine_threadsafe(
-                        self._send_command(Command(
-                            action=ActionType.CAMERA_ROTATE,
-                            data=CameraRotateData(right=False)
-                        )),
-                        self.loop
-                    )
-                else:
-                    self.logger.error("Event loop not available for sending command")
-                
-            elif action == Action.ROTATE_RIGHT:
-                self.logger.info("Rotating camera right")
-                if self.loop and not self.loop.is_closed():
-                    asyncio.run_coroutine_threadsafe(
-                        self._send_command(Command(
-                            action=ActionType.CAMERA_ROTATE,
-                            data=CameraRotateData(right=True)
-                        )),
-                        self.loop
-                    )
-                else:
-                    self.logger.error("Event loop not available for sending command")
-                
-            elif action == Action.ZOOM_IN:
-                self.logger.info("Zooming camera in")
-                if self.loop and not self.loop.is_closed():
-                    asyncio.run_coroutine_threadsafe(
-                        self._send_command(Command(
-                            action=ActionType.CAMERA_ZOOM,
-                            data=CameraZoomData(in_=True)
-                        )),
-                        self.loop
-                    )
-                else:
-                    self.logger.error("Event loop not available for sending command")
-                
-            elif action == Action.ZOOM_OUT:
-                self.logger.info("Zooming camera out")
-                if self.loop and not self.loop.is_closed():
-                    asyncio.run_coroutine_threadsafe(
-                        self._send_command(Command(
-                            action=ActionType.CAMERA_ZOOM,
-                            data=CameraZoomData(in_=False)
-                        )),
-                        self.loop
-                    )
-                else:
-                    self.logger.error("Event loop not available for sending command")
-
-            elif action == Action.TAKE_NEAREST:
-                best_item = self._find_best_ground_item()
-                if best_item:
-                    self.logger.info("Picking up " + best_item['name'] + " worth " + str(best_item['gePrice']) + " gp at (" + str(best_item['location']['x']) + ", " + str(best_item['location']['y']) + ")")
-                    if self.loop and not self.loop.is_closed():
-                        asyncio.run_coroutine_threadsafe(
-                            self._send_command(Command(
-                                action=ActionType.MOVE_AND_CLICK,
-                                data=MoveAndClickData(
-                                    targetType=TargetType.OBJECT,
-                                    action="Take",
-                                    name=best_item['name'],
-                                    x=best_item['location']['x'],
-                                    y=best_item['location']['y']
-                                )
-                            )),
-                            self.loop
-                        )
-                    else:
-                        self.logger.error("Event loop not available for sending command")
-                else:
-                    self.logger.warning("No valuable items found nearby")
-                    
-        except Exception as e:
-            self.logger.error("Error executing action " + str(action) + ": " + str(e))
-    
-    def _find_nearest_goblin(self) -> Optional[Dict]:
-        """Find the nearest goblin that can be attacked"""
-        if not self.current_state or 'npcs' not in self.current_state:
-            return None
-            
-        player_pos = np.array([
-            self.current_state['playerLocation']['x'],
-            self.current_state['playerLocation']['y']
-        ])
-        
-        nearest_goblin = None
-        min_distance = float('inf')
-        
-        for npc in self.current_state['npcs']:
-            if (npc.get('name', '').lower() == 'goblin' and 
-                not npc.get('interacting') and 
-                npc.get('combatLevel', 0) > 0):
-                
-                npc_pos = np.array([npc['location']['x'], npc['location']['y']])
-                distance = float(np.linalg.norm(player_pos - npc_pos))
-                
-                if distance < min_distance:
-                    min_distance = distance
-                    nearest_goblin = npc
-        
-        return nearest_goblin
-    
-    def _find_consumable_item(self) -> Optional[Dict]:
-        """Find a food or potion item in the inventory"""
-        if not self.current_state or 'inventory' not in self.current_state:
-            return None
-            
-        consumables = [
-            'Lobster', 'Swordfish', 'Shark', 'Monkfish',  # Foods
-            'Prayer potion', 'Super restore', 'Saradomin brew'  # Potions
-        ]
-        
-        for item in self.current_state['inventory']:
-            if any(consumable.lower() in item['name'].lower() for consumable in consumables):
-                return item
-        
-        return None
-    
-    def _find_best_ground_item(self) -> Optional[Dict]:
-        """Find the most valuable nearby ground item that's worth picking up"""
-        if not self.current_state or 'groundItems' not in self.current_state:
-            return None
-
-        # Define minimum value thresholds
-        MIN_GE_VALUE = 100  # Minimum GE value to bother picking up
-        MIN_HA_VALUE = 50   # Minimum HA value to bother picking up
-
-        best_item = None
-        best_value = 0
-
-        for item in self.current_state['groundItems']:
-            # Calculate total value
-            total_ge_value = item['gePrice'] * item['quantity']
-            total_ha_value = item['haPrice'] * item['quantity']
-            
-            # Skip if not worth picking up
-            if total_ge_value < MIN_GE_VALUE and total_ha_value < MIN_HA_VALUE:
-                continue
-
-            # Calculate a score based on value and distance
-            value = max(total_ge_value, total_ha_value)
-            distance_penalty = item['distance'] * 10  # 10gp penalty per tile of distance
-            score = value - distance_penalty
-
-            if score > best_value:
-                best_value = score
-                best_item = item
-
-        return best_item
-    
-    def _state_to_observation(self, state: Dict) -> Dict:
-        """Convert RuneLite state to gym observation"""
-        if not state:
-            # Return zero-filled observation if state is None
-            return self._get_empty_observation()
-            
-        # Helper function to safely get nested values
-        def safe_get(d: Dict, *keys, default=0):
-            for key in keys:
-                if not isinstance(d, dict):
-                    return default
-                d = d.get(key, default)
-            return d if d is not None else default
-
-        # Helper function to normalize values
-        def normalize(value, min_val, max_val):
-            if not isinstance(value, (int, float)) or np.isnan(value):
-                return 0.0
-            return np.clip((value - min_val) / (max_val - min_val), 0, 1)
-
-        observation = {
-            'player_position': np.array([
-                safe_get(state, 'playerLocation', 'x', default=0),
-                safe_get(state, 'playerLocation', 'y', default=0),
-                safe_get(state, 'playerLocation', 'plane', default=0)
-            ], dtype=np.float32),
-            
-            'player_combat_stats': np.array([
-                safe_get(state, 'skills', 'ATTACK', 'level', default=1),
-                safe_get(state, 'skills', 'STRENGTH', 'level', default=1),
-                safe_get(state, 'skills', 'DEFENCE', 'level', default=1),
-                safe_get(state, 'skills', 'RANGED', 'level', default=1),
-                safe_get(state, 'skills', 'MAGIC', 'level', default=1),
-                safe_get(state, 'skills', 'HITPOINTS', 'level', default=1),
-                safe_get(state, 'skills', 'PRAYER', 'level', default=1)
-            ], dtype=np.int32),
-            
-            'player_health': np.array([max(1, safe_get(state, 'playerHealth', default=1))], dtype=np.int32),
-            'player_prayer': np.array([max(0, safe_get(state, 'playerPrayer', default=0))], dtype=np.int32),
-            'player_run_energy': np.array([
-                normalize(safe_get(state, 'playerRunEnergy', default=100.0), 0, 100)
-            ], dtype=np.float32),
-            
-            'npcs': np.zeros((10, 8), dtype=np.float32),
-            'inventory': np.zeros((28, 3), dtype=np.float32),
-            'skills': np.ones(23, dtype=np.int32),
-            'ground_items': np.zeros((20, 8), dtype=np.float32),
-            'ground_items_total_ge_value': np.array([0], dtype=np.float32),
-            'ground_items_total_ha_value': np.array([0], dtype=np.float32),
-            'ground_items_nearest_distance': np.array([0], dtype=np.float32),
-            'interfaces_open': np.array([1 if self.interfaces_open else 0], dtype=np.int32),
-            'path_obstructed': np.array([1 if self.path_obstructed else 0], dtype=np.int32),
-            'current_chunk': np.array([0, 0], dtype=np.int32),
-            'visited_chunks_count': np.array([0], dtype=np.int32),
-            'nearby_areas': np.zeros((9, 5), dtype=np.float32),
-            'exploration_score': np.array([0.0], dtype=np.float32)
-        }
-        
-        # Process NPCs with bounds checking
-        for i, npc in enumerate(state.get('npcs', [])[:10]):
-            if not isinstance(npc, dict):
-                continue
-            observation['npcs'][i] = np.array([
-                normalize(safe_get(npc, 'localX', default=0), -2048, 2048),
-                normalize(safe_get(npc, 'localY', default=0), -2048, 2048),
-                normalize(safe_get(npc, 'location', 'plane', default=0), 0, 3),
-                normalize(safe_get(npc, 'id', default=0), 0, 32767),
-                normalize(safe_get(npc, 'animation', default=0), 0, 32767),
-                normalize(safe_get(npc, 'health', default=0), 0, 100),
-                normalize(safe_get(npc, 'combatLevel', default=0), 0, 1000),
-                1.0 if safe_get(npc, 'interacting', default=False) else 0.0
-            ], dtype=np.float32)
-        
-        # Process inventory with bounds checking
-        for i, item in enumerate(state.get('inventory', [])[:28]):
-            if not isinstance(item, dict):
-                continue
-            observation['inventory'][i] = np.array([
-                normalize(safe_get(item, 'id', default=0), 0, 32767),
-                normalize(safe_get(item, 'quantity', default=0), 0, 2147483647),
-                0.0  # Reserved for future use
-            ], dtype=np.float32)
-        
-        # Process skills with bounds checking
-        for i, (_, skill) in enumerate(state.get('skills', {}).items()):
-            if i >= 23 or not isinstance(skill, dict):
-                continue
-            observation['skills'][i] = max(1, min(99, safe_get(skill, 'level', default=1)))
-        
-        # Process ground items with bounds checking
-        nearest_distance = float('inf')
-        for i, item in enumerate(state.get('groundItems', [])[:20]):
-            if not isinstance(item, dict):
-                continue
-            observation['ground_items'][i] = np.array([
-                normalize(safe_get(item, 'id', default=0), 0, 32767),
-                normalize(safe_get(item, 'quantity', default=0), 0, 2147483647),
-                normalize(safe_get(item, 'gePrice', default=0), 0, 2147483647),
-                normalize(safe_get(item, 'haPrice', default=0), 0, 2147483647),
-                normalize(safe_get(item, 'distance', default=0), 0, 100),
-                1.0 if safe_get(item, 'tradeable', default=False) else 0.0,
-                1.0 if safe_get(item, 'stackable', default=False) else 0.0,
-                1.0 if safe_get(item, 'isNote', default=False) else 0.0
-            ], dtype=np.float32)
-            
-            distance = safe_get(item, 'distance', default=float('inf'))
-            if distance < nearest_distance:
-                nearest_distance = distance
-        
-        observation['ground_items_nearest_distance'] = np.array([
-            normalize(nearest_distance, 0, 100)
-        ], dtype=np.float32)
-        
-        # Calculate total values with bounds checking
-        total_ge_value = sum(
-            safe_get(item, 'gePrice', default=0) * safe_get(item, 'quantity', default=0)
-            for item in state.get('groundItems', [])
-        )
-        total_ha_value = sum(
-            safe_get(item, 'haPrice', default=0) * safe_get(item, 'quantity', default=0)
-            for item in state.get('groundItems', [])
-        )
-        
-        observation['ground_items_total_ge_value'] = np.array([
-            normalize(total_ge_value, 0, 2147483647)
-        ], dtype=np.float32)
-        observation['ground_items_total_ha_value'] = np.array([
-            normalize(total_ha_value, 0, 2147483647)
-        ], dtype=np.float32)
-        
-        # Process exploration data with bounds checking
-        exploration_data = state.get('exploration', {})
-        current_chunk = safe_get(exploration_data, 'currentChunk', default={})
-        observation['current_chunk'] = np.array([
-            safe_get(current_chunk, 'x', default=0),
-            safe_get(current_chunk, 'y', default=0)
-        ], dtype=np.int32)
-        
-        observation['visited_chunks_count'] = np.array([
-            safe_get(exploration_data, 'visitedChunks', default=0)
-        ], dtype=np.int32)
-        
-        # Process nearby areas with bounds checking
-        for i, dx in enumerate(range(-1, 2)):
-            for j, dy in enumerate(range(-1, 2)):
-                area_key = f"{dx},{dy}"
-                area_data = safe_get(exploration_data, 'nearbyAreas', area_key, default={})
-                if area_data:
-                    idx = i * 3 + j
-                    observation['nearby_areas'][idx] = np.array([
-                        normalize(safe_get(area_data, 'score', default=0), 0, 1),
-                        normalize(safe_get(area_data, 'npcDensity', default=0), 0, 10),
-                        normalize(safe_get(area_data, 'resourceDensity', default=0), 0, 5),
-                        normalize(safe_get(area_data, 'averageNpcLevel', default=0), 0, 100),
-                        normalize(safe_get(area_data, 'averageItemValue', default=0), 0, 10000)
-                    ], dtype=np.float32)
-
-        # Calculate exploration score
-        observation['exploration_score'] = np.array([
-            normalize(len(self.visited_areas), 0, 100)
-        ], dtype=np.float32)
-        
-        return observation
-    
-    def _calculate_reward(self, state: Optional[StateDict]) -> float:
-        """Calculate the reward based on the current state"""
-        reward: float = 0.0
-        
-        if not state:
-            return reward
-            
-        # Combat rewards
-        if self.task == "combat":
-            # Experience rewards
-            current_combat_exp = int(state.get('totalCombatExp', 0))
-            if current_combat_exp > self.last_combat_exp:
-                exp_gain = current_combat_exp - self.last_combat_exp
-                exp_reward = float(exp_gain) * 0.01  # Scale the experience to a reasonable reward
-                reward += exp_reward
-                self.logger.info(f"Reward +{exp_reward:.1f} for gaining {exp_gain} combat experience")
-            self.last_combat_exp = current_combat_exp
-            
-            # Damage rewards
-            if state.get('lastHitsplat', 0) > 0:
-                damage_reward = float(state['lastHitsplat']) * 0.5
-                reward += damage_reward
-                self.logger.info(f"Reward +{damage_reward:.1f} for dealing {state['lastHitsplat']} damage")
-            
-            # Reward for killing NPCs
-            if state.get('npcKilled', False):
-                kill_reward = 10.0
-                reward += kill_reward
-                self.logger.info(f"Reward +{kill_reward:.1f} for killing NPC")
-            
-            # Penalty for taking damage
-            if state.get('playerLastHit', 0) > 0:
-                damage_penalty = float(-state['playerLastHit']) * 0.3
-                reward += damage_penalty
-                self.logger.info(f"Reward {damage_penalty:.1f} for taking {state['playerLastHit']} damage")
-            
-            # Small reward for being in combat
-            if state.get('inCombat', False):
-                combat_reward = 0.1
-                reward += combat_reward
-                self.logger.info(f"Reward +{combat_reward:.1f} for being in combat")
-                
-                # Encourage doing nothing while in combat
-                if state.get('lastAction') == Action.DO_NOTHING:
-                    patience_reward = 0.2
-                    reward += patience_reward
-                    self.logger.info(f"Reward +{patience_reward:.1f} for being patient in combat")
-            
-            # Penalty for low health
-            health_ratio = float(state.get('playerHealth', 0)) / float(state.get('playerMaxHealth', 1))
-            if health_ratio < 0.3:
-                health_penalty = -0.5
-                reward += health_penalty
-                self.logger.info(f"Reward {health_penalty:.1f} for low health ({health_ratio:.1%})")
-
-            # Penalty for path obstruction
-            if self.path_obstructed:
-                obstruction_penalty = -0.3
-                reward += obstruction_penalty
-                self.logger.info(f"Reward {obstruction_penalty:.1f} for path obstruction")
-
-            # Penalty for having interfaces open
-            if self.interfaces_open:
-                interface_penalty = -0.2
-                reward += interface_penalty
-                self.logger.info(f"Reward {interface_penalty:.1f} for having interfaces open")
-            
-            # Reward for valuable drops
-            if 'groundItems' in state:
-                for item in state['groundItems']:
-                    if item.get('distance', float('inf')) <= 1:  # Item is at our feet
-                        value = max(
-                            float(item.get('gePrice', 0)), 
-                            float(item.get('haPrice', 0))
-                        ) * float(item.get('quantity', 0))
-                        if value > 1000:  # Significant value threshold
-                            drop_reward = float(value) * 0.001  # 0.1% of item value as reward
-                            reward += drop_reward
-                            self.logger.info(f"Reward +{drop_reward:.1f} for valuable drop: {item['name']} ({value}gp)")
-            
-            # Log total reward
-            if reward != 0:
-                self.logger.info(f"Total reward this step: {reward:.2f}")
-        
-        # Add exploration rewards
-        exploration_data = state.get('exploration', {})
-        current_chunk = exploration_data.get('currentChunk', {})
-        chunk_coords = (
-            int(current_chunk.get('x', 0)), 
-            int(current_chunk.get('y', 0))
-        )
-        
-        # Reward for discovering new chunks
-        if chunk_coords not in self.visited_areas:
-            chunk_reward = 5.0
-            reward += chunk_reward
-            self.visited_areas.add(chunk_coords)
-            self.logger.info(f"Reward +{chunk_reward:.1f} for discovering new chunk")
-        
-        # Reward based on area quality
-        nearby_areas = exploration_data.get('nearbyAreas', {})
-        current_area = nearby_areas.get("0,0", {})
-        if current_area:
-            area_score = float(current_area.get('score', 0))
-            if area_score > 0.7:
-                quality_reward = 10.0
-                reward += quality_reward
-                self.logger.info(f"Reward +{quality_reward:.1f} for being in high-value area")
-            elif area_score > 0.4:
-                quality_reward = 5.0
-                reward += quality_reward
-                self.logger.info(f"Reward +{quality_reward:.1f} for being in decent area")
-        
-        return reward
-    
-    def _is_episode_done(self, state: Dict) -> bool:
-        """Determine if the episode should end"""
-        if state is None:
-            return False
-            
-        if self.task == "combat":
-            return (
-                state.get('playerHealth', 0) <= 0 or  # Player died
-                len(state.get('npcs', [])) == 0  # No NPCs nearby
-            )
-        return False
-    
-    def reset(self, seed=None, options=None) -> Tuple[Dict[str, np.ndarray], Dict[str, Any]]:
-        """Reset the environment to initial state"""
-        super().reset(seed=seed)
-        
-        self.current_state = None
-        self.path_obstructed = False
-        self.interfaces_open = False
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None) -> Tuple[Dict[str, np.ndarray], Dict[str, Any]]:
+        """Reset the environment and wait for an initial state."""
         self.last_combat_exp = 0
+        self.visited_areas.clear()
         
-        # Send reset command to RuneLite with proper format
-        self._move_and_click(
-            target_type=TargetType.COORDINATES,
-            action="Move",
-            x=0,
-            y=0
-        )
-        
-        # Wait for initial state
-        timeout = 0
-        while not self.current_state and timeout < 50:  # Wait up to 5 seconds
+        # Wait for a valid state
+        timeout = 10
+        start_time = time.time()
+        while not self.current_state and time.time() - start_time < timeout:
             time.sleep(0.1)
-            timeout += 1
             
         if not self.current_state:
-            self.logger.warning("No initial state received")
-            return self._get_empty_observation(), {}
+            self.logger.warning("No state received during reset")
             
         return self._state_to_observation(self.current_state), {}
-    
-    def render(self):
-        """Render is handled by RuneLite client"""
-        pass
-    
-    def close(self):
-        """Clean up resources"""
-        try:
-            # Signal WebSocket to close
-            self.ws_should_close.set()
-            
-            # Close WebSocket connection
-            if self.ws is not None:
-                if self.loop and not self.loop.is_closed():
-                    asyncio.run_coroutine_threadsafe(self.ws.close(), self.loop)
-            
-            # Wait for WebSocket thread to finish
-            if self.ws_task and self.ws_task.is_alive():
-                self.ws_task.join(timeout=5)
-            
-        except Exception as e:
-            self.logger.error("Error during cleanup: " + str(e))
-        finally:
-            # Reset state
-            self.ws = None
-            self.loop = None
-            self.ws_task = None
-            self.ws_connected.clear()
-            self.ws_should_close.clear()
-    
-    def _find_best_unexplored_area(self) -> Tuple[int, int]:
-        """Find the best unexplored area in the 3x3 grid around the player"""
-        if not self.current_state:
-            return 0, 0
 
-        exploration_data = self.current_state.get('exploration', {})
-        nearby_areas = exploration_data.get('nearbyAreas', {})
-        
-        best_score = -1
-        best_direction = (0, 0)
+    async def _execute_command(self, command: Dict) -> None:
+        """
+        Asynchronously send a command via the websocket with rate limiting and retry logic.
+        """
+        if self.ws is None:
+            self.logger.error("WebSocket not connected")
+            return
+
+        max_retries = 3
+        retry_count = 0
+        last_error = None
+
+        while retry_count < max_retries:
+            try:
+                # Validate command against schema
+                validate(instance=command, schema=self.command_schema)
+                
+                # Convert command to JSON for comparison
+                cmd_json = json.dumps(command)
+                
+                # Check if this is a duplicate command
+                current_time = time.time()
+                if (self.last_command == cmd_json and 
+                    current_time - self.command_time < self.action_cooldown):
+                    self.logger.debug(f"Skipping duplicate command: {cmd_json}")
+                    return
+                    
+                # Rate limit commands
+                if current_time - self.command_time < self.min_command_interval:
+                    wait_time = self.min_command_interval - (current_time - self.command_time)
+                    self.logger.debug(f"Rate limiting - waiting {wait_time:.2f}s")
+                    await asyncio.sleep(wait_time)
+                    
+                # Update command tracking
+                self.last_command = cmd_json
+                self.command_time = current_time
+                
+                # Send command
+                if not self.ws.open:
+                    raise Exception("WebSocket connection is closed")
+                    
+                await self.ws.send(cmd_json)
+                self.logger.debug(f"Sent command: {cmd_json}")
+                
+                # Wait longer after sending command
+                await asyncio.sleep(0.2)  # Increased from 0.1
+                return  # Success, exit retry loop
+                
+            except ValidationError as e:
+                self.logger.error(f"Invalid command schema: {e}")
+                return  # Don't retry schema validation errors
+            except Exception as e:
+                last_error = str(e)
+                retry_count += 1
+                if retry_count < max_retries:
+                    self.logger.warning(f"Command failed (attempt {retry_count}/{max_retries}): {e}")
+                    await asyncio.sleep(0.5 * retry_count)  # Exponential backoff
+                else:
+                    self.logger.error(f"Command failed after {max_retries} attempts. Last error: {e}")
+
+    def step(self, action: Action) -> Tuple[Dict[str, np.ndarray], float, bool, bool, Dict[str, Any]]:
+        """Execute one step in the environment."""
+        # Enforce action cooldown
         current_time = time.time()
+        if self.last_action_time and current_time - self.last_action_time < self.action_cooldown:
+            sleep_time = self.action_cooldown - (current_time - self.last_action_time)
+            self.logger.debug(f"Waiting {sleep_time:.1f}s for action cooldown")
+            time.sleep(sleep_time)
+        
+        # Convert and execute action
+        command = self._action_to_command(action)
+        if command is not None:
+            if self.loop and not self.loop.is_closed():
+                future = asyncio.run_coroutine_threadsafe(self._execute_command(command), self.loop)
+                try:
+                    # Increased timeout and added more detailed error handling
+                    future.result(timeout=2.0)  # Increased from 1.0
+                    self.last_action = action
+                    self.last_action_time = time.time()
+                except asyncio.TimeoutError:
+                    self.logger.error("Command execution timed out after 2 seconds")
+                except Exception as e:
+                    self.logger.error(f"Error executing command: {str(e)}", exc_info=True)
+            else:
+                self.logger.error("Event loop not available for sending command")
+        
+        # Wait for state update with exponential backoff
+        max_wait = 0.5
+        wait_time = 0.1
+        start_time = time.time()
+        
+        while not self.current_state and time.time() - start_time < max_wait:
+            time.sleep(wait_time)
+            wait_time = min(wait_time * 1.5, max_wait)
+        
+        # Get updated state and compute rewards
+        observation = self._state_to_observation(self.current_state)
+        reward = self._calculate_reward(self.current_state)
+        done = self._is_episode_done(self.current_state)
+        truncated = False
+        info = {
+            'action': action.name if isinstance(action, Action) else Action(action).name,
+            'state': self.current_state,
+            'command_sent': command is not None
+        }
+        return observation, reward, done, truncated, info
 
-        for dx in range(-1, 2):
-            for dy in range(-1, 2):
-                area_key = f"{dx},{dy}"
-                area_data = nearby_areas.get(area_key, {})
-                if area_data:
-                    area_score = area_data.get('score', 0)
-                    area_coord = (dx, dy)
-                    
-                    # Apply cooldown penalty
-                    last_visit = self.last_exploration_time.get(area_coord, 0)
-                    if current_time - last_visit < self.exploration_cooldown:
-                        area_score *= 0.5  # Reduce score for recently visited areas
-                    
-                    # Bonus for unexplored areas
-                    if area_coord not in self.visited_areas:
-                        area_score *= 1.5
-                    
-                    if area_score > best_score:
-                        best_score = area_score
-                        best_direction = area_coord
+    def render(self, mode: str = "human"):
+        """
+        Rendering is handled externally by the client.
+        """
+        pass
 
-        return best_direction
+    def close(self):
+        """Clean up resources."""
+        if self.ws is not None and self.loop and not self.loop.is_closed():
+            asyncio.run_coroutine_threadsafe(self.ws.close(), self.loop)
+        self.logger.info("Environment closed")
 
     def _get_empty_observation(self) -> Dict[str, np.ndarray]:
-        """Return an empty observation with zeros"""
+        """
+        Return an empty observation (zero-filled) for when no state is available.
+        """
         return {
+            'screenshot': np.zeros(self.screenshot_shape, dtype=np.uint8),
             'player_position': np.zeros(3, dtype=np.float32),
-            'player_combat_stats': np.ones(7, dtype=np.int32),  # Stats start at 1
-            'player_health': np.ones(1, dtype=np.int32),  # Health starts at 1
+            'player_combat_stats': np.ones(7, dtype=np.int32),
+            'player_health': np.ones(1, dtype=np.int32),
             'player_prayer': np.zeros(1, dtype=np.int32),
             'player_run_energy': np.zeros(1, dtype=np.float32),
-            'npcs': np.zeros((10, 8), dtype=np.float32),
-            'inventory': np.zeros((28, 3), dtype=np.float32),
-            'skills': np.ones(23, dtype=np.int32),  # Skills start at 1
-            'ground_items': np.zeros((20, 8), dtype=np.float32),
-            'ground_items_total_ge_value': np.zeros(1, dtype=np.float32),
-            'ground_items_total_ha_value': np.zeros(1, dtype=np.float32),
-            'ground_items_nearest_distance': np.zeros(1, dtype=np.float32),
+            'skills': np.ones(23, dtype=np.int32),
+            'npcs': np.zeros((10, 6), dtype=np.float32),
+            'in_combat': np.zeros(1, dtype=np.int32),
             'interfaces_open': np.zeros(1, dtype=np.int32),
             'path_obstructed': np.zeros(1, dtype=np.int32),
             'current_chunk': np.zeros(2, dtype=np.int32),
@@ -1052,75 +321,306 @@ class RuneScapeEnv(gym.Env):
             'exploration_score': np.zeros(1, dtype=np.float32)
         }
 
-    def step(self, action: Action) -> Tuple[Dict[str, np.ndarray], float, bool, bool, Dict[str, Any]]:
-        """Execute one time step within the environment"""
-        # Rate limit actions
-        self._rate_limit_action()
-        
-        # Execute the action
-        self._execute_action(action)
-        
-        # Get the new state
-        observation = self._get_observation()
-        
-        # Calculate reward
-        reward: float = 0.0
-        if self.current_state is not None:
-            reward = self._calculate_reward(self.current_state)
-        
-        # Check if episode is done
-        terminated = False  # We don't terminate episodes in this environment
-        truncated = False  # We don't truncate episodes
-        
-        # Get additional info
-        info = self._get_info()
-        
-        return observation, reward, terminated, truncated, info
-
-    def _get_observation(self) -> Dict[str, np.ndarray]:
-        """Get the current observation (game state)"""
-        if not self.current_state:
-            # Return zero-filled observation if no state
-            return self._get_empty_observation()
+    def _process_screenshot(self, screenshot_base64: str) -> np.ndarray:
+        """Convert base64 screenshot to numpy array and resize if needed."""
+        try:
+            # Decode base64 string to image
+            img_data = base64.b64decode(screenshot_base64)
+            img: ImageFile = cast(ImageFile, Image.open(BytesIO(img_data)))
             
-        return self._state_to_observation(self.current_state)
+            # Convert to RGB if needed
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+            
+            # Resize image to match expected dimensions
+            if img.size != (self.screenshot_shape[1], self.screenshot_shape[0]):
+                img = img.resize((self.screenshot_shape[1], self.screenshot_shape[0]), Image.Resampling.LANCZOS)
+            
+            # Convert to numpy array
+            return np.array(img, dtype=np.uint8)
+        except Exception as e:
+            self.logger.error(f"Error processing screenshot: {e}")
+            return np.zeros(self.screenshot_shape, dtype=np.uint8)
 
-    def _get_info(self) -> Dict[str, Any]:
-        """Get additional information about the environment"""
+    def _state_to_observation(self, state: Optional[Dict]) -> Dict[str, np.ndarray]:
+        """Convert the raw state from RuneLite into a gym observation."""
+        if not state:
+            return self._get_empty_observation()
+
+        # Process screenshot if available
+        screenshot = np.zeros(self.screenshot_shape, dtype=np.uint8)
+        if state.get('screenshot'):
+            screenshot = self._process_screenshot(state['screenshot'])
+
+        # Remove debug logging of raw state
+        # self.logger.info(f"Raw state: {json.dumps(state, indent=2)}")
+        # self.logger.info(f"Player health from state: {state.get('playerHealth', '?')}")
+        # self.logger.info(f"Player max health from state: {state.get('playerMaxHealth', '?')}")
+
+        def safe_get(d: Dict, *keys, default=0):
+            for key in keys:
+                if not isinstance(d, dict):
+                    return default
+                d = d.get(key, default)
+            return d if d is not None else default
+
+        def normalize(value, min_val, max_val):
+            try:
+                value = float(value)
+            except (TypeError, ValueError):
+                return 0.0
+            return np.clip((value - min_val) / (max_val - min_val), 0, 1)
+
+        player = state.get('player', {})
+        
+        # Extract player position
+        location = player.get('location', {})
+        position = np.array([
+            location.get('x', 0),
+            location.get('y', 0),
+            location.get('plane', 0)
+        ], dtype=np.float32)
+
+        # Extract combat stats
+        skills = player.get('skills', {})
+        combat_stats = np.array([
+            skills.get('ATTACK', {}).get('level', 1),
+            skills.get('STRENGTH', {}).get('level', 1),
+            skills.get('DEFENCE', {}).get('level', 1),
+            skills.get('RANGED', {}).get('level', 1),
+            skills.get('MAGIC', {}).get('level', 1),
+            skills.get('HITPOINTS', {}).get('level', 1),
+            skills.get('PRAYER', {}).get('level', 1)
+        ], dtype=np.int32)
+
+        # Extract health and prayer
+        health = player.get('health', {})
+        health_array = np.array([health.get('current', 1)], dtype=np.int32)
+        prayer = np.array([player.get('prayer', 0)], dtype=np.int32)
+        run_energy = np.array([player.get('runEnergy', 0.0)], dtype=np.float32)
+
+        # Process NPCs (take 10 nearest)
+        npcs = state.get('npcs', [])
+        npcs.sort(key=lambda x: x.get('distance', float('inf')))
+        npc_features = np.zeros((10, 6), dtype=np.float32)
+        for i, npc in enumerate(npcs[:10]):
+            npc_stats = [
+                npc.get('id', 0),
+                npc.get('level', 0),
+                npc.get('distance', 0),
+                npc.get('interacting', False),
+                npc.get('health', {}).get('current', 0) / max(npc.get('health', {}).get('maximum', 1), 1),
+                1.0  # NPC exists flag
+            ]
+            npc_features[i] = npc_stats
+
+        # Create skills array
+        skills_array = np.ones(23, dtype=np.int32)
+        for i, skill in enumerate(skills.values()):
+            if i < 23:
+                skills_array[i] = skill.get('level', 1)
+
         return {
-            'inventory': self.last_inventory if self.last_inventory is not None else [],
-            'npcs': self.last_npcs if self.last_npcs is not None else [],
-            'objects': self.last_objects if self.last_objects is not None else [],
-            'combat_exp': self.last_combat_exp if self.last_combat_exp is not None else 0
+            'screenshot': screenshot,
+            'player_position': position,
+            'player_combat_stats': combat_stats,
+            'player_health': health_array,
+            'player_prayer': prayer,
+            'player_run_energy': run_energy,
+            'skills': skills_array,
+            'npcs': npc_features,
+            'in_combat': np.array([player.get('inCombat', False)], dtype=np.int32),
+            'interfaces_open': np.array([1 if self.interfaces_open else 0], dtype=np.int32),
+            'path_obstructed': np.array([1 if self.path_obstructed else 0], dtype=np.int32),
+            'current_chunk': np.array([
+                safe_get(state, 'exploration', 'currentChunk', 'x', default=0),
+                safe_get(state, 'exploration', 'currentChunk', 'y', default=0)
+            ], dtype=np.int32),
+            'visited_chunks_count': np.array([
+                safe_get(state, 'exploration', 'visitedChunks', default=0)
+            ], dtype=np.int32),
+            'nearby_areas': np.zeros((9, 5), dtype=np.float32),
+            'exploration_score': np.array([0.0], dtype=np.float32)
         }
 
-    def _rate_limit_action(self) -> None:
-        """Rate limit actions to prevent overwhelming the client"""
-        current_time = time.time()
+    def _calculate_reward(self, state: Optional[Dict]) -> float:
+        """
+        Compute reward based on combat experience gains.
+        The primary goal is to maximize experience gain through combat.
+        """
+        if not state:
+            return 0.0
+
+        reward = 0.0
+        player = state.get('player', {})
+        skills = player.get('skills', {})
+
+        # Calculate total combat experience
+        combat_skills = ['ATTACK', 'STRENGTH', 'DEFENCE', 'RANGED', 'MAGIC', 'HITPOINTS']
+        current_combat_exp = sum(
+            skills.get(skill, {}).get('experience', 0)
+            for skill in combat_skills
+        )
         
-        # Remove old timestamps outside the window
-        self.action_timestamps = [t for t in self.action_timestamps if current_time - t <= self.action_window]
-        
-        # Calculate current action rate
-        if self.action_timestamps:
-            window_duration = current_time - min(self.action_timestamps)
-            current_rate = len(self.action_timestamps) / window_duration if window_duration > 0 else float('inf')
-            target_rate = self.MAX_ACTIONS_PER_MINUTE / 60.0
+        # Primary reward: Combat experience gains
+        if current_combat_exp > self.last_combat_exp:
+            exp_gain = current_combat_exp - self.last_combat_exp
+            reward += float(exp_gain) * 0.5
+            self.logger.info(f"Gained {exp_gain} combat exp")  # Simplified reward logging
+        self.last_combat_exp = current_combat_exp
+
+        # Health management during combat
+        if player.get('inCombat', False):
+            health = player.get('health', {})
+            health_ratio = health.get('current', 0) / max(health.get('maximum', 1), 1)
             
-            if current_rate > target_rate:
-                required_delay = (1.0 / target_rate) - (1.0 / current_rate)
-                if self.logger.isEnabledFor(logging.DEBUG):
-                    self.logger.debug(f"Rate limiting: current rate {current_rate:.2f}/s, target {target_rate:.2f}/s, waiting {required_delay:.2f}s")
-                time.sleep(required_delay)
-        
-        # Enforce minimum delay between actions
-        time_since_last_action = current_time - self.last_action_time
-        if time_since_last_action < self.MIN_ACTION_DELAY:
-            sleep_time = self.MIN_ACTION_DELAY - time_since_last_action
-            if self.logger.isEnabledFor(logging.DEBUG):
-                self.logger.debug(f"Enforcing minimum delay: waiting {sleep_time:.2f}s")
-            time.sleep(sleep_time)
-        
-        # Update timestamps
-        self.action_timestamps.append(current_time)
-        self.last_action_time = current_time 
+            if health_ratio < 0.3:
+                reward -= 5.0
+                self.logger.warning("Low health during combat")  # Changed from info to warning
+
+        # Penalty for being stuck
+        if self.consecutive_same_pos > 2 and not player.get('inCombat', False):
+            reward -= 0.5
+            self.logger.debug("Penalty for inactivity")  # Changed from info to debug
+
+        return reward
+
+    def _is_episode_done(self, state: Optional[Dict]) -> bool:
+        """Episode ends if player dies or no NPCs remain."""
+        if not state:
+            return False
+            
+        player = state.get('player', {})
+        health = player.get('health', {})
+        return health.get('current', 0) <= 0 or len(state.get('npcs', [])) == 0
+
+    def _action_to_command(self, action: Action) -> Optional[Dict]:
+        """Convert a high-level action into a command that follows the schema."""
+        if not self.current_state:
+            self.logger.warning("No current state available")
+            return None
+            
+        try:
+            if isinstance(action, (int, np.integer)):
+                action = Action(action)
+            
+            player = self.current_state.get('player', {})
+            location = player.get('location', {})
+            current_x = location.get('x', 0)
+            current_y = location.get('y', 0)
+            
+            if action == Action.ATTACK:
+                # Find nearest attackable NPC
+                npcs = self.current_state.get('npcs', [])
+                attackable_npcs = [
+                    npc for npc in npcs 
+                    if npc.get('combatLevel', 0) > 0
+                    and not npc.get('interacting', False)
+                    and npc.get('id') != self.last_target_id
+                ]
+                
+                if not attackable_npcs:
+                    attackable_npcs = [
+                        npc for npc in npcs 
+                        if npc.get('combatLevel', 0) > 0
+                        and npc.get('id') != self.last_target_id
+                    ]
+                
+                if attackable_npcs:
+                    nearest_npc = min(attackable_npcs, key=lambda x: x.get('distance', float('inf')))
+                    self.last_target_id = nearest_npc.get('id')
+                    
+                    return {
+                        "action": "moveAndClick",
+                        "data": {
+                            "targetType": "npc",
+                            "action": "Attack",
+                            "npcId": nearest_npc['id']
+                        }
+                    }
+                else:
+                    # Move randomly to find NPCs
+                    import random
+                    action = random.choice([
+                        Action.MOVE_FORWARD,
+                        Action.MOVE_BACKWARD,
+                        Action.MOVE_LEFT,
+                        Action.MOVE_RIGHT
+                    ])
+            
+            # Movement commands
+            move_distance = 2
+            if action == Action.MOVE_FORWARD:
+                return {
+                    "action": "moveAndClick",
+                    "data": {
+                        "targetType": "coordinates",
+                        "action": "Move",
+                        "x": current_x,
+                        "y": current_y + move_distance
+                    }
+                }
+            elif action == Action.MOVE_BACKWARD:
+                return {
+                    "action": "moveAndClick",
+                    "data": {
+                        "targetType": "coordinates",
+                        "action": "Move",
+                        "x": current_x,
+                        "y": current_y - move_distance
+                    }
+                }
+            elif action == Action.MOVE_LEFT:
+                return {
+                    "action": "moveAndClick",
+                    "data": {
+                        "targetType": "coordinates",
+                        "action": "Move",
+                        "x": current_x - move_distance,
+                        "y": current_y
+                    }
+                }
+            elif action == Action.MOVE_RIGHT:
+                return {
+                    "action": "moveAndClick",
+                    "data": {
+                        "targetType": "coordinates",
+                        "action": "Move",
+                        "x": current_x + move_distance,
+                        "y": current_y
+                    }
+                }
+            elif action == Action.ROTATE_LEFT:
+                return {
+                    "action": "camera_rotate",
+                    "data": {
+                        "right": False
+                    }
+                }
+            elif action == Action.ROTATE_RIGHT:
+                return {
+                    "action": "camera_rotate",
+                    "data": {
+                        "right": True
+                    }
+                }
+            elif action == Action.ZOOM_IN:
+                return {
+                    "action": "camera_zoom",
+                    "data": {
+                        "in": True
+                    }
+                }
+            elif action == Action.ZOOM_OUT:
+                return {
+                    "action": "camera_zoom",
+                    "data": {
+                        "in": False
+                    }
+                }
+            elif action == Action.DO_NOTHING:
+                return None
+                
+        except Exception as e:
+            self.logger.error(f"Error converting action to command: {e}")
+            return None

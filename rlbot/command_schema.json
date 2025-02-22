@@ -1,0 +1,90 @@
+{
+  "title": "RLBot Command Schema",
+  "description": "Schema for commands between Python agent and RuneLite plugin",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": ["moveAndClick", "camera_rotate", "camera_zoom"]
+    },
+    "data": {
+      "type": "object",
+      "oneOf": [
+        {
+          "title": "MoveAndClick",
+          "properties": {
+            "targetType": {
+              "type": "string",
+              "enum": ["npc", "coordinates", "ground_item", "object"]
+            },
+            "action": {
+              "type": "string",
+              "enum": ["Move", "Attack", "Take", "Use"]
+            },
+            "x": { "type": "integer" },
+            "y": { "type": "integer" },
+            "npcId": { "type": "integer" },
+            "name": { "type": "string" },
+            "objectId": { "type": "integer" }
+          },
+          "required": ["targetType", "action"],
+          "allOf": [
+            {
+              "if": {
+                "properties": { "targetType": { "const": "npc" } }
+              },
+              "then": {
+                "required": ["npcId"],
+                "properties": { "action": { "const": "Attack" } }
+              }
+            },
+            {
+              "if": {
+                "properties": { "targetType": { "const": "coordinates" } }
+              },
+              "then": {
+                "required": ["x", "y"],
+                "properties": { "action": { "const": "Move" } }
+              }
+            },
+            {
+              "if": {
+                "properties": { "targetType": { "const": "ground_item" } }
+              },
+              "then": {
+                "required": ["name", "x", "y"],
+                "properties": { "action": { "const": "Take" } }
+              }
+            },
+            {
+              "if": {
+                "properties": { "targetType": { "const": "object" } }
+              },
+              "then": {
+                "required": ["objectId", "x", "y"],
+                "properties": { "action": { "const": "Use" } }
+              }
+            }
+          ]
+        },
+        {
+          "title": "CameraRotate",
+          "properties": {
+            "right": { "type": "boolean" },
+            "degrees": { "type": "number", "default": 45.0 }
+          },
+          "required": ["right"]
+        },
+        {
+          "title": "CameraZoom",
+          "properties": {
+            "in": { "type": "boolean" },
+            "amount": { "type": "integer", "default": 100 }
+          },
+          "required": ["in"]
+        }
+      ]
+    }
+  },
+  "required": ["action", "data"]
+} 

@@ -10,6 +10,8 @@ from datetime import datetime
 import logging
 from rich.logging import RichHandler
 from rich.console import Console
+import json
+from jsonschema import validate
 
 # Set up rich console logging with markup enabled
 console = Console()
@@ -32,6 +34,13 @@ class VerboseCallback(BaseCallback):
         self.episode_rewards = []
         self.current_reward = 0
         
+        # Load schemas
+        schema_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(schema_dir, 'command_schema.json')) as f:
+            self.command_schema = json.load(f)
+        with open(os.path.join(schema_dir, 'state_schema.json')) as f:
+            self.state_schema = json.load(f)
+        
     def _on_step(self) -> bool:
         self.step_count += 1
         env = self.training_env.get_attr('env')[0]
@@ -42,6 +51,14 @@ class VerboseCallback(BaseCallback):
             action = actions[0]
             action_name = list(Action)[action].name
             logger.info(f"Taking action: {action_name}")
+            
+            # Validate command if one was generated
+            command = env._action_to_command(action)
+            if command:
+                try:
+                    validate(instance=command, schema=self.command_schema)
+                except Exception as e:
+                    logger.error(f"Invalid command generated: {e}")
         
         # Log reward received
         rewards = self.locals.get('rewards')
@@ -52,22 +69,34 @@ class VerboseCallback(BaseCallback):
         
         # Get current state information
         if hasattr(env, 'current_state') and env.current_state:
+            try:
+                # Validate state against schema
+                validate(instance=env.current_state, schema=self.state_schema)
+            except Exception as e:
+                logger.error(f"Invalid state received: {e}")
+                
             # Track experience gains
-            total_exp = sum(skill.get('experience', 0) for skill in env.current_state.get('skills', {}).values())
+            player = env.current_state.get('player', {})
+            skills = player.get('skills', {})
+            combat_skills = ['ATTACK', 'STRENGTH', 'DEFENCE', 'RANGED', 'MAGIC', 'HITPOINTS']
+            total_exp = sum(
+                skills.get(skill, {}).get('experience', 0)
+                for skill in combat_skills
+            )
+            
             if self.last_total_exp is not None:
                 exp_gain = total_exp - self.last_total_exp
                 if exp_gain > 0:
-                    logger.info(f"Experience gained: {exp_gain:,}")
+                    logger.info(f"Combat experience gained: {exp_gain:,}")
                     self.logger.record('train/exp_gain', exp_gain)
             self.last_total_exp = total_exp
             
-            # Log player state every 10 steps to avoid spam
+            # Log player state every 10 steps
             if self.step_count % 10 == 0:
-                health = env.current_state.get('playerHealth', 0)
-                max_health = env.current_state.get('playerMaxHealth', 1)
-                prayer = env.current_state.get('playerPrayer', 0)
-                run_energy = env.current_state.get('playerRunEnergy', 0)
-                logger.info(f"Player State - Health: {health}/{max_health} | Prayer: {prayer} | Run Energy: {run_energy:.1f}%")
+                health = player.get('health', {})
+                logger.info(f"Player State - Health: {health.get('current', 0)}/{health.get('maximum', 1)} | "
+                          f"In Combat: {player.get('inCombat', False)} | "
+                          f"Run Energy: {player.get('runEnergy', 0):.1f}%")
             
             # Log NPC interactions
             npcs = env.current_state.get('npcs', [])
@@ -75,7 +104,10 @@ class VerboseCallback(BaseCallback):
             if interacting_npcs:
                 logger.info(f"Interacting with {len(interacting_npcs)} NPCs")
                 for npc in interacting_npcs:
-                    logger.info(f"  - {npc.get('name', 'Unknown')} (Level {npc.get('combatLevel', '?')}) - Health: {npc.get('health', '?')}")
+                    health = npc.get('health', {})
+                    logger.info(f"  - {npc.get('name', 'Unknown')} "
+                              f"(Level {npc.get('combatLevel', '?')}) - "
+                              f"Health: {health.get('current', '?')}/{health.get('maximum', '?')}")
         
         # Track rewards
         infos = self.locals.get('infos')
@@ -133,7 +165,20 @@ def train_combat_bot(total_timesteps=1000000):
         norm_reward=True,
         clip_reward=10.0,
         gamma=0.99,
-        epsilon=1e-8
+        epsilon=1e-8,
+        norm_obs_keys=[
+            'player_position',
+            'player_combat_stats',
+            'player_health',
+            'player_prayer',
+            'player_run_energy',
+            'skills',
+            'npcs',
+            'current_chunk',
+            'visited_chunks_count',
+            'nearby_areas',
+            'exploration_score'
+        ]  # Only normalize continuous observation spaces
     )
     
     device = get_device()
@@ -168,7 +213,20 @@ def train_combat_bot(total_timesteps=1000000):
         norm_reward=True,
         clip_reward=10.0,
         gamma=0.99,
-        epsilon=1e-8
+        epsilon=1e-8,
+        norm_obs_keys=[
+            'player_position',
+            'player_combat_stats',
+            'player_health',
+            'player_prayer',
+            'player_run_energy',
+            'skills',
+            'npcs',
+            'current_chunk',
+            'visited_chunks_count',
+            'nearby_areas',
+            'exploration_score'
+        ]  # Only normalize continuous observation spaces
     )
     
     eval_callback = EvalCallback(
