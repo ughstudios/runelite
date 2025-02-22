@@ -10,10 +10,8 @@ from datetime import datetime
 import logging
 from rich.logging import RichHandler
 from rich.console import Console
-from rich.progress import Progress, TextColumn, BarColumn, TaskProgressColumn
-from rich import print as rprint
 
-# Set up rich console logging
+# Set up rich console logging with markup enabled
 console = Console()
 logging.basicConfig(
     level=logging.INFO,
@@ -36,17 +34,21 @@ class VerboseCallback(BaseCallback):
         
     def _on_step(self) -> bool:
         self.step_count += 1
-        env = self.training_env.envs[0].env
+        env = self.training_env.get_attr('env')[0]
         
         # Log the action taken
-        action = self.locals.get('actions')[0]
-        action_name = list(Action)[action].name
-        logger.info(f"[blue]Taking action: {action_name}[/blue]")
+        actions = self.locals.get('actions')
+        if actions:
+            action = actions[0]
+            action_name = list(Action)[action].name
+            logger.info(f"Taking action: {action_name}")
         
         # Log reward received
-        reward = self.locals.get('rewards')[0]
-        if reward != 0:
-            logger.info(f"[green]Received reward: {reward:.2f}[/green]")
+        rewards = self.locals.get('rewards')
+        if rewards:
+            reward = rewards[0]
+            if reward != 0:
+                logger.info(f"Received reward: {reward:.2f}")
         
         # Get current state information
         if hasattr(env, 'current_state') and env.current_state:
@@ -55,36 +57,37 @@ class VerboseCallback(BaseCallback):
             if self.last_total_exp is not None:
                 exp_gain = total_exp - self.last_total_exp
                 if exp_gain > 0:
-                    logger.info(f"[green]Experience gained: {exp_gain:,}[/green]")
+                    logger.info(f"Experience gained: {exp_gain:,}")
                     self.logger.record('train/exp_gain', exp_gain)
             self.last_total_exp = total_exp
             
-            # Log player state
-            health = env.current_state.get('playerHealth', 0)
-            max_health = env.current_state.get('playerMaxHealth', 1)
-            prayer = env.current_state.get('playerPrayer', 0)
-            run_energy = env.current_state.get('playerRunEnergy', 0)
-            
-            if self.step_count % 10 == 0:  # Log every 10 steps to avoid spam
+            # Log player state every 10 steps to avoid spam
+            if self.step_count % 10 == 0:
+                health = env.current_state.get('playerHealth', 0)
+                max_health = env.current_state.get('playerMaxHealth', 1)
+                prayer = env.current_state.get('playerPrayer', 0)
+                run_energy = env.current_state.get('playerRunEnergy', 0)
                 logger.info(f"Player State - Health: {health}/{max_health} | Prayer: {prayer} | Run Energy: {run_energy:.1f}%")
             
             # Log NPC interactions
             npcs = env.current_state.get('npcs', [])
             interacting_npcs = [npc for npc in npcs if npc.get('interacting')]
             if interacting_npcs:
-                logger.info(f"[yellow]Interacting with {len(interacting_npcs)} NPCs[/yellow]")
+                logger.info(f"Interacting with {len(interacting_npcs)} NPCs")
                 for npc in interacting_npcs:
                     logger.info(f"  - {npc.get('name', 'Unknown')} (Level {npc.get('combatLevel', '?')}) - Health: {npc.get('health', '?')}")
         
         # Track rewards
-        info = self.locals.get('infos')[0]
-        if info.get('terminal_observation') is not None:  # Episode ended
-            self.episode_count += 1
-            self.episode_rewards.append(self.current_reward)
-            avg_reward = np.mean(self.episode_rewards[-100:])
-            logger.info(f"[bold]Episode {self.episode_count} finished![/bold]")
-            logger.info(f"Reward: {self.current_reward:.2f} | Last 100 Average: {avg_reward:.2f}")
-            self.current_reward = 0
+        infos = self.locals.get('infos')
+        if infos:
+            info = infos[0]
+            if info.get('terminal_observation') is not None:  # Episode ended
+                self.episode_count += 1
+                self.episode_rewards.append(self.current_reward)
+                avg_reward = np.mean(self.episode_rewards[-100:])
+                logger.info(f"Episode {self.episode_count} finished!")
+                logger.info(f"Reward: {self.current_reward:.2f} | Last 100 Average: {avg_reward:.2f}")
+                self.current_reward = 0
         else:
             self.current_reward += reward
         
@@ -95,13 +98,13 @@ def get_device():
     if torch.cuda.is_available():
         device = "cuda"
         device_name = torch.cuda.get_device_name(0)
-        logger.info(f"[bold green]Using CUDA device: {device_name}[/bold green]")
+        logger.info(f"Using CUDA device: {device_name}")
     elif torch.backends.mps.is_available():
         device = "mps"
-        logger.info("[bold yellow]Using Apple MPS (Metal) device[/bold yellow]")
+        logger.info("Using Apple MPS (Metal) device")
     else:
         device = "cpu"
-        logger.info("[bold red]Using CPU device[/bold red]")
+        logger.info("Using CPU device")
     return torch.device(device)
 
 def make_env(task="combat"):
@@ -118,9 +121,8 @@ def train_combat_bot(total_timesteps=1000000):
     log_dir = f"./logs/combat_bot_{timestamp}"
     os.makedirs(f"{log_dir}/checkpoints", exist_ok=True)
     os.makedirs(f"{log_dir}/eval", exist_ok=True)
-    os.makedirs(f"{log_dir}/tensorboard", exist_ok=True)
     
-    logger.info(f"[bold]Starting training session: {timestamp}[/bold]")
+    logger.info(f"Starting training session: {timestamp}")
     logger.info(f"Log directory: {log_dir}")
     
     # Create and vectorize environment
@@ -147,7 +149,6 @@ def train_combat_bot(total_timesteps=1000000):
         n_epochs=10,
         gamma=0.99,
         verbose=1,
-        tensorboard_log=f"{log_dir}/tensorboard",
         device=device
     )
     
@@ -183,26 +184,25 @@ def train_combat_bot(total_timesteps=1000000):
     verbose_callback = VerboseCallback()
     
     try:
-        logger.info("[bold green]Starting model training...[/bold green]")
+        logger.info("Starting model training...")
         logger.info("Press Ctrl+C to stop training gracefully")
         
         model.learn(
             total_timesteps=total_timesteps,
             callback=[checkpoint_callback, eval_callback, verbose_callback],
-            tb_log_name="combat_training",
             progress_bar=True
         )
         
-        logger.info("[bold green]Training completed successfully![/bold green]")
+        logger.info("Training completed successfully!")
         model.save(f"{log_dir}/final_model")
         env.save(f"{log_dir}/vec_normalize.pkl")
         
     except KeyboardInterrupt:
-        logger.warning("[bold yellow]Training interrupted by user[/bold yellow]")
+        logger.warning("Training interrupted by user")
         model.save(f"{log_dir}/interrupted_model")
         env.save(f"{log_dir}/vec_normalize.pkl")
     except Exception as e:
-        logger.error(f"[bold red]Training failed with error: {str(e)}[/bold red]", exc_info=True)
+        logger.error(f"Training failed with error: {str(e)}", exc_info=True)
         raise
     finally:
         env.close()
@@ -252,10 +252,10 @@ def test_combat_bot(model_path, vec_normalize_path):
 
 if __name__ == "__main__":
     try:
-        console.print("[bold blue]RuneScape AI Training Bot[/bold blue]")
+        console.print("RuneScape AI Training Bot")
         console.print("Make sure RuneLite is running with the RLBot plugin enabled")
         console.print("Waiting for WebSocket connection...\n")
         train_combat_bot(total_timesteps=1000000)
     except Exception as e:
-        logger.error(f"[bold red]Program failed with error: {str(e)}[/bold red]", exc_info=True)
+        logger.error(f"Program failed with error: {str(e)}", exc_info=True)
         raise 
