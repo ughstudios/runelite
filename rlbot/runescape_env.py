@@ -34,6 +34,8 @@ class Action(Enum):
     CAMERA_ROTATE_RIGHT = auto()
     CAMERA_ZOOM_IN = auto()
     CAMERA_ZOOM_OUT = auto()
+    DO_NOTHING = auto()
+    CLOSE_INTERFACE = auto()  # New action for closing interfaces
 
 class RuneScapeEnv(gym.Env):
     """
@@ -54,7 +56,7 @@ class RuneScapeEnv(gym.Env):
         else:
             raise ValueError(f"Unknown task: {task}")
         
-        # Flattened observation space
+        # Enhanced observation space
         self.observation_space = spaces.Dict({
             'player_position': spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32),
             'player_combat_stats': spaces.Box(low=0, high=99, shape=(7,), dtype=np.int32),
@@ -64,7 +66,9 @@ class RuneScapeEnv(gym.Env):
             'npcs': spaces.Box(low=-np.inf, high=np.inf, shape=(10, 8), dtype=np.float32),
             'inventory': spaces.Box(low=0, high=np.inf, shape=(28, 3), dtype=np.float32),
             'skills': spaces.Box(low=1, high=99, shape=(23,), dtype=np.int32),
-            'ground_items': spaces.Box(low=-np.inf, high=np.inf, shape=(10, 4), dtype=np.float32)
+            'ground_items': spaces.Box(low=-np.inf, high=np.inf, shape=(10, 4), dtype=np.float32),
+            'interfaces_open': spaces.Box(low=0, high=1, shape=(1,), dtype=np.int32),
+            'path_obstructed': spaces.Box(low=0, high=1, shape=(1,), dtype=np.int32)
         })
         
         # WebSocket setup
@@ -74,6 +78,8 @@ class RuneScapeEnv(gym.Env):
         self.ws_task = None
         self.last_action_time = 0.0
         self.action_delay = 0.6  # Minimum delay between actions in seconds
+        self.path_obstructed = False
+        self.interfaces_open = False
         
         # Create event loop for async operations
         self.loop = asyncio.new_event_loop()
@@ -94,13 +100,24 @@ class RuneScapeEnv(gym.Env):
                     while True:
                         try:
                             message = await websocket.recv()
-                            state = json.loads(message)
+                            data = json.loads(message)
+                            
+                            # Handle status updates
+                            if isinstance(data, dict) and 'status' in data:
+                                if data['status'] == 'obstructed':
+                                    self.path_obstructed = True
+                                    logger.warning(f"[yellow]Path obstructed to {data.get('target', 'unknown location')}[/yellow]")
+                                continue
+
+                            # Handle regular state updates
+                            self.current_state = data
+                            
+                            # Update interface state
+                            self.interfaces_open = data.get('interfacesOpen', False)
                             
                             # Log significant state changes
-                            if self.current_state is None or self._has_significant_changes(state):
-                                self._log_state_changes(state)
-                            
-                            self.current_state = state
+                            if self._has_significant_changes(data):
+                                self._log_state_changes(data)
                             
                         except websockets.exceptions.ConnectionClosed:
                             logger.error("[red]WebSocket connection closed[/red]")
@@ -250,7 +267,9 @@ class RuneScapeEnv(gym.Env):
             'npcs': np.zeros((10, 8), dtype=np.float32),
             'inventory': np.zeros((28, 3), dtype=np.float32),
             'skills': np.ones(23, dtype=np.int32),
-            'ground_items': np.zeros((10, 4), dtype=np.float32)
+            'ground_items': np.zeros((10, 4), dtype=np.float32),
+            'interfaces_open': np.array([0], dtype=np.int32),
+            'path_obstructed': np.array([0], dtype=np.int32)
         }
     
     def _interpolate(self, start: float, end: float, progress: float) -> float:
@@ -261,6 +280,27 @@ class RuneScapeEnv(gym.Env):
         """Execute the given action in the game"""
         if not self.current_state:
             logger.warning("[yellow]No state available, skipping action[/yellow]")
+            return
+
+        if action == Action.DO_NOTHING:
+            # Just log that we're waiting
+            if self.current_state.get('inCombat', False):
+                logger.info("[blue]In combat, waiting...[/blue]")
+            else:
+                logger.info("[blue]Doing nothing...[/blue]")
+            return
+
+        if action == Action.CLOSE_INTERFACE:
+            if self.interfaces_open:
+                self.send_command({
+                    "action": "close_interface"
+                })
+                logger.info("[blue]Closing interface[/blue]")
+            return
+
+        # Check if interfaces are open before executing movement or combat actions
+        if self.interfaces_open and action not in [Action.DO_NOTHING, Action.CLOSE_INTERFACE]:
+            logger.info("[yellow]Interface open, should close first[/yellow]")
             return
 
         if action in [Action.MOVE_NORTH, Action.MOVE_SOUTH, Action.MOVE_EAST, Action.MOVE_WEST]:
@@ -385,28 +425,35 @@ class RuneScapeEnv(gym.Env):
     
     def _state_to_observation(self, state: Dict) -> Dict:
         """Convert RuneLite state to gym observation"""
-        # Player position
-        player_pos = np.array([
-            state.get('playerLocation', {}).get('x', 0),
-            state.get('playerLocation', {}).get('y', 0),
-            state.get('playerLocation', {}).get('plane', 0)
-        ], dtype=np.float32)
-        
-        # Combat stats
-        combat_stats = np.array([
-            state.get('skills', {}).get('ATTACK', {}).get('level', 1),
-            state.get('skills', {}).get('STRENGTH', {}).get('level', 1),
-            state.get('skills', {}).get('DEFENCE', {}).get('level', 1),
-            state.get('skills', {}).get('RANGED', {}).get('level', 1),
-            state.get('skills', {}).get('MAGIC', {}).get('level', 1),
-            state.get('skills', {}).get('HITPOINTS', {}).get('level', 1),
-            state.get('skills', {}).get('PRAYER', {}).get('level', 1)
-        ], dtype=np.int32)
+        observation = {
+            'player_position': np.array([
+                state.get('playerLocation', {}).get('x', 0),
+                state.get('playerLocation', {}).get('y', 0),
+                state.get('playerLocation', {}).get('plane', 0)
+            ], dtype=np.float32),
+            'player_combat_stats': np.array([
+                state.get('skills', {}).get('ATTACK', {}).get('level', 1),
+                state.get('skills', {}).get('STRENGTH', {}).get('level', 1),
+                state.get('skills', {}).get('DEFENCE', {}).get('level', 1),
+                state.get('skills', {}).get('RANGED', {}).get('level', 1),
+                state.get('skills', {}).get('MAGIC', {}).get('level', 1),
+                state.get('skills', {}).get('HITPOINTS', {}).get('level', 1),
+                state.get('skills', {}).get('PRAYER', {}).get('level', 1)
+            ], dtype=np.int32),
+            'player_health': np.array([state.get('playerHealth', 1)], dtype=np.int32),
+            'player_prayer': np.array([state.get('playerPrayer', 0)], dtype=np.int32),
+            'player_run_energy': np.array([state.get('playerRunEnergy', 100.0)], dtype=np.float32),
+            'npcs': np.zeros((10, 8), dtype=np.float32),
+            'inventory': np.zeros((28, 3), dtype=np.float32),
+            'skills': np.ones(23, dtype=np.int32),
+            'ground_items': np.zeros((10, 4), dtype=np.float32),
+            'interfaces_open': np.array([1 if self.interfaces_open else 0], dtype=np.int32),
+            'path_obstructed': np.array([1 if self.path_obstructed else 0], dtype=np.int32)
+        }
         
         # Process NPCs
-        npcs = np.zeros((10, 8), dtype=np.float32)
         for i, npc in enumerate(state.get('npcs', [])[:10]):
-            npcs[i] = [
+            observation['npcs'][i] = [
                 npc.get('localX', 0),
                 npc.get('localY', 0),
                 npc.get('location', {}).get('plane', 0),
@@ -418,31 +465,18 @@ class RuneScapeEnv(gym.Env):
             ]
         
         # Process inventory
-        inventory = np.zeros((28, 3), dtype=np.float32)
         for i, item in enumerate(state.get('inventory', [])[:28]):
-            inventory[i] = [
+            observation['inventory'][i] = [
                 item.get('id', 0),
                 item.get('quantity', 0),
                 0  # Reserved for future use
             ]
         
         # Process all skills
-        skills = np.ones(23, dtype=np.int32)
         for i, (_, skill) in enumerate(state.get('skills', {}).items()):
             if i < 23:
-                skills[i] = skill.get('level', 1)
+                observation['skills'][i] = skill.get('level', 1)
         
-        observation = {
-            'player_position': player_pos,
-            'player_combat_stats': combat_stats,
-            'player_health': np.array([state.get('playerHealth', 1)], dtype=np.int32),
-            'player_prayer': np.array([state.get('playerPrayer', 0)], dtype=np.int32),
-            'player_run_energy': np.array([state.get('playerRunEnergy', 100.0)], dtype=np.float32),
-            'npcs': npcs,
-            'inventory': inventory,
-            'skills': skills,
-            'ground_items': np.zeros((10, 4), dtype=np.float32)
-        }
         return observation
     
     def _calculate_reward(self, state: Dict) -> float:
@@ -451,6 +485,24 @@ class RuneScapeEnv(gym.Env):
         
         # Combat rewards
         if self.task == "combat":
+            # Track experience gains
+            if hasattr(self, 'last_combat_exp'):
+                current_combat_exp = sum(
+                    state.get('skills', {}).get(skill, {}).get('experience', 0)
+                    for skill in ['ATTACK', 'STRENGTH', 'DEFENCE', 'HITPOINTS']
+                )
+                exp_gain = current_combat_exp - self.last_combat_exp
+                if exp_gain > 0:
+                    exp_reward = exp_gain * 0.01  # Scale the experience to a reasonable reward
+                    reward += exp_reward
+                    logger.info(f"[green]Reward +{exp_reward:.1f} for gaining {exp_gain} combat experience[/green]")
+                self.last_combat_exp = current_combat_exp
+            else:
+                self.last_combat_exp = sum(
+                    state.get('skills', {}).get(skill, {}).get('experience', 0)
+                    for skill in ['ATTACK', 'STRENGTH', 'DEFENCE', 'HITPOINTS']
+                )
+            
             # Reward for dealing damage
             if state.get('lastHitsplat', 0) > 0:
                 damage_reward = state['lastHitsplat'] * 0.5
@@ -474,6 +526,12 @@ class RuneScapeEnv(gym.Env):
                 combat_reward = 0.1
                 reward += combat_reward
                 logger.info(f"[green]Reward +{combat_reward:.1f} for being in combat[/green]")
+                
+                # Encourage doing nothing while in combat
+                if state.get('lastAction') == Action.DO_NOTHING:
+                    patience_reward = 0.2
+                    reward += patience_reward
+                    logger.info(f"[green]Reward +{patience_reward:.1f} for being patient in combat[/green]")
             
             # Penalty for low health
             health_ratio = state.get('playerHealth', 0) / state.get('playerMaxHealth', 1)
@@ -481,6 +539,22 @@ class RuneScapeEnv(gym.Env):
                 health_penalty = -0.5
                 reward += health_penalty
                 logger.info(f"[red]Reward {health_penalty:.1f} for low health ({health_ratio:.1%})[/red]")
+
+            # Penalty for path obstruction
+            if self.path_obstructed:
+                obstruction_penalty = -0.3
+                reward += obstruction_penalty
+                logger.info(f"[red]Reward {obstruction_penalty:.1f} for path obstruction[/red]")
+
+            # Penalty for having interfaces open
+            if self.interfaces_open:
+                interface_penalty = -0.2
+                reward += interface_penalty
+                logger.info(f"[red]Reward {interface_penalty:.1f} for having interfaces open[/red]")
+            
+            # Log total reward
+            if reward != 0:
+                logger.info(f"[bold]Total reward this step: {reward:.2f}[/bold]")
         
         return reward
     
@@ -499,6 +573,8 @@ class RuneScapeEnv(gym.Env):
         
         self.current_state = None
         self.last_action_time = 0.0
+        self.path_obstructed = False
+        self.interfaces_open = False
         
         # Send reset command to RuneLite
         self.send_command({"action": "reset"})
