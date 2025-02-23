@@ -21,6 +21,7 @@ import os
 import random
 import threading
 import time
+import argparse
 from datetime import datetime
 from enum import Enum
 from io import BytesIO
@@ -95,10 +96,9 @@ class TrainingCallback(BaseCallback):
         if not getattr(self.model, "tensorboard_log", None):
             return
         tb_log_dir = str(self.model.tensorboard_log)
-        run_dir = os.path.join(tb_log_dir, "PPO_1")
-        log_dir = os.path.join(run_dir, "custom_metrics")
+        log_dir = os.path.join(tb_log_dir, "metrics")  # Simple, clean directory name
         os.makedirs(log_dir, exist_ok=True)
-        self.writer = SummaryWriter(log_dir)
+        self.writer = SummaryWriter(log_dir=log_dir, comment="")
 
     def _log_scalar(self, tag: str, value: float, step: int) -> None:
         """Helper method to log a scalar value to TensorBoard."""
@@ -132,45 +132,118 @@ class TrainingCallback(BaseCallback):
                 except Exception as e:
                     logger.error(f"Error updating action_counts: {e}")
 
-            # Log various metrics to TensorBoard less frequently
-            if self.writer and timestep % 500 == 0:  # Only log every 500 steps
-                # Log basic metrics
+            # Log to TensorBoard
+            if self.writer and timestep % 1 == 0:  # Log every step for basic metrics
+                # Basic metrics
                 self._log_scalar("rewards/step", reward, timestep)
                 self._log_scalar("rewards/cumulative", self.current_reward, timestep)
                 self._log_scalar("episode/steps", self.step_in_episode, timestep)
 
-                # Log action frequencies periodically
-                if timestep % 1000 == 0:  # Reduced frequency
-                    for action_name, freq in self.action_counts.items():
-                        self._log_scalar(f"actions/frequency/{action_name}", freq, timestep)
-
-                # Log game state metrics
+                # Get state information
                 state = info.get("state", {})
                 player = state.get("player", {})
+
+                # Player Stats (Detailed)
                 health = player.get("health", {})
                 current_health = int(health.get("current", 100))
                 max_health = int(health.get("maximum", 100))
                 health_ratio = current_health / max_health if max_health > 0 else 1.0
 
+                self._log_scalar("player/health_current", current_health, timestep)
+                self._log_scalar("player/health_max", max_health, timestep)
                 self._log_scalar("player/health_ratio", health_ratio, timestep)
+                self._log_scalar("player/prayer", player.get("prayer", 0), timestep)
+                self._log_scalar("player/run_energy", player.get("runEnergy", 0.0), timestep)
                 self._log_scalar("player/in_combat", int(player.get("inCombat", False)), timestep)
 
-                # Check for critical health
-                if current_health < max_health * 0.2:
-                    logger.error(f"Critical health: {current_health}/{max_health}")
+                # Combat Stats (Individual Skills)
+                skills = player.get("skills", {})
+                for skill_name, skill_data in skills.items():
+                    self._log_scalar(f"skills/{skill_name.lower()}/level", skill_data.get("level", 1), timestep)
+                    self._log_scalar(f"skills/{skill_name.lower()}/experience", skill_data.get("experience", 0), timestep)
 
-                # Log screenshots less frequently
+                # NPC Information (Detailed)
+                npcs = state.get("npcs", [])
+                if npcs:
+                    nearest_npc = min(npcs, key=lambda x: x.get("distance", float("inf")))
+                    self._log_scalar("npcs/nearest_distance", nearest_npc.get("distance", 0), timestep)
+                    self._log_scalar("npcs/nearest_level", nearest_npc.get("level", 0), timestep)
+                    self._log_scalar("npcs/count", len(npcs), timestep)
+                    self._log_scalar("npcs/nearest_health_ratio",
+                        nearest_npc.get("health", {}).get("current", 0) / max(nearest_npc.get("health", {}).get("maximum", 1), 1),
+                        timestep)
+
+                # Location and Movement
+                location = player.get("location", {})
+                self._log_scalar("location/x", location.get("x", 0), timestep)
+                self._log_scalar("location/y", location.get("y", 0), timestep)
+                self._log_scalar("location/plane", location.get("plane", 0), timestep)
+
+                # Action Information
+                if action is not None:
+                    if isinstance(action, (int, np.integer)):
+                        self._log_scalar("actions/last_action_scalar", int(action), timestep)
+                        if self.writer:
+                            self.writer.add_text("actions/last_action_text", Action(action).name, timestep)
+                    else:
+                        if self.writer:
+                            self.writer.add_text("actions/last_action", str(action), timestep)
+
+                # Action frequencies
+                if timestep % 1000 == 0:  # Log action frequencies periodically
+                    for action_name, freq in self.action_counts.items():
+                        self._log_scalar(f"actions/frequency/{action_name}", freq, timestep)
+
+                # Observation Space Logging
+                if isinstance(obs, dict):
+                    # Log continuous observations
+                    for key in ["player_position", "player_run_energy", "exploration_score"]:
+                        if key in obs:
+                            if isinstance(obs[key], np.ndarray):
+                                for i, val in enumerate(obs[key].flatten()):
+                                    self._log_scalar(f"observations/{key}_{i}", float(val), timestep)
+
+                    # Log discrete observations
+                    for key in ["in_combat", "interfaces_open", "path_obstructed"]:
+                        if key in obs:
+                            self._log_scalar(f"observations/{key}", int(obs[key][0]), timestep)
+
+                    # Log NPC observations
+                    if "npcs" in obs and isinstance(obs["npcs"], np.ndarray):
+                        for i in range(min(3, obs["npcs"].shape[0])):  # Log first 3 NPCs
+                            npc = obs["npcs"][i]
+                            self._log_scalar(f"observations/npc_{i}_distance", float(npc[2]), timestep)
+                            self._log_scalar(f"observations/npc_{i}_level", float(npc[1]), timestep)
+
+                # Screenshot logging
                 if timestep - self.last_screenshot_log >= self.screenshot_log_interval:
-                    screenshot_data = obs["screenshot"]
-                    screenshot_normalized = screenshot_data.astype(np.float32) / 255.0
-                    screenshot_chw = np.transpose(screenshot_normalized, (2, 0, 1))
-                    self.writer.add_image("images/screenshot", screenshot_chw, timestep, dataformats="CHW")
-                    self.writer.flush()
-                    self.last_screenshot_log = timestep
+                    try:
+                        if isinstance(obs, dict) and "screenshot" in obs:
+                            screenshot_data = obs["screenshot"]
+                            if isinstance(screenshot_data, np.ndarray):
+                                if screenshot_data.shape[-1] == 3:  # Ensure it's RGB
+                                    screenshot_normalized = screenshot_data.astype(np.float32) / 255.0
+                                    screenshot_chw = np.transpose(screenshot_normalized, (2, 0, 1))
+                                    if self.writer:
+                                        self.writer.add_image("images/screenshot", screenshot_chw, timestep, dataformats="CHW")
+                                        self.writer.flush()
+                                    self.last_screenshot_log = timestep
+                                else:
+                                    logger.error(f"Invalid screenshot channels: {screenshot_data.shape}")
+                            else:
+                                logger.error(f"Screenshot is not a numpy array: {type(screenshot_data)}")
+                        else:
+                            logger.error("No screenshot in observation")
+                    except Exception as e:
+                        logger.error(f"Error logging screenshot: {str(e)}", exc_info=True)
 
-                # Log experience gains
+                # Experience gains
                 if info.get("exp_gain", 0) > 0:
                     self._log_scalar("rewards/exp_gain", info["exp_gain"], timestep)
+
+                # Environment Status
+                self._log_scalar("environment/interfaces_open", int(info.get("interfaces_open", False)), timestep)
+                self._log_scalar("environment/path_obstructed", int(info.get("path_obstructed", False)), timestep)
 
             # Log significant events with reduced frequency
             if info.get("exp_gain", 0) > 5000:  # Increased threshold
@@ -252,13 +325,40 @@ def make_env(task: str = "combat") -> gym.Env:
     env = Monitor(env, filename=os.path.join(log_dir, "monitor.csv"), allow_early_resets=True)
     return env
 
-def train_combat_bot(total_timesteps: int = 1_000_000) -> None:
-    """Train the combat bot using PPO."""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    run_name = f"PPO_{timestamp}"
+def train_combat_bot(total_timesteps: int = 1_000_000, checkpoint: Optional[str] = None) -> None:
+    """Train the combat bot using PPO, automatically resuming from the latest checkpoint if available."""
     base_dir = os.path.join(os.path.dirname(__file__), "logs")
     tb_log_dir = os.path.join(base_dir, "tb_logs")
-    os.makedirs(tb_log_dir, exist_ok=True)
+    checkpoint_dir = os.path.join(tb_log_dir, "checkpoints")
+    metrics_dir = os.path.join(tb_log_dir, "metrics")
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    os.makedirs(metrics_dir, exist_ok=True)
+
+    resume_training = False
+    checkpoint_path = None
+
+    # If a checkpoint is provided via command-line and exists, use it
+    if checkpoint and os.path.exists(checkpoint):
+        checkpoint_path = checkpoint
+        try:
+            steps_completed = int(checkpoint.split("_")[-2])
+        except Exception:
+            steps_completed = 0
+        logger.warning(f"Resuming training from provided checkpoint: {checkpoint_path} ({steps_completed:,} steps completed)")
+        resume_training = True
+    else:
+        # Otherwise, search the checkpoint directory for any existing checkpoints
+        checkpoints = [f for f in os.listdir(checkpoint_dir) if f.endswith(".zip")]
+        if checkpoints:
+            # Sort by step number to get the latest checkpoint
+            latest_checkpoint = sorted(checkpoints, key=lambda x: int(x.split("_")[-2]))[-1]
+            checkpoint_path = os.path.join(checkpoint_dir, latest_checkpoint)
+            try:
+                steps_completed = int(latest_checkpoint.split("_")[-2])
+            except Exception:
+                steps_completed = 0
+            logger.warning(f"Found checkpoint: {latest_checkpoint} ({steps_completed:,} steps completed)")
+            resume_training = True
 
     # Create and wrap the environment with smaller buffer size
     vec_env = DummyVecEnv([make_env])
@@ -293,42 +393,65 @@ def train_combat_bot(total_timesteps: int = 1_000_000) -> None:
     )
     
     # Initialize PPO with optimized parameters
-    model = PPO(
-        policy="MultiInputPolicy",
-        env=env,
-        learning_rate=0.0003,
-        n_steps=512,  # Reduced from 2048
-        batch_size=32,  # Reduced from 64
-        n_epochs=5,    # Reduced from 10
-        gamma=0.99,
-        verbose=1,
-        device=device,
-        tensorboard_log=tb_log_dir,
-        policy_kwargs=policy_kwargs,
-        # Memory optimization parameters
-        ent_coef=0.01,
-        vf_coef=0.5,
-        max_grad_norm=0.5,
-        use_sde=False,  # Disable stochastic dynamics estimation
-        gae_lambda=0.95
-    )
+    if resume_training and checkpoint_path:
+        logger.warning("Resuming training from checkpoint...")
+        model = PPO.load(
+            checkpoint_path,
+            env=env,
+            device=device,
+            tensorboard_log=metrics_dir,  # Use metrics directory
+            learning_rate=0.0003,
+            n_steps=512,
+            batch_size=32,
+            n_epochs=5,
+            gamma=0.99,
+            verbose=1,
+            ent_coef=0.01,
+            vf_coef=0.5,
+            max_grad_norm=0.5,
+            use_sde=False,
+            gae_lambda=0.95
+        )
+        # Load environment normalization stats if they exist
+        env_stats_path = os.path.join(checkpoint_dir, "vec_normalize.pkl")
+        if os.path.exists(env_stats_path):
+            env = VecNormalize.load(env_stats_path, env)
+            env.training = True  # Continue updating running stats
+            logger.warning("Loaded environment normalization stats")
+    else:
+        model = PPO(
+            policy="MultiInputPolicy",
+            env=env,
+            learning_rate=0.0003,
+            n_steps=512,  # Reduced from 2048
+            batch_size=32,  # Reduced from 64
+            n_epochs=5,    # Reduced from 10
+            gamma=0.99,
+            verbose=1,
+            device=device,
+            tensorboard_log=metrics_dir,  # Use metrics directory
+            policy_kwargs=policy_kwargs,
+            ent_coef=0.01,
+            vf_coef=0.5,
+            max_grad_norm=0.5,
+            use_sde=False,  # Disable stochastic dynamics estimation
+            gae_lambda=0.95
+        )
 
     # Configure torch for memory optimization
     if device.type == "mps":
-        # Optimize for Apple Silicon
         torch.mps.empty_cache()
     elif device.type == "cuda":
-        # Optimize for NVIDIA GPU
         torch.cuda.empty_cache()
     
-    # Reduce checkpoint frequency to save memory
+    # Save checkpoints more frequently
     checkpoint_callback = CheckpointCallback(
-        save_freq=20000,  # Increased from 10000
-        save_path=os.path.join(tb_log_dir, "checkpoints"),
+        save_freq=1000,  # Save every 1000 steps
+        save_path=checkpoint_dir,
         name_prefix="combat_bot",
-        save_replay_buffer=False,  # Don't save replay buffer
+        save_replay_buffer=False,
         save_vecnormalize=True,
-        verbose=0
+        verbose=1
     )
 
     # Create and wrap evaluation environment
@@ -355,7 +478,6 @@ def train_combat_bot(total_timesteps: int = 1_000_000) -> None:
         ]
     )
 
-    # Reduce evaluation frequency
     eval_callback = EvalCallback(
         eval_env,
         best_model_save_path=os.path.join(tb_log_dir, "eval"),
@@ -384,13 +506,20 @@ def train_combat_bot(total_timesteps: int = 1_000_000) -> None:
         model.learn(
             total_timesteps=total_timesteps,
             callback=[checkpoint_callback, eval_callback, training_callback],
-            progress_bar=True
+            progress_bar=True,
+            reset_num_timesteps=False,  # Don't reset timesteps when resuming training
+            tb_log_name="training"  # Use fixed name for TensorBoard logs
         )
+    except KeyboardInterrupt:
+        logger.warning("\nTraining interrupted! Saving checkpoint...")
+        model.save(os.path.join(checkpoint_dir, f"combat_bot_interrupted_{model.num_timesteps}_steps"))
+        env.save(os.path.join(checkpoint_dir, "vec_normalize.pkl"))
+        logger.warning(f"Saved checkpoint at {model.num_timesteps:,} steps")
+        raise
     except Exception as e:
         logger.error(f"Training error: {e}")
         raise
     finally:
-        # Cleanup
         env.close()
         eval_env.close()
         if device.type == "mps":
@@ -428,7 +557,7 @@ def test_combat_bot(model_path: str, vec_normalize_path: str) -> None:
                 logger.info(f"Episode {len(episode_rewards) + 1} finished with reward: {total_reward}")
                 episode_rewards.append(total_reward)
                 total_reward = 0.0
-                obs = env.reset()[0]  # Get first element of the tuple
+                obs = env.reset()[0]
         logger.info("\nTest Results:")
         logger.info(f"Average reward: {np.mean(episode_rewards):.2f}")
         logger.info(f"Standard deviation: {np.std(episode_rewards):.2f}")
@@ -450,24 +579,21 @@ class RuneScapeEnv(gym.Env):
         super().__init__()
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.ERROR)  # Only show errors
-        # Set websockets loggers to reduce verbosity
         for ws_logger in ["websockets", "websockets.client", "websockets.protocol"]:
             logging.getLogger(ws_logger).setLevel(logging.ERROR)
 
-        # Action timing configuration
-        self.base_action_cooldown = 2.0  # Increased from 1.0 to 3.0 seconds between actions
-        self.action_cooldown_variance = 0.5  # Increased variance for more human-like timing
-        self.min_action_interval = 2.0  # Increased from 0.8 to 2.0 seconds minimum between actions
+        self.base_action_cooldown = 0.5
+        self.action_cooldown_variance = 0.2
+        self.min_action_interval = 0.3
         self.last_action_time = 0.0
         self.consecutive_fast_actions = 0
-        self.max_consecutive_fast_actions = 2  # Reduced from 3 to 2
-        self.actions_per_minute_limit = 100  # New: limit actions to 15 per minute (very human-like)
-        self.action_count_window = []  # New: track action timestamps for rate limiting
+        self.max_consecutive_fast_actions = 3
+        self.actions_per_minute_limit = 100
+        self.action_count_window: List[float] = []
 
         self.websocket_url = websocket_url
         self.task = task
-        # Reduce screenshot resolution to save memory
-        self.screenshot_shape = (120, 160, 3)  # 1/4 of original resolution
+        self.screenshot_shape = (120, 160, 3)
         schema_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(schema_dir, "command_schema.json")) as f:
             self.command_schema = json.load(f)
@@ -487,13 +613,11 @@ class RuneScapeEnv(gym.Env):
         self.min_command_interval = 0.1
         self.last_target_id = None
 
-        # Websocket setup
         self.ws: Optional[websockets.WebSocketClientProtocol] = None
         self.loop = asyncio.new_event_loop()
         self.ws_thread = threading.Thread(target=self._run_websocket_loop, daemon=True)
         self.ws_thread.start()
 
-        # Wait for initial connection
         timeout = 30
         start_time = time.time()
         while not self.ws and time.time() - start_time < timeout:
@@ -501,7 +625,6 @@ class RuneScapeEnv(gym.Env):
         if not self.ws:
             self.logger.error(f"Failed to connect within {timeout} seconds")
 
-        # Initialize observation and action spaces
         self.observation_space = gym.spaces.Dict({
             "screenshot": gym.spaces.Box(low=0, high=255, shape=self.screenshot_shape, dtype=np.uint8),
             "player_position": gym.spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32),
@@ -618,28 +741,21 @@ class RuneScapeEnv(gym.Env):
 
     def _get_next_action_delay(self) -> float:
         """Calculate delay for the next action with human-like variance."""
-        # Clean up old action timestamps
         current_time = time.time()
         self.action_count_window = [t for t in self.action_count_window if current_time - t < 60]
         
-        # Check if we're exceeding actions per minute
         if len(self.action_count_window) >= self.actions_per_minute_limit:
-            # Wait until we're under the limit
             oldest_action = self.action_count_window[0]
             extra_delay = max(0, 60 - (current_time - oldest_action))
             return max(self.base_action_cooldown + extra_delay, self.min_action_interval)
         
-        # Calculate normal delay with more human-like variance
         delay = self.base_action_cooldown + random.uniform(-self.action_cooldown_variance, self.action_cooldown_variance)
         
-        # Add extra random delay occasionally (20% chance)
         if random.random() < 0.2:
             delay += random.uniform(0.5, 1.5)
         
-        # Enforce minimum delay
         delay = max(delay, self.min_action_interval)
         
-        # Add longer delay after consecutive fast actions
         if self.consecutive_fast_actions >= self.max_consecutive_fast_actions:
             delay = max(delay, self.base_action_cooldown * 2)
             self.consecutive_fast_actions = 0
@@ -650,14 +766,12 @@ class RuneScapeEnv(gym.Env):
         """Execute one step in the environment."""
         current_time = time.time()
         
-        # Enforce action rate limiting
         next_delay = self._get_next_action_delay()
         if self.last_action_time:
             time_since_last_action = current_time - self.last_action_time
             if time_since_last_action < next_delay:
                 time.sleep(next_delay - time_since_last_action)
         
-        # Track this action's timestamp
         self.action_count_window.append(time.time())
         
         command = self._action_to_command(action)
@@ -666,9 +780,7 @@ class RuneScapeEnv(gym.Env):
             future.result(timeout=2.0)
             self.last_action = action
             self.last_action_time = time.time()
-            
-            # Add a small delay after command execution to allow for reward processing
-            time.sleep(0.5)
+            time.sleep(0.1)
         
         observation = self._state_to_observation(self.current_state)
         reward = self._calculate_reward(self.current_state)
@@ -720,7 +832,6 @@ class RuneScapeEnv(gym.Env):
                     img = img.convert("RGB")
                 if img.size != (self.screenshot_shape[1], self.screenshot_shape[0]):
                     img = img.resize((self.screenshot_shape[1], self.screenshot_shape[0]), Image.Resampling.LANCZOS)
-                # Convert to uint8 array and immediately delete the PIL Image
                 array = np.array(img, dtype=np.uint8)
                 del img
                 return array
@@ -748,7 +859,6 @@ class RuneScapeEnv(gym.Env):
                 self.logger.error(f"Invalid screenshot shape: {screenshot.shape if screenshot is not None else None}, expected {self.screenshot_shape}")
                 screenshot = np.zeros(self.screenshot_shape, dtype=np.uint8)
         
-        # Process state data
         player = state.get("player", {})
         location = player.get("location", {})
         position = np.array([location.get("x", 0), location.get("y", 0), location.get("plane", 0)], dtype=np.float32)
@@ -769,7 +879,6 @@ class RuneScapeEnv(gym.Env):
         prayer = np.array([player.get("prayer", 0)], dtype=np.int32)
         run_energy = np.array([player.get("runEnergy", 0.0)], dtype=np.float32)
 
-        # Process NPCs
         npcs = state.get("npcs", [])
         npcs.sort(key=lambda x: x.get("distance", float("inf")))
         npc_features = np.zeros((10, 6), dtype=np.float32)
@@ -919,7 +1028,20 @@ class RuneScapeEnv(gym.Env):
 # Main Execution
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="RuneScape AI Training Bot")
+    parser.add_argument("--checkpoint", type=str, help="Path to checkpoint file to resume from")
+    parser.add_argument("--timesteps", type=int, default=1_000_000, help="Total timesteps to train for")
+    args = parser.parse_args()
+
     console.print("RuneScape AI Training Bot")
     console.print("Make sure RuneLite is running with the RLBot plugin enabled")
+    
+    if args.checkpoint:
+        if os.path.exists(args.checkpoint):
+            console.print(f"[green]Resuming from checkpoint: {args.checkpoint}[/green]")
+        else:
+            console.print(f"[red]Checkpoint not found: {args.checkpoint}[/red]")
+            console.print("Starting fresh training run...")
+    
     console.print("Waiting for WebSocket connection...\n")
-    train_combat_bot(total_timesteps=1_000_000)
+    train_combat_bot(total_timesteps=args.timesteps, checkpoint=args.checkpoint)
