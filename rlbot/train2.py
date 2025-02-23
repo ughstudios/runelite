@@ -47,7 +47,10 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     level=logging.ERROR,  # Only show errors by default
-    handlers=[logging.StreamHandler()]
+    handlers=[
+        logging.FileHandler(os.path.join(os.path.dirname(__file__), "logs", "rlbot.log")),
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger(__name__)
 console = Console()
@@ -80,12 +83,12 @@ class TrainingCallback(BaseCallback):
         self.current_reward = 0.0
         self.rewards: List[float] = []
         self.last_log_time = time.time()
-        self.log_interval = 60  # seconds
+        self.log_interval = 300  # Increased from 60 to 300 seconds (5 minutes)
         self.writer: Optional[SummaryWriter] = None
         self.step_in_episode = 0
         self.action_counts = {action.name: 0 for action in Action}
         self.last_screenshot_log = 0
-        self.screenshot_log_interval = 500  # Log screenshots every 500 steps
+        self.screenshot_log_interval = 2000  # Increased from 500 to 2000 steps
 
     def _init_callback(self) -> None:
         """Initialize the TensorBoard writer."""
@@ -129,15 +132,15 @@ class TrainingCallback(BaseCallback):
                 except Exception as e:
                     logger.error(f"Error updating action_counts: {e}")
 
-            # Log various metrics to TensorBoard
-            if self.writer:
+            # Log various metrics to TensorBoard less frequently
+            if self.writer and timestep % 500 == 0:  # Only log every 500 steps
                 # Log basic metrics
                 self._log_scalar("rewards/step", reward, timestep)
                 self._log_scalar("rewards/cumulative", self.current_reward, timestep)
                 self._log_scalar("episode/steps", self.step_in_episode, timestep)
 
                 # Log action frequencies periodically
-                if timestep % 100 == 0:
+                if timestep % 1000 == 0:  # Reduced frequency
                     for action_name, freq in self.action_counts.items():
                         self._log_scalar(f"actions/frequency/{action_name}", freq, timestep)
 
@@ -152,37 +155,34 @@ class TrainingCallback(BaseCallback):
                 self._log_scalar("player/health_ratio", health_ratio, timestep)
                 self._log_scalar("player/in_combat", int(player.get("inCombat", False)), timestep)
 
+                # Check for critical health
+                if current_health < max_health * 0.2:
+                    logger.error(f"Critical health: {current_health}/{max_health}")
+
                 # Log screenshots less frequently
                 if timestep - self.last_screenshot_log >= self.screenshot_log_interval:
-                    try:
-                        if isinstance(obs, dict) and "screenshot" in obs:
-                            screenshot_data = obs["screenshot"]
-                            if isinstance(screenshot_data, np.ndarray) and screenshot_data.shape[-1] == 3:
-                                screenshot_normalized = screenshot_data.astype(np.float32) / 255.0
-                                screenshot_chw = np.transpose(screenshot_normalized, (2, 0, 1))
-                                self.writer.add_image("images/screenshot", screenshot_chw, timestep, dataformats="CHW")
-                                self.writer.flush()
-                                self.last_screenshot_log = timestep
-                    except Exception as e:
-                        logger.error(f"Error logging screenshot: {e}")
+                    screenshot_data = obs["screenshot"]
+                    screenshot_normalized = screenshot_data.astype(np.float32) / 255.0
+                    screenshot_chw = np.transpose(screenshot_normalized, (2, 0, 1))
+                    self.writer.add_image("images/screenshot", screenshot_chw, timestep, dataformats="CHW")
+                    self.writer.flush()
+                    self.last_screenshot_log = timestep
 
                 # Log experience gains
                 if info.get("exp_gain", 0) > 0:
                     self._log_scalar("rewards/exp_gain", info["exp_gain"], timestep)
 
-            # Log significant events
-            if info.get("exp_gain", 0) > 1000:
+            # Log significant events with reduced frequency
+            if info.get("exp_gain", 0) > 5000:  # Increased threshold
                 logger.warning(f"Major exp gain: {info['exp_gain']:,}")
-            if current_health < max_health * 0.2:
-                logger.error(f"Critical health: {current_health}/{max_health}")
 
             current_time = time.time()
             if current_time - self.last_log_time >= self.log_interval:
                 logger.warning(f"Status - Episode: {self.episode_count}, Current Reward: {self.current_reward:.2f}")
                 self.last_log_time = current_time
 
-            # Clear memory periodically
-            if timestep % 1000 == 0:
+            # Clear memory less frequently
+            if timestep % 5000 == 0:  # Increased from 1000
                 gc.collect()
                 if torch.cuda.is_available():
                     torch.cuda.empty_cache()
@@ -449,18 +449,20 @@ class RuneScapeEnv(gym.Env):
     def __init__(self, websocket_url: str = "ws://localhost:43595", task: str = "combat"):
         super().__init__()
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.WARNING)
+        self.logger.setLevel(logging.ERROR)  # Only show errors
         # Set websockets loggers to reduce verbosity
         for ws_logger in ["websockets", "websockets.client", "websockets.protocol"]:
             logging.getLogger(ws_logger).setLevel(logging.ERROR)
 
         # Action timing configuration
-        self.base_action_cooldown = 0.5
-        self.action_cooldown_variance = 0.1
-        self.min_action_interval = 0.4
+        self.base_action_cooldown = 2.0  # Increased from 1.0 to 3.0 seconds between actions
+        self.action_cooldown_variance = 0.5  # Increased variance for more human-like timing
+        self.min_action_interval = 2.0  # Increased from 0.8 to 2.0 seconds minimum between actions
         self.last_action_time = 0.0
         self.consecutive_fast_actions = 0
-        self.max_consecutive_fast_actions = 3
+        self.max_consecutive_fast_actions = 2  # Reduced from 3 to 2
+        self.actions_per_minute_limit = 100  # New: limit actions to 15 per minute (very human-like)
+        self.action_count_window = []  # New: track action timestamps for rate limiting
 
         self.websocket_url = websocket_url
         self.task = task
@@ -616,31 +618,58 @@ class RuneScapeEnv(gym.Env):
 
     def _get_next_action_delay(self) -> float:
         """Calculate delay for the next action with human-like variance."""
+        # Clean up old action timestamps
+        current_time = time.time()
+        self.action_count_window = [t for t in self.action_count_window if current_time - t < 60]
+        
+        # Check if we're exceeding actions per minute
+        if len(self.action_count_window) >= self.actions_per_minute_limit:
+            # Wait until we're under the limit
+            oldest_action = self.action_count_window[0]
+            extra_delay = max(0, 60 - (current_time - oldest_action))
+            return max(self.base_action_cooldown + extra_delay, self.min_action_interval)
+        
+        # Calculate normal delay with more human-like variance
         delay = self.base_action_cooldown + random.uniform(-self.action_cooldown_variance, self.action_cooldown_variance)
+        
+        # Add extra random delay occasionally (20% chance)
+        if random.random() < 0.2:
+            delay += random.uniform(0.5, 1.5)
+        
+        # Enforce minimum delay
         delay = max(delay, self.min_action_interval)
+        
+        # Add longer delay after consecutive fast actions
         if self.consecutive_fast_actions >= self.max_consecutive_fast_actions:
             delay = max(delay, self.base_action_cooldown * 2)
             self.consecutive_fast_actions = 0
+        
         return delay
 
     def step(self, action: Action) -> Tuple[Dict[str, np.ndarray], float, bool, bool, Dict[str, Any]]:
         """Execute one step in the environment."""
         current_time = time.time()
+        
+        # Enforce action rate limiting
+        next_delay = self._get_next_action_delay()
         if self.last_action_time:
             time_since_last_action = current_time - self.last_action_time
-            next_delay = self._get_next_action_delay()
-            if time_since_last_action < self.min_action_interval:
-                self.consecutive_fast_actions += 1
-            elif time_since_last_action > self.base_action_cooldown:
-                self.consecutive_fast_actions = max(0, self.consecutive_fast_actions - 1)
             if time_since_last_action < next_delay:
                 time.sleep(next_delay - time_since_last_action)
+        
+        # Track this action's timestamp
+        self.action_count_window.append(time.time())
+        
         command = self._action_to_command(action)
         if command is not None and self.loop and not self.loop.is_closed():
             future = asyncio.run_coroutine_threadsafe(self._execute_command(command), self.loop)
             future.result(timeout=2.0)
             self.last_action = action
             self.last_action_time = time.time()
+            
+            # Add a small delay after command execution to allow for reward processing
+            time.sleep(0.5)
+        
         observation = self._state_to_observation(self.current_state)
         reward = self._calculate_reward(self.current_state)
         done = self._is_episode_done(self.current_state)
