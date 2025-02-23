@@ -48,7 +48,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 # -----------------------------------------------------------------------------
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
-    level=logging.ERROR,  # Only show errors by default
+    level=logging.WARNING,  # Changed from ERROR to WARNING
     handlers=[
         logging.FileHandler(os.path.join(os.path.dirname(__file__), "logs", "rlbot.log")),
         logging.StreamHandler()
@@ -56,6 +56,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 console = Console()
+
+# Reduce websocket logging
+for ws_logger in ["websockets", "websockets.client", "websockets.protocol"]:
+    logging.getLogger(ws_logger).setLevel(logging.CRITICAL)  # Only show critical errors
 
 # -----------------------------------------------------------------------------
 # Action Definitions
@@ -85,12 +89,14 @@ class TrainingCallback(BaseCallback):
         self.current_reward = 0.0
         self.rewards: List[float] = []
         self.last_log_time = time.time()
-        self.log_interval = 300  # Increased from 60 to 300 seconds (5 minutes)
+        self.log_interval = 600  # Increased from 300 to 600 seconds (10 minutes)
         self.writer: Optional[SummaryWriter] = None
         self.step_in_episode = 0
         self.action_counts = {action.name: 0 for action in Action}
         self.last_screenshot_log = 0
-        self.screenshot_log_interval = 2000  # Increased from 500 to 2000 steps
+        self.screenshot_log_interval = 5000  # Increased from 2000 to 5000 steps
+        self.last_action_log = 0
+        self.action_log_interval = 2000  # Log actions every 2000 steps
 
     def _init_callback(self) -> None:
         """Initialize the TensorBoard writer."""
@@ -133,137 +139,29 @@ class TrainingCallback(BaseCallback):
                 except Exception as e:
                     logger.error(f"Error updating action_counts: {e}")
 
-            # Log to TensorBoard
-            if self.writer and timestep % 1 == 0:  # Log every step for basic metrics
-                # Basic metrics
+            # Log to TensorBoard less frequently
+            if self.writer and timestep % 10 == 0:  # Changed from 1 to 10
+                # Basic metrics only
                 self._log_scalar("rewards/step", reward, timestep)
                 self._log_scalar("rewards/cumulative", self.current_reward, timestep)
-                self._log_scalar("episode/steps", self.step_in_episode, timestep)
+                
+                # Log health only when it changes significantly
+                if info.get("health", {}).get("current", 0) / max(info.get("health", {}).get("maximum", 1), 1) < 0.5:
+                    self._log_scalar("player/health_ratio", info.get("health", {}).get("current", 0) / max(info.get("health", {}).get("maximum", 1), 1), timestep)
+                
+                # Log combat stats less frequently
+                if timestep % 100 == 0:
+                    self._log_scalar("player/in_combat", int(info.get("inCombat", False)), timestep)
+                    if info.get("npcs", []):
+                        self._log_scalar("npcs/count", len(info.get("npcs", [])), timestep)
 
-                # Get state information
-                state = info.get("state", {})
-                player = state.get("player", {})
-
-                # Player Stats (Detailed)
-                health = player.get("health", {})
-                current_health = int(health.get("current", 100))
-                max_health = int(health.get("maximum", 100))
-                health_ratio = current_health / max_health if max_health > 0 else 1.0
-
-                self._log_scalar("player/health_current", current_health, timestep)
-                self._log_scalar("player/health_max", max_health, timestep)
-                self._log_scalar("player/health_ratio", health_ratio, timestep)
-                self._log_scalar("player/prayer", player.get("prayer", 0), timestep)
-                self._log_scalar("player/run_energy", player.get("runEnergy", 0.0), timestep)
-                self._log_scalar("player/in_combat", int(player.get("inCombat", False)), timestep)
-
-                # Combat Stats (Individual Skills)
-                skills = player.get("skills", {})
-                for skill_name, skill_data in skills.items():
-                    self._log_scalar(f"skills/{skill_name.lower()}/level", skill_data.get("level", 1), timestep)
-                    self._log_scalar(f"skills/{skill_name.lower()}/experience", skill_data.get("experience", 0), timestep)
-
-                # NPC Information (Detailed)
-                npcs = state.get("npcs", [])
-                if npcs:
-                    nearest_npc = min(npcs, key=lambda x: x.get("distance", float("inf")))
-                    self._log_scalar("npcs/nearest_distance", nearest_npc.get("distance", 0), timestep)
-                    self._log_scalar("npcs/nearest_level", nearest_npc.get("level", 0), timestep)
-                    self._log_scalar("npcs/count", len(npcs), timestep)
-                    self._log_scalar("npcs/nearest_health_ratio",
-                        nearest_npc.get("health", {}).get("current", 0) / max(nearest_npc.get("health", {}).get("maximum", 1), 1),
-                        timestep)
-
-                # Location and Movement
-                location = player.get("location", {})
-                self._log_scalar("location/x", location.get("x", 0), timestep)
-                self._log_scalar("location/y", location.get("y", 0), timestep)
-                self._log_scalar("location/plane", location.get("plane", 0), timestep)
-
-                # Action Information
-                if action is not None:
-                    if isinstance(action, (int, np.integer)):
-                        self._log_scalar("actions/last_action_scalar", int(action), timestep)
-                        if self.writer:
-                            self.writer.add_text("actions/last_action_text", Action(action).name, timestep)
-                    else:
-                        if self.writer:
-                            self.writer.add_text("actions/last_action", str(action), timestep)
-
-                # Action frequencies
-                if timestep % 1000 == 0:  # Log action frequencies periodically
+                # Action frequencies logged less often
+                if timestep % self.action_log_interval == 0:
                     for action_name, freq in self.action_counts.items():
                         self._log_scalar(f"actions/frequency/{action_name}", freq, timestep)
 
-                # Observation Space Logging
-                if isinstance(obs, dict):
-                    # Log continuous observations
-                    for key in ["player_position", "player_run_energy", "exploration_score"]:
-                        if key in obs:
-                            if isinstance(obs[key], np.ndarray):
-                                for i, val in enumerate(obs[key].flatten()):
-                                    self._log_scalar(f"observations/{key}_{i}", float(val), timestep)
-
-                    # Log discrete observations
-                    for key in ["in_combat", "interfaces_open", "path_obstructed"]:
-                        if key in obs:
-                            self._log_scalar(f"observations/{key}", int(obs[key][0]), timestep)
-
-                    # Log NPC observations
-                    if "npcs" in obs and isinstance(obs["npcs"], np.ndarray):
-                        for i in range(min(3, obs["npcs"].shape[0])):  # Log first 3 NPCs
-                            npc = obs["npcs"][i]
-                            self._log_scalar(f"observations/npc_{i}_distance", float(npc[2]), timestep)
-                            self._log_scalar(f"observations/npc_{i}_level", float(npc[1]), timestep)
-
-                # Screenshot logging
-                if timestep - self.last_screenshot_log >= self.screenshot_log_interval:
-                    try:
-                        if isinstance(obs, dict) and "screenshot" in obs:
-                            screenshot_data = obs["screenshot"]
-                            if isinstance(screenshot_data, str) and screenshot_data:
-                                import base64, cv2  # Removed numpy import since it's global
-                                image_data = base64.b64decode(screenshot_data)
-                                nparr = np.frombuffer(image_data, np.uint8)
-                                img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                                if img is not None:
-                                    # Convert BGR to RGB (cv2.imread returns BGR)
-                                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                                    screenshot_normalized = img.astype(np.float32) / 255.0
-                                    screenshot_chw = np.transpose(screenshot_normalized, (2, 0, 1))
-                                    if self.writer:
-                                        self.writer.add_image("images/screenshot", screenshot_chw, timestep, dataformats="CHW")
-                                        self.writer.flush()
-                                    self.last_screenshot_log = timestep
-                                else:
-                                    logger.error("Failed to decode screenshot from base64 string")
-                            elif isinstance(screenshot_data, np.ndarray):
-                                if screenshot_data.shape[-1] == 3:  # Ensure it's RGB
-                                    screenshot_normalized = screenshot_data.astype(np.float32) / 255.0
-                                    screenshot_chw = np.transpose(screenshot_normalized, (2, 0, 1))
-                                    if self.writer:
-                                        self.writer.add_image("images/screenshot", screenshot_chw, timestep, dataformats="CHW")
-                                        self.writer.flush()
-                                    self.last_screenshot_log = timestep
-                                else:
-                                    logger.error(f"Screenshot is of unrecognized type: {type(screenshot_data)}")
-                            else:
-                                logger.error(f"Screenshot is of unrecognized type: {type(screenshot_data)}")
-                        else:
-                            logger.error("No screenshot in observation")
-                    except Exception as e:
-                        logger.error(f"Error logging screenshot: {str(e)}", exc_info=True)
-
-                # Experience gains
-                if info.get("exp_gain", 0) > 0:
-                    self._log_scalar("rewards/exp_gain", info["exp_gain"], timestep)
-
-                # Environment Status
-                self._log_scalar("environment/interfaces_open", int(info.get("interfaces_open", False)), timestep)
-                self._log_scalar("environment/path_obstructed", int(info.get("path_obstructed", False)), timestep)
-
-            # Log significant events with reduced frequency
-            if info.get("exp_gain", 0) > 5000:  # Increased threshold
+            # Log significant events with higher thresholds
+            if info.get("exp_gain", 0) > 10000:  # Increased from 5000
                 logger.warning(f"Major exp gain: {info['exp_gain']:,}")
 
             current_time = time.time()
@@ -280,7 +178,7 @@ class TrainingCallback(BaseCallback):
                     torch.mps.empty_cache()
 
         except Exception as e:
-            logger.error(f"Error in callback: {e}", exc_info=True)
+            logger.error(f"Error in callback: {e}")
         return True
 
     def _on_rollout_start(self) -> None:
@@ -595,19 +493,22 @@ class RuneScapeEnv(gym.Env):
     def __init__(self, websocket_url: str = "ws://localhost:43595", task: str = "combat"):
         super().__init__()
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.ERROR)  # Only show errors
+        self.logger.setLevel(logging.WARNING)  # Changed from ERROR to WARNING
         for ws_logger in ["websockets", "websockets.client", "websockets.protocol"]:
-            logging.getLogger(ws_logger).setLevel(logging.ERROR)
+            logging.getLogger(ws_logger).setLevel(logging.CRITICAL)  # Only show critical errors
 
-        self.base_action_cooldown = 0.5
-        self.action_cooldown_variance = 0.2
-        self.min_action_interval = 0.3
-        self.last_action_time = 0.0
-        self.consecutive_fast_actions = 0
-        self.max_consecutive_fast_actions = 3
+        # Action rate limiting parameters
         self.actions_per_minute_limit = 100
-        self.action_count_window: List[float] = []
-
+        self.min_action_interval = 60.0 / self.actions_per_minute_limit  # 0.6 seconds between actions
+        self.action_times: List[float] = []  # Track action timestamps
+        self.last_action_time = 0.0
+        
+        # Action sequence timing
+        self.action_sequence_count = 0
+        self.max_sequence_length = random.randint(2, 4)  # Shorter sequences
+        self.sequence_break_duration = (0.5, 1.0)  # Shorter breaks
+        
+        # Websocket and schema setup
         self.websocket_url = websocket_url
         self.task = task
         self.screenshot_shape = (120, 160, 3)
@@ -617,6 +518,7 @@ class RuneScapeEnv(gym.Env):
         with open(os.path.join(schema_dir, "state_schema.json")) as f:
             self.state_schema = json.load(f)
 
+        # State tracking
         self.current_state: Optional[Dict] = None
         self.last_combat_exp = 0
         self.visited_areas: Set[Tuple[int, int]] = set()
@@ -627,10 +529,10 @@ class RuneScapeEnv(gym.Env):
         self.consecutive_same_pos = 0
         self.last_command: Optional[str] = None
         self.command_time: float = 0.0
-        self.min_command_interval = 0.1
         self.last_target_id = None
-        self._last_health = None  # Reset health tracking
+        self._last_health = None
 
+        # Websocket setup
         self.ws: Optional[websockets.WebSocketClientProtocol] = None
         self.loop = asyncio.new_event_loop()
         self.ws_thread = threading.Thread(target=self._run_websocket_loop, daemon=True)
@@ -669,6 +571,9 @@ class RuneScapeEnv(gym.Env):
 
     async def _websocket_client(self) -> None:
         """Handle websocket connection and message processing."""
+        validation_error_count = 0
+        last_validation_error_time = 0
+        
         while True:
             try:
                 async with websockets.connect(self.websocket_url) as websocket:
@@ -688,12 +593,18 @@ class RuneScapeEnv(gym.Env):
                                 self.current_state = data
                                 self.interfaces_open = data.get("interfacesOpen", False)
                                 self.path_obstructed = data.get("pathObstructed", False)
+                                validation_error_count = 0  # Reset counter on success
                             except ValidationError as ve:
-                                self.logger.error(f"State validation error: {ve}")
+                                # Only log validation errors occasionally to reduce spam
+                                current_time = time.time()
+                                if current_time - last_validation_error_time > 60:  # One error log per minute max
+                                    self.logger.warning(f"State validation error: {ve.message}")
+                                    last_validation_error_time = current_time
+                                validation_error_count += 1
                         except websockets.ConnectionClosed:
                             break
-                        except json.JSONDecodeError as je:
-                            self.logger.error(f"JSON decode error: {je}")
+                        except json.JSONDecodeError:
+                            pass  # Ignore JSON decode errors
                         except Exception as e:
                             self.logger.error(f"Error processing message: {e}")
             except Exception as e:
@@ -702,18 +613,24 @@ class RuneScapeEnv(gym.Env):
                 await asyncio.sleep(5)
 
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None) -> Tuple[Dict[str, np.ndarray], Dict[str, Any]]:
-        """Reset internal state and wait for a valid game state."""
+        """Reset environment state and action tracking."""
+        # Reset action tracking
+        self.action_times.clear()
+        self.last_action_time = 0.0
+        self.action_sequence_count = 0
+        
+        # Reset other state variables
         self.last_combat_exp = 0
         self.visited_areas.clear()
         self.last_action = None
-        self.last_action_time = 0.0
         self.last_position = None
         self.consecutive_same_pos = 0
         self.last_command = None
         self.command_time = 0.0
         self.last_target_id = None
-        self._last_health = None  # Reset health tracking
+        self._last_health = None
 
+        # Wait for valid game state
         timeout = 10
         start_time = time.time()
         while not self.current_state and time.time() - start_time < timeout:
@@ -727,7 +644,7 @@ class RuneScapeEnv(gym.Env):
         current_health = health.get("current", 0)
         max_health = health.get("maximum", 1)
         self._last_health = current_health
-        self.logger.warning(f"Episode start - Health: {current_health}/{max_health}")
+        
         return self._state_to_observation(self.current_state), {
             "episode_start": True,
             "health": health,
@@ -735,85 +652,91 @@ class RuneScapeEnv(gym.Env):
             "in_combat": player.get("inCombat", False)
         }
 
+    def _get_next_action_delay(self) -> float:
+        """Calculate delay needed to maintain action rate limit."""
+        current_time = time.time()
+        
+        # Clean up old action times (older than 1 minute)
+        self.action_times = [t for t in self.action_times if current_time - t < 60.0]
+        
+        # If we've hit our limit, wait until the oldest action expires
+        if len(self.action_times) >= self.actions_per_minute_limit:
+            wait_time = self.action_times[0] + 60.0 - current_time
+            if wait_time > 0:
+                return wait_time
+        
+        # Calculate minimum time since last action
+        time_since_last = current_time - self.last_action_time if self.last_action_time else float('inf')
+        
+        # Ensure minimum interval between actions
+        if time_since_last < self.min_action_interval:
+            return self.min_action_interval - time_since_last
+        
+        # Add variation to prevent exact timing patterns
+        jitter = random.uniform(-0.1, 0.1)  # ±100ms variation
+        return max(0.0, self.min_action_interval + jitter)
+
     async def _execute_command(self, command: Dict) -> None:
-        """
-        Asynchronously send a command via websocket with rate limiting and retry logic.
-        """
+        """Execute command with rate limiting."""
         if self.ws is None:
             return
-        max_retries = 3
-        retry_count = 0
-        while retry_count < max_retries:
+
+        try:
+            # Validate command format
             validate(instance=command, schema=self.command_schema)
+            
+            # Send the command
             cmd_json = json.dumps(command)
-            current_time = time.time()
-            if self.last_command == cmd_json and (current_time - self.command_time) < self.base_action_cooldown:
-                return
-            wait_time = self.base_action_cooldown - (current_time - self.command_time)
-            if wait_time > 0:
-                time.sleep(wait_time)
-            self.last_command = cmd_json
-            self.command_time = current_time
             if not self.ws.open:
                 return
+                
             await self.ws.send(cmd_json)
-            return
-            retry_count += 1
-            if retry_count < max_retries:
-                await asyncio.sleep(0.5 * retry_count)
-
-    def _get_next_action_delay(self) -> float:
-        """Calculate delay for the next action with human-like variance."""
-        current_time = time.time()
-        self.action_count_window = [t for t in self.action_count_window if current_time - t < 60]
-        
-        if len(self.action_count_window) >= self.actions_per_minute_limit:
-            oldest_action = self.action_count_window[0]
-            extra_delay = max(0, 60 - (current_time - oldest_action))
-            return max(self.base_action_cooldown + extra_delay, self.min_action_interval)
-        
-        delay = self.base_action_cooldown + random.uniform(-self.action_cooldown_variance, self.action_cooldown_variance)
-        
-        if random.random() < 0.2:
-            delay += random.uniform(0.5, 1.5)
-        
-        delay = max(delay, self.min_action_interval)
-        
-        if self.consecutive_fast_actions >= self.max_consecutive_fast_actions:
-            delay = max(delay, self.base_action_cooldown * 2)
-            self.consecutive_fast_actions = 0
-        
-        return delay
+            
+            # Record command time
+            current_time = time.time()
+            self.action_times.append(current_time)
+            self.last_action_time = current_time
+            self.last_command = cmd_json
+            
+        except ValidationError as ve:
+            self.logger.error(f"Command validation error: {ve}")
+        except Exception as e:
+            self.logger.error(f"Error executing command: {e}")
 
     def step(self, action: Action) -> Tuple[Dict[str, np.ndarray], float, bool, bool, Dict[str, Any]]:
-        """Execute one step in the environment."""
-        current_time = time.time()
-        
+        """Execute one step in the environment with rate limiting."""
+        # Calculate and apply action delay
         next_delay = self._get_next_action_delay()
-        if self.last_action_time:
-            time_since_last_action = current_time - self.last_action_time
-            if time_since_last_action < next_delay:
-                time.sleep(next_delay - time_since_last_action)
+        if next_delay > 0:
+            time.sleep(next_delay)
         
-        self.action_count_window.append(time.time())
-        
+        # Execute the command
         command = self._action_to_command(action)
         if command is not None and self.loop and not self.loop.is_closed():
             future = asyncio.run_coroutine_threadsafe(self._execute_command(command), self.loop)
-            future.result(timeout=2.0)
-            self.last_action = action
-            self.last_action_time = time.time()
-            time.sleep(0.1)
+            try:
+                future.result(timeout=1.0)
+            except Exception as e:
+                self.logger.error(f"Error executing command: {e}")
         
+        # Get the next observation and calculate rewards
         observation = self._state_to_observation(self.current_state)
         reward = self._calculate_reward(self.current_state)
         done = self._is_episode_done(self.current_state)
+        
+        # Calculate current actions per minute
+        current_time = time.time()
+        actions_last_minute = len([t for t in self.action_times if current_time - t < 60.0])
+        
         info = {
             "action": action.name if isinstance(action, Action) else Action(action).name,
             "state": self.current_state,
             "command_sent": command is not None,
-            "action_delay": time.time() - self.last_action_time if self.last_action_time else 0
+            "action_delay": next_delay,
+            "actions_per_minute": actions_last_minute,
+            "sequence_position": self.action_sequence_count
         }
+        
         return observation, reward, done, False, info
 
     def render(self, mode: str = "human") -> None:
