@@ -17,6 +17,7 @@ import base64
 import gc
 import json
 import logging
+import math
 import os
 import random
 import threading
@@ -65,16 +66,21 @@ for ws_logger in ["websockets", "websockets.client", "websockets.protocol"]:
 # Action Definitions
 # -----------------------------------------------------------------------------
 class Action(Enum):
-    MOVE_FORWARD = 0
-    MOVE_BACKWARD = 1
-    MOVE_LEFT = 2
-    MOVE_RIGHT = 3
-    DO_NOTHING = 4
-    ROTATE_LEFT = 5
-    ROTATE_RIGHT = 6
-    ZOOM_IN = 7
-    ZOOM_OUT = 8
-    ATTACK = 9
+    MOVE_N = 0
+    MOVE_NE = 1
+    MOVE_E = 2
+    MOVE_SE = 3
+    MOVE_S = 4
+    MOVE_SW = 5
+    MOVE_W = 6
+    MOVE_NW = 7
+    DO_NOTHING = 8
+    ROTATE_LEFT = 9
+    ROTATE_RIGHT = 10
+    ZOOM_IN = 11
+    ZOOM_OUT = 12
+    ATTACK = 13
+    INTERACT = 14  # For doors, gates, etc.
 
 # -----------------------------------------------------------------------------
 # Training Callback for Custom TensorBoard Logging
@@ -309,31 +315,40 @@ def train_combat_bot(total_timesteps: int = 1_000_000, checkpoint: Optional[str]
     
     # Initialize PPO with optimized parameters
     if resume_training and checkpoint_path:
-        logger.warning("Resuming training from checkpoint...")
-        model = PPO.load(
-            checkpoint_path,
-            env=env,
-            device=device,
-            tensorboard_log=metrics_dir,  # Use metrics directory
-            learning_rate=0.0003,
-            n_steps=512,
-            batch_size=32,
-            n_epochs=5,
-            gamma=0.99,
-            verbose=1,
-            ent_coef=0.01,
-            vf_coef=0.5,
-            max_grad_norm=0.5,
-            use_sde=False,
-            gae_lambda=0.95
-        )
-        # Load environment normalization stats if they exist
-        env_stats_path = os.path.join(checkpoint_dir, "vec_normalize.pkl")
-        if os.path.exists(env_stats_path):
-            env = VecNormalize.load(env_stats_path, env)
-            env.training = True  # Continue updating running stats
-            logger.warning("Loaded environment normalization stats")
-    else:
+        logger.warning("Attempting to resume training from checkpoint...")
+        try:
+            model = PPO.load(
+                checkpoint_path,
+                env=env,
+                device=device,
+                tensorboard_log=metrics_dir,
+                learning_rate=0.0003,
+                n_steps=512,
+                batch_size=32,
+                n_epochs=5,
+                gamma=0.99,
+                verbose=1,
+                ent_coef=0.01,
+                vf_coef=0.5,
+                max_grad_norm=0.5,
+                use_sde=False,
+                gae_lambda=0.95
+            )
+            # Load environment normalization stats if they exist
+            env_stats_path = os.path.join(checkpoint_dir, "vec_normalize.pkl")
+            if os.path.exists(env_stats_path):
+                env = VecNormalize.load(env_stats_path, env)
+                env.training = True  # Continue updating running stats
+                logger.warning("Loaded environment normalization stats")
+        except ValueError as e:
+            if "Action spaces do not match" in str(e):
+                logger.warning("Action space has changed - starting fresh training run")
+                resume_training = False
+            else:
+                raise e
+    
+    if not resume_training:
+        logger.warning("Starting fresh training run")
         model = PPO(
             policy="MultiInputPolicy",
             env=env,
@@ -422,7 +437,7 @@ def train_combat_bot(total_timesteps: int = 1_000_000, checkpoint: Optional[str]
             total_timesteps=total_timesteps,
             callback=[checkpoint_callback, eval_callback, training_callback],
             progress_bar=True,
-            reset_num_timesteps=False,  # Don't reset timesteps when resuming training
+            reset_num_timesteps=not resume_training,  # Only reset if not resuming
             tb_log_name="training"  # Use fixed name for TensorBoard logs
         )
     except KeyboardInterrupt:
@@ -531,6 +546,7 @@ class RuneScapeEnv(gym.Env):
         self.command_time: float = 0.0
         self.last_target_id = None
         self._last_health = None
+        self._death_logged = False
 
         # Websocket setup
         self.ws: Optional[websockets.WebSocketClientProtocol] = None
@@ -628,7 +644,7 @@ class RuneScapeEnv(gym.Env):
         self.last_command = None
         self.command_time = 0.0
         self.last_target_id = None
-        self._last_health = None
+        self._death_logged = False
 
         # Wait for valid game state
         timeout = 10
@@ -705,6 +721,14 @@ class RuneScapeEnv(gym.Env):
 
     def step(self, action: Action) -> Tuple[Dict[str, np.ndarray], float, bool, bool, Dict[str, Any]]:
         """Execute one step in the environment with rate limiting."""
+        # Reset death logged flag if health is above 0
+        if self.current_state:
+            player = self.current_state.get("player", {})
+            health = player.get("health", {})
+            current_health = health.get("current", 0)
+            if current_health > 0:
+                self._death_logged = False
+
         # Calculate and apply action delay
         next_delay = self._get_next_action_delay()
         if next_delay > 0:
@@ -922,30 +946,118 @@ class RuneScapeEnv(gym.Env):
 
     def _calculate_reward(self, state: Optional[Dict]) -> float:
         """
-        Compute reward based on combat experience gains and health management.
+        Compute reward based on combat experience gains, health management, combat engagement,
+        movement efficiency, and resource management.
         """
         if not state:
             return 0.0
         reward = 0.0
         player = state.get("player", {})
         skills = player.get("skills", {})
+
+        # Combat experience rewards
         combat_skills = ["ATTACK", "STRENGTH", "DEFENCE", "RANGED", "MAGIC", "HITPOINTS"]
         current_combat_exp = sum(skills.get(skill, {}).get("experience", 0) for skill in combat_skills)
         if current_combat_exp > self.last_combat_exp:
             exp_gain = current_combat_exp - self.last_combat_exp
-            reward += exp_gain * 0.5
+            # Scale exp rewards logarithmically to prevent exploitation
+            reward += np.log1p(exp_gain) * 0.5
             if exp_gain > 1000:
                 self.logger.warning(f"Major exp gain: {exp_gain}")
         self.last_combat_exp = current_combat_exp
 
+        # Health management rewards/penalties
         health = player.get("health", {})
-        health_ratio = health.get("current", 0) / max(health.get("maximum", 1), 1)
-        if health_ratio < 0.2:
-            reward -= 5.0
-            self.logger.error("Critical health. Health is %i, health ratio is %f", health.get("current", 0), health_ratio)
-        if self.consecutive_same_pos > 2 and not player.get("inCombat", False):
-            reward -= 0.5
-        return reward
+        current_health = health.get("current", 0)
+        max_health = health.get("maximum", 1)
+        health_ratio = current_health / max_health
+
+        # Progressive health penalties
+        if health_ratio < 0.7:  # Start penalties earlier
+            # Exponential penalty scaling
+            penalty = np.exp((0.7 - health_ratio) * 3) - 1  # Exponential scaling
+            reward -= penalty
+            if health_ratio < 0.3:
+                self.logger.error("Critical health. Health is %i, health ratio is %f", current_health, health_ratio)
+        elif health_ratio > 0.8:  # Reward for maintaining high health
+            reward += 0.2
+
+        # Death penalty
+        if current_health <= 0:
+            reward -= 100.0  # Increased death penalty
+            self.logger.error("Death occurred!")
+
+        # Combat engagement rewards
+        in_combat = player.get("inCombat", False)
+        if in_combat:
+            reward += 0.3  # Base combat engagement reward
+            # Additional reward for fighting appropriate level NPCs
+            npcs = state.get("npcs", [])
+            if npcs:
+                player_combat_level = self._calculate_combat_level(skills)
+                for npc in npcs:
+                    if npc.get("interacting", False):  # If NPC is interacting with player
+                        npc_level = npc.get("combatLevel", 0)
+                        level_difference = abs(player_combat_level - npc_level)
+                        if level_difference <= 10:  # Reward fighting appropriate level NPCs
+                            reward += 0.2
+                        elif level_difference > 20:  # Penalize fighting very weak/strong NPCs
+                            reward -= 0.1
+
+        # Movement and position rewards/penalties
+        current_pos = (
+            player.get("location", {}).get("x", 0),
+            player.get("location", {}).get("y", 0)
+        )
+        
+        # Penalize staying still when not in combat
+        if self.consecutive_same_pos > 2 and not in_combat:
+            reward -= 0.5 * (self.consecutive_same_pos - 2)  # Progressive penalty
+        
+        # Update position tracking
+        if hasattr(self, 'last_position') and self.last_position:
+            if current_pos == self.last_position:
+                self.consecutive_same_pos += 1
+            else:
+                # Reward for exploring new areas
+                if current_pos not in getattr(self, 'visited_positions', set()):
+                    reward += 0.1
+                    self.visited_positions = getattr(self, 'visited_positions', set()) | {current_pos}
+                self.consecutive_same_pos = 0
+        self.last_position = current_pos
+
+        # Prayer and run energy management
+        prayer_points = player.get("prayer", 0)
+        run_energy = player.get("runEnergy", 0.0)
+        
+        # Penalize completely depleted resources
+        if prayer_points == 0:
+            reward -= 0.2
+        if run_energy < 5.0:
+            reward -= 0.2
+
+        # Clip final reward to prevent extreme values
+        return np.clip(reward, -100.0, 100.0)
+
+    def _calculate_combat_level(self, skills: Dict) -> int:
+        """Calculate the player's combat level based on their skills."""
+        attack = skills.get("ATTACK", {}).get("level", 1)
+        strength = skills.get("STRENGTH", {}).get("level", 1)
+        defence = skills.get("DEFENCE", {}).get("level", 1)
+        hitpoints = skills.get("HITPOINTS", {}).get("level", 10)
+        prayer = skills.get("PRAYER", {}).get("level", 1)
+        ranged = skills.get("RANGED", {}).get("level", 1)
+        magic = skills.get("MAGIC", {}).get("level", 1)
+
+        # Base combat calculation
+        base = 0.25 * (defence + hitpoints + math.floor(prayer/2))
+        melee = 0.325 * (attack + strength)
+        range_level = 0.325 * (math.floor(3 * ranged/2))
+        magic_level = 0.325 * (math.floor(3 * magic/2))
+        
+        # Use highest combat style
+        combat = base + max(melee, range_level, magic_level)
+        return math.floor(combat)
 
     def _is_episode_done(self, state: Optional[Dict]) -> bool:
         """Determine if the episode is finished."""
@@ -955,9 +1067,19 @@ class RuneScapeEnv(gym.Env):
         health = player.get("health", {})
         current_health = health.get("current", 0)
         
+        # Check for respawn
+        if hasattr(self, '_last_health') and self._last_health is not None:
+            if self._last_health <= 0 and current_health > 0:
+                self.logger.warning("Player has respawned!")
+                return True  # End episode on respawn
+        
+        # Update last health
+        self._last_health = current_health
+        
         # Log death events
-        if current_health <= 0:
+        if current_health <= 0 and not getattr(self, '_death_logged', False):
             self.logger.warning("Episode ending due to death (health: 0)")
+            self._death_logged = True
             
         # Log if no NPCs remain
         if len(state.get("npcs", [])) == 0:
@@ -971,23 +1093,43 @@ class RuneScapeEnv(gym.Env):
             return None
         if isinstance(action, (int, np.integer)):
             action = Action(int(action))
+        
         player = self.current_state.get("player", {})
         location = player.get("location", {})
         current_x = location.get("x", 0)
         current_y = location.get("y", 0)
+        
+        # Base movement distance varies by direction (diagonal vs cardinal)
+        base_distance = random.randint(3, 5)  # Randomize movement distance slightly
+        diagonal_distance = int(base_distance * 0.707)  # cos(45°) ≈ 0.707
+        
+        # Check for nearby objects that might need interaction
+        nearby_objects = self._get_nearby_interactable_objects()
+        
         if action == Action.ATTACK:
             npcs = self.current_state.get("npcs", [])
+            # Filter for attackable NPCs, considering level difference
+            player_combat_level = self._calculate_combat_level(player.get("skills", {}))
             attackable_npcs = [
                 npc for npc in npcs
-                if npc.get("combatLevel", 0) > 0 and not npc.get("interacting", False) and npc.get("id") != self.last_target_id
+                if (npc.get("combatLevel", 0) > 0 and 
+                    abs(npc.get("combatLevel", 0) - player_combat_level) < 20 and  # Level difference check
+                    not npc.get("interacting", False) and 
+                    npc.get("id") != self.last_target_id)
             ]
+            
             if not attackable_npcs:
+                # Fallback to any non-interacting NPCs if none match our criteria
                 attackable_npcs = [
                     npc for npc in npcs
-                    if npc.get("combatLevel", 0) > 0 and npc.get("id") != self.last_target_id
+                    if npc.get("combatLevel", 0) > 0 and not npc.get("interacting", False)
                 ]
+            
             if attackable_npcs:
-                nearest_npc = min(attackable_npcs, key=lambda x: x.get("distance", float("inf")))
+                # Sort by combination of distance and level appropriateness
+                nearest_npc = min(attackable_npcs, 
+                    key=lambda x: (x.get("distance", float("inf")) * 
+                                 (1 + abs(x.get("combatLevel", 0) - player_combat_level) / 20)))
                 self.last_target_id = nearest_npc.get("id")
                 return {
                     "action": "moveAndClick",
@@ -997,28 +1139,62 @@ class RuneScapeEnv(gym.Env):
                         "npcId": nearest_npc["id"]
                     }
                 }
-            else:
-                action = random.choice([Action.MOVE_FORWARD, Action.MOVE_BACKWARD, Action.MOVE_LEFT, Action.MOVE_RIGHT])
-        move_distance = 2
-        if action == Action.MOVE_FORWARD:
+        
+        elif action == Action.INTERACT and nearby_objects:
+            obj = nearby_objects[0]  # Take closest interactable object
             return {
                 "action": "moveAndClick",
-                "data": {"targetType": "coordinates", "action": "Move", "x": current_x, "y": current_y + move_distance}
+                "data": {
+                    "targetType": "object",
+                    "objectId": obj["id"],
+                    "action": obj["action"],
+                    "x": obj["x"],
+                    "y": obj["y"]
+                }
             }
-        elif action == Action.MOVE_BACKWARD:
+        
+        # Movement commands with collision avoidance
+        movement_commands = {
+            Action.MOVE_N:  (current_x, current_y + base_distance),
+            Action.MOVE_NE: (current_x + diagonal_distance, current_y + diagonal_distance),
+            Action.MOVE_E:  (current_x + base_distance, current_y),
+            Action.MOVE_SE: (current_x + diagonal_distance, current_y - diagonal_distance),
+            Action.MOVE_S:  (current_x, current_y - base_distance),
+            Action.MOVE_SW: (current_x - diagonal_distance, current_y - diagonal_distance),
+            Action.MOVE_W:  (current_x - base_distance, current_y),
+            Action.MOVE_NW: (current_x - diagonal_distance, current_y + diagonal_distance)
+        }
+        
+        if action in movement_commands:
+            target_x, target_y = movement_commands[action]
+            
+            # Check if path is blocked
+            if self._is_path_blocked(current_x, current_y, target_x, target_y):
+                # Try to find alternative path or interact with blocking object
+                alt_path = self._find_alternative_path(current_x, current_y, target_x, target_y)
+                if alt_path:
+                    target_x, target_y = alt_path
+                elif nearby_objects:  # If blocked by interactable object, interact with it
+                    obj = nearby_objects[0]
+                    return {
+                        "action": "moveAndClick",
+                        "data": {
+                            "targetType": "object",
+                            "objectId": obj["id"],
+                            "action": obj["action"],
+                            "x": obj["x"],
+                            "y": obj["y"]
+                        }
+                    }
+            
             return {
                 "action": "moveAndClick",
-                "data": {"targetType": "coordinates", "action": "Move", "x": current_x, "y": current_y - move_distance}
-            }
-        elif action == Action.MOVE_LEFT:
-            return {
-                "action": "moveAndClick",
-                "data": {"targetType": "coordinates", "action": "Move", "x": current_x - move_distance, "y": current_y}
-            }
-        elif action == Action.MOVE_RIGHT:
-            return {
-                "action": "moveAndClick",
-                "data": {"targetType": "coordinates", "action": "Move", "x": current_x + move_distance, "y": current_y}
+                "data": {
+                    "targetType": "coordinates",
+                    "action": "Move",
+                    "x": target_x,
+                    "y": target_y
+                }
             }
         elif action == Action.ROTATE_LEFT:
             return {"action": "camera_rotate", "data": {"right": False}}
@@ -1030,6 +1206,86 @@ class RuneScapeEnv(gym.Env):
             return {"action": "camera_zoom", "data": {"in": False}}
         elif action == Action.DO_NOTHING:
             return None
+        
+        return None
+
+    def _get_nearby_interactable_objects(self) -> List[Dict]:
+        """Find nearby objects that can be interacted with (doors, gates, etc.)."""
+        if not self.current_state:
+            return []
+        
+        objects = self.current_state.get("objects", [])
+        player_loc = self.current_state.get("player", {}).get("location", {})
+        current_x = player_loc.get("x", 0)
+        current_y = player_loc.get("y", 0)
+        
+        interactable_objects = []
+        for obj in objects:
+            obj_x = obj.get("location", {}).get("x", 0)
+            obj_y = obj.get("location", {}).get("y", 0)
+            
+            # Calculate distance to object
+            distance = math.sqrt((obj_x - current_x)**2 + (obj_y - current_y)**2)
+            
+            # Check if object has relevant actions
+            actions = obj.get("actions", [])
+            interactable_actions = ["Open", "Close", "Enter", "Exit", "Climb", "Use"]
+            
+            for action in actions:
+                if action in interactable_actions and distance < 10:  # Within reasonable distance
+                    interactable_objects.append({
+                        "id": obj.get("id"),
+                        "action": action,
+                        "x": obj_x,
+                        "y": obj_y,
+                        "distance": distance
+                    })
+        
+        # Sort by distance
+        interactable_objects.sort(key=lambda x: x["distance"])
+        return interactable_objects
+
+    def _is_path_blocked(self, start_x: int, start_y: int, target_x: int, target_y: int) -> bool:
+        """Check if there are obstacles between start and target positions."""
+        if not self.current_state:
+            return False
+        
+        # Get collision data from state
+        collision_data = self.current_state.get("collisionData", {})
+        if not collision_data:
+            return False
+        
+        # Simple line-of-sight check
+        dx = target_x - start_x
+        dy = target_y - start_y
+        distance = math.sqrt(dx*dx + dy*dy)
+        
+        if distance < 1:
+            return False
+        
+        # Check points along the path
+        steps = int(distance)
+        for i in range(steps):
+            check_x = int(start_x + (dx * i / steps))
+            check_y = int(start_y + (dy * i / steps))
+            
+            # Check if point is blocked in collision map
+            if collision_data.get(f"{check_x},{check_y}", False):
+                return True
+        
+        return False
+
+    def _find_alternative_path(self, start_x: int, start_y: int, target_x: int, target_y: int) -> Optional[Tuple[int, int]]:
+        """Find an alternative path when direct route is blocked."""
+        # Simple implementation: try slight variations of the target position
+        offsets = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+        
+        for dx, dy in offsets:
+            new_x = target_x + dx
+            new_y = target_y + dy
+            if not self._is_path_blocked(start_x, start_y, new_x, new_y):
+                return (new_x, new_y)
+        
         return None
 
 # -----------------------------------------------------------------------------
