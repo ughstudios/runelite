@@ -69,6 +69,14 @@ class RuneScapeEnv(gym.Env):
         logging.getLogger('websockets.client').setLevel(logging.ERROR)
         logging.getLogger('websockets.protocol').setLevel(logging.ERROR)
         
+        # Action timing configuration (all times in seconds)
+        self.base_action_cooldown = 0.5  # Base delay between actions (120 actions per minute)
+        self.action_cooldown_variance = 0.1  # Random variance in timing
+        self.min_action_interval = 0.4  # Minimum time between actions
+        self.last_action_time = 0.0
+        self.consecutive_fast_actions = 0
+        self.max_consecutive_fast_actions = 3  # Max number of quick actions before forcing a longer delay
+        
         self.websocket_url = websocket_url
         self.task = task
         self.screenshot_shape = (480, 640, 3)  # Default size, will be updated on first screenshot
@@ -87,8 +95,6 @@ class RuneScapeEnv(gym.Env):
         self.interfaces_open = False
         self.path_obstructed = False
         self.last_action: Optional[Action] = None
-        self.last_action_time: float = 0.0
-        self.action_cooldown = 0.2
         self.last_position = None
         self.consecutive_same_pos = 0
         self.last_command: Optional[str] = None
@@ -169,9 +175,24 @@ class RuneScapeEnv(gym.Env):
                 await asyncio.sleep(5)
                 
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None) -> Tuple[Dict[str, np.ndarray], Dict[str, Any]]:
-        """Reset the environment and wait for an initial state."""
+        """Handle episode boundaries in the live OSRS environment.
+        
+        Since OSRS is a live game, we can't actually reset the game state.
+        Instead, we:
+        1. Reset our internal episode tracking
+        2. Wait for a valid state from the game
+        3. Return the current game state as our new initial state
+        """
+        # Reset internal episode tracking
         self.last_combat_exp = 0
         self.visited_areas.clear()
+        self.last_action = None
+        self.last_action_time = 0.0
+        self.last_position = None
+        self.consecutive_same_pos = 0
+        self.last_command = None
+        self.command_time = 0.0
+        self.last_target_id = None
         
         # Wait for a valid state
         timeout = 10
@@ -180,9 +201,20 @@ class RuneScapeEnv(gym.Env):
             time.sleep(0.1)
             
         if not self.current_state:
-            self.logger.warning("No state received during reset")
+            self.logger.error("No state received during reset - OSRS connection may be down")
+            return self._get_empty_observation(), {}
             
-        return self._state_to_observation(self.current_state), {}
+        # Log the current state for debugging
+        player = self.current_state.get('player', {})
+        health = player.get('health', {})
+        self.logger.warning(f"Episode start - Health: {health.get('current', 0)}/{health.get('maximum', 1)}")
+        
+        return self._state_to_observation(self.current_state), {
+            'episode_start': True,
+            'health': health,
+            'location': player.get('location', {}),
+            'in_combat': player.get('inCombat', False)
+        }
 
     async def _execute_command(self, command: Dict) -> None:
         """
@@ -204,11 +236,11 @@ class RuneScapeEnv(gym.Env):
             # Check if this is a duplicate command
             current_time = time.time()
             if (self.last_command == cmd_json and 
-                current_time - self.command_time < self.action_cooldown):
+                current_time - self.command_time < self.base_action_cooldown):
                 return
                 
             # Rate limit commands
-            wait_time = self.action_cooldown - (current_time - self.command_time)
+            wait_time = self.base_action_cooldown - (current_time - self.command_time)
             if wait_time > 0:
                 time.sleep(wait_time)
                 
@@ -227,19 +259,45 @@ class RuneScapeEnv(gym.Env):
             if retry_count < max_retries:
                 await asyncio.sleep(0.5 * retry_count)  # Exponential backoff
 
+    def _get_next_action_delay(self) -> float:
+        """Calculate the delay for the next action with human-like variance."""
+        import random
+        
+        # Add random variance to base cooldown
+        delay = self.base_action_cooldown + random.uniform(-self.action_cooldown_variance, self.action_cooldown_variance)
+        
+        # Ensure minimum interval
+        delay = max(delay, self.min_action_interval)
+        
+        # If we've done several quick actions, force a longer delay
+        if self.consecutive_fast_actions >= self.max_consecutive_fast_actions:
+            delay = max(delay, self.base_action_cooldown * 2)
+            self.consecutive_fast_actions = 0
+        
+        return delay
+
     def step(self, action: Action) -> Tuple[Dict[str, np.ndarray], float, bool, bool, Dict[str, Any]]:
         """Execute one step in the environment."""
-        # Enforce action cooldown
+        # Calculate and enforce action delay
         current_time = time.time()
-        if self.last_action_time and current_time - self.last_action_time < self.action_cooldown:
-            sleep_time = self.action_cooldown - (current_time - self.last_action_time)
-            time.sleep(sleep_time)
+        if self.last_action_time:
+            time_since_last_action = current_time - self.last_action_time
+            next_delay = self._get_next_action_delay()
+            
+            if time_since_last_action < self.min_action_interval:
+                self.consecutive_fast_actions += 1
+            elif time_since_last_action > self.base_action_cooldown:
+                self.consecutive_fast_actions = max(0, self.consecutive_fast_actions - 1)
+            
+            if time_since_last_action < next_delay:
+                sleep_time = next_delay - time_since_last_action
+                time.sleep(sleep_time)
         
         # Convert and execute action
         command = self._action_to_command(action)
         if command is not None and self.loop and not self.loop.is_closed():
             future = asyncio.run_coroutine_threadsafe(self._execute_command(command), self.loop)
-            future.result(timeout=2.0)  # Increased from 1.0
+            future.result(timeout=2.0)
             self.last_action = action
             self.last_action_time = time.time()
         
@@ -260,7 +318,8 @@ class RuneScapeEnv(gym.Env):
         info = {
             'action': action.name if isinstance(action, Action) else Action(action).name,
             'state': self.current_state,
-            'command_sent': command is not None
+            'command_sent': command is not None,
+            'action_delay': time.time() - self.last_action_time if self.last_action_time else 0
         }
         return observation, reward, done, truncated, info
 
