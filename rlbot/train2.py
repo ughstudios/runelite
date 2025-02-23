@@ -30,6 +30,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import nest_asyncio
 import numpy as np
 import torch
+import cv2
 from PIL import Image
 from PIL.Image import Image as PILImage
 import websockets
@@ -220,7 +221,23 @@ class TrainingCallback(BaseCallback):
                     try:
                         if isinstance(obs, dict) and "screenshot" in obs:
                             screenshot_data = obs["screenshot"]
-                            if isinstance(screenshot_data, np.ndarray):
+                            if isinstance(screenshot_data, str) and screenshot_data:
+                                import base64, cv2  # Removed numpy import since it's global
+                                image_data = base64.b64decode(screenshot_data)
+                                nparr = np.frombuffer(image_data, np.uint8)
+                                img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                                if img is not None:
+                                    # Convert BGR to RGB (cv2.imread returns BGR)
+                                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                                    screenshot_normalized = img.astype(np.float32) / 255.0
+                                    screenshot_chw = np.transpose(screenshot_normalized, (2, 0, 1))
+                                    if self.writer:
+                                        self.writer.add_image("images/screenshot", screenshot_chw, timestep, dataformats="CHW")
+                                        self.writer.flush()
+                                    self.last_screenshot_log = timestep
+                                else:
+                                    logger.error("Failed to decode screenshot from base64 string")
+                            elif isinstance(screenshot_data, np.ndarray):
                                 if screenshot_data.shape[-1] == 3:  # Ensure it's RGB
                                     screenshot_normalized = screenshot_data.astype(np.float32) / 255.0
                                     screenshot_chw = np.transpose(screenshot_normalized, (2, 0, 1))
@@ -229,9 +246,9 @@ class TrainingCallback(BaseCallback):
                                         self.writer.flush()
                                     self.last_screenshot_log = timestep
                                 else:
-                                    logger.error(f"Invalid screenshot channels: {screenshot_data.shape}")
+                                    logger.error(f"Screenshot is of unrecognized type: {type(screenshot_data)}")
                             else:
-                                logger.error(f"Screenshot is not a numpy array: {type(screenshot_data)}")
+                                logger.error(f"Screenshot is of unrecognized type: {type(screenshot_data)}")
                         else:
                             logger.error("No screenshot in observation")
                     except Exception as e:
@@ -612,6 +629,7 @@ class RuneScapeEnv(gym.Env):
         self.command_time: float = 0.0
         self.min_command_interval = 0.1
         self.last_target_id = None
+        self._last_health = None  # Reset health tracking
 
         self.ws: Optional[websockets.WebSocketClientProtocol] = None
         self.loop = asyncio.new_event_loop()
@@ -694,6 +712,7 @@ class RuneScapeEnv(gym.Env):
         self.last_command = None
         self.command_time = 0.0
         self.last_target_id = None
+        self._last_health = None  # Reset health tracking
 
         timeout = 10
         start_time = time.time()
@@ -702,9 +721,13 @@ class RuneScapeEnv(gym.Env):
         if not self.current_state:
             self.logger.error("No state received during reset - OSRS connection may be down")
             return self._get_empty_observation(), {}
+            
         player = self.current_state.get("player", {})
         health = player.get("health", {})
-        self.logger.warning(f"Episode start - Health: {health.get('current', 0)}/{health.get('maximum', 1)}")
+        current_health = health.get("current", 0)
+        max_health = health.get("maximum", 1)
+        self._last_health = current_health
+        self.logger.warning(f"Episode start - Health: {current_health}/{max_health}")
         return self._state_to_observation(self.current_state), {
             "episode_start": True,
             "health": health,
@@ -826,17 +849,46 @@ class RuneScapeEnv(gym.Env):
     def _process_screenshot(self, screenshot_base64: str) -> np.ndarray:
         """Convert a base64-encoded screenshot to a numpy array with memory optimization."""
         try:
-            img_data = base64.b64decode(screenshot_base64)
-            with Image.open(BytesIO(img_data)) as img:
-                if img.mode != "RGB":
-                    img = img.convert("RGB")
-                if img.size != (self.screenshot_shape[1], self.screenshot_shape[0]):
-                    img = img.resize((self.screenshot_shape[1], self.screenshot_shape[0]), Image.Resampling.LANCZOS)
-                array = np.array(img, dtype=np.uint8)
-                del img
-                return array
+            if not screenshot_base64:
+                self.logger.warning("Empty screenshot data received")
+                return np.zeros(self.screenshot_shape, dtype=np.uint8)
+
+            # Ensure padding is correct for base64
+            padding = 4 - (len(screenshot_base64) % 4)
+            if padding != 4:
+                screenshot_base64 += "=" * padding
+
+            # Decode base64 data
+            try:
+                img_data = base64.b64decode(screenshot_base64)
+            except Exception as e:
+                self.logger.error(f"Base64 decoding error: {e}")
+                return np.zeros(self.screenshot_shape, dtype=np.uint8)
+
+            # Open and process image
+            try:
+                with Image.open(BytesIO(img_data)) as img:
+                    if img.format not in ['JPEG', 'PNG']:
+                        self.logger.warning(f"Unexpected image format: {img.format}")
+                    
+                    if img.mode != "RGB":
+                        img = img.convert("RGB")
+                    
+                    if img.size != (self.screenshot_shape[1], self.screenshot_shape[0]):
+                        img = img.resize(
+                            (self.screenshot_shape[1], self.screenshot_shape[0]),
+                            Image.Resampling.LANCZOS
+                        )
+                    
+                    # Convert to numpy array efficiently
+                    array = np.array(img, dtype=np.uint8)
+                    return array
+            except Exception as e:
+                self.logger.error(f"Image processing error: {e}")
+                return np.zeros(self.screenshot_shape, dtype=np.uint8)
+
         except Exception as e:
-            self.logger.error(f"Error processing screenshot: {e}", exc_info=True)
+            self.logger.error(f"Screenshot processing error: {e}")
             return np.zeros(self.screenshot_shape, dtype=np.uint8)
 
     def _state_to_observation(self, state: Optional[Dict]) -> Dict[str, np.ndarray]:
@@ -852,16 +904,45 @@ class RuneScapeEnv(gym.Env):
                 d = d.get(key, default)
             return d if d is not None else default
 
+        # Initialize screenshot with empty array
         screenshot = np.zeros(self.screenshot_shape, dtype=np.uint8)
-        if state.get("screenshot"):
-            screenshot = self._process_screenshot(state["screenshot"])
-            if screenshot is None or screenshot.shape != self.screenshot_shape:
-                self.logger.error(f"Invalid screenshot shape: {screenshot.shape if screenshot is not None else None}, expected {self.screenshot_shape}")
-                screenshot = np.zeros(self.screenshot_shape, dtype=np.uint8)
         
+        # Try to get screenshot from state
+        try:
+            if "screenshot" in state:
+                screenshot_data = state["screenshot"]
+                if isinstance(screenshot_data, str) and screenshot_data:
+                    try:
+                        screenshot = self._process_screenshot(screenshot_data)
+                    except Exception as e:
+                        self.logger.error(f"Error processing screenshot data: {e}", exc_info=True)
+                elif isinstance(screenshot_data, dict) and "data" in screenshot_data:
+                    try:
+                        screenshot = self._process_screenshot(screenshot_data["data"])
+                    except Exception as e:
+                        self.logger.error(f"Error processing screenshot from data field: {e}", exc_info=True)
+                else:
+                    self.logger.debug(f"Invalid screenshot data type: {type(screenshot_data)}")
+            else:
+                self.logger.debug("No screenshot in state")
+        except Exception as e:
+            self.logger.error(f"Error handling screenshot: {e}", exc_info=True)
+
         player = state.get("player", {})
-        location = player.get("location", {})
-        position = np.array([location.get("x", 0), location.get("y", 0), location.get("plane", 0)], dtype=np.float32)
+        health = player.get("health", {})
+        current_health = health.get("current", 1)
+        max_health = health.get("maximum", 1)
+
+        # Log health changes, especially after death
+        if hasattr(self, '_last_health') and self._last_health != current_health:
+            self.logger.warning(f"Health changed from {self._last_health} to {current_health} (max: {max_health})")
+            if self._last_health is not None and self._last_health <= 0 and current_health > 0:
+                self.logger.warning("Player has respawned!")
+        self._last_health = current_health
+
+        health_array = np.array([current_health], dtype=np.int32)
+        prayer = np.array([player.get("prayer", 0)], dtype=np.int32)
+        run_energy = np.array([player.get("runEnergy", 0.0)], dtype=np.float32)
 
         skills = player.get("skills", {})
         combat_stats = np.array([
@@ -873,11 +954,6 @@ class RuneScapeEnv(gym.Env):
             skills.get("HITPOINTS", {}).get("level", 1),
             skills.get("PRAYER", {}).get("level", 1)
         ], dtype=np.int32)
-
-        health = player.get("health", {})
-        health_array = np.array([health.get("current", 1)], dtype=np.int32)
-        prayer = np.array([player.get("prayer", 0)], dtype=np.int32)
-        run_energy = np.array([player.get("runEnergy", 0.0)], dtype=np.float32)
 
         npcs = state.get("npcs", [])
         npcs.sort(key=lambda x: x.get("distance", float("inf")))
@@ -902,7 +978,7 @@ class RuneScapeEnv(gym.Env):
 
         return {
             "screenshot": screenshot,
-            "player_position": position,
+            "player_position": np.array([player.get("location", {}).get("x", 0), player.get("location", {}).get("y", 0), player.get("location", {}).get("plane", 0)], dtype=np.float32),
             "player_combat_stats": combat_stats,
             "player_health": health_array,
             "player_prayer": prayer,
@@ -939,12 +1015,11 @@ class RuneScapeEnv(gym.Env):
                 self.logger.warning(f"Major exp gain: {exp_gain}")
         self.last_combat_exp = current_combat_exp
 
-        if player.get("inCombat", False):
-            health = player.get("health", {})
-            health_ratio = health.get("current", 0) / max(health.get("maximum", 1), 1)
-            if health_ratio < 0.2:
-                reward -= 5.0
-                self.logger.error("Critical health during combat!")
+        health = player.get("health", {})
+        health_ratio = health.get("current", 0) / max(health.get("maximum", 1), 1)
+        if health_ratio < 0.2:
+            reward -= 5.0
+            self.logger.error("Critical health. Health is %i, health ratio is %f", health.get("current", 0), health_ratio)
         if self.consecutive_same_pos > 2 and not player.get("inCombat", False):
             reward -= 0.5
         return reward
@@ -955,7 +1030,17 @@ class RuneScapeEnv(gym.Env):
             return False
         player = state.get("player", {})
         health = player.get("health", {})
-        return health.get("current", 0) <= 0 or len(state.get("npcs", [])) == 0
+        current_health = health.get("current", 0)
+        
+        # Log death events
+        if current_health <= 0:
+            self.logger.warning("Episode ending due to death (health: 0)")
+            
+        # Log if no NPCs remain
+        if len(state.get("npcs", [])) == 0:
+            self.logger.warning("Episode ending due to no NPCs remaining")
+            
+        return current_health <= 0 or len(state.get("npcs", [])) == 0
 
     def _action_to_command(self, action: Action) -> Optional[Dict]:
         """Convert a high-level action into a command following the schema."""

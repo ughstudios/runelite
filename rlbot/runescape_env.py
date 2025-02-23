@@ -62,7 +62,7 @@ class RuneScapeEnv(gym.Env):
     def __init__(self, websocket_url: str = "ws://localhost:43595", task: str = "combat"):
         super().__init__()
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.ERROR)  # Only show errors
+        self.logger.setLevel(logging.WARNING)  # Change from ERROR to WARNING to see more logs
         
         # Set websockets logger to ERROR and disable all websocket debug output
         logging.getLogger('websockets').setLevel(logging.ERROR)
@@ -151,21 +151,34 @@ class RuneScapeEnv(gym.Env):
                     while True:
                         try:
                             message = await websocket.recv()
-                            state = json.loads(message)
-                            # Validate state against schema
-                            validate(instance=state, schema=self.state_schema)
-                            self.current_state = state
+                            data = json.loads(message)
                             
-                            # Update environment flags based on state
-                            self.interfaces_open = state.get('interfacesOpen', False)
-                            self.path_obstructed = state.get('pathObstructed', False)
+                            # Handle screenshot updates separately
+                            if isinstance(data, dict) and data.get('type') == 'screenshot':
+                                if self.current_state is not None:
+                                    self.current_state['screenshot'] = data.get('data')
+                                continue
+                                
+                            # Handle regular state updates
+                            try:
+                                # Validate state against schema
+                                validate(instance=data, schema=self.state_schema)
+                                # Keep the existing screenshot if there is one
+                                if self.current_state and 'screenshot' in self.current_state:
+                                    data['screenshot'] = self.current_state['screenshot']
+                                self.current_state = data
+                                
+                                # Update environment flags based on state
+                                self.interfaces_open = data.get('interfacesOpen', False)
+                                self.path_obstructed = data.get('pathObstructed', False)
+                                
+                            except ValidationError as ve:
+                                self.logger.error(f"State validation error: {ve}")
                             
-                        except ValidationError:
-                            pass
                         except websockets.ConnectionClosed:
                             break
-                        except json.JSONDecodeError:
-                            pass
+                        except json.JSONDecodeError as je:
+                            self.logger.error(f"JSON decode error: {je}")
                         except Exception as e:
                             self.logger.error(f"Error processing message: {e}")
                             
@@ -359,30 +372,54 @@ class RuneScapeEnv(gym.Env):
 
     def _process_screenshot(self, screenshot_base64: str) -> np.ndarray:
         """Convert base64 screenshot to numpy array"""
-        # Decode base64 string to image
-        img_data = base64.b64decode(screenshot_base64)
-        img: PILImage = Image.open(BytesIO(img_data))
-        
-        # Convert to RGB if needed
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
-        
-        # Resize image to match expected dimensions
-        if img.size != (self.screenshot_shape[1], self.screenshot_shape[0]):
-            img = img.resize((self.screenshot_shape[1], self.screenshot_shape[0]), Image.Resampling.LANCZOS)
-        
-        # Convert to numpy array
-        return np.array(img, dtype=np.uint8)
+        try:
+            # Log the first 100 characters of the base64 string for debugging
+            self.logger.warning(f"Processing screenshot base64 (first 100 chars): {screenshot_base64[:100]}...")
+            
+            # Decode base64 string to image
+            img_data = base64.b64decode(screenshot_base64)
+            self.logger.warning(f"Decoded base64 screenshot data: {len(img_data)} bytes")
+            
+            img: PILImage = Image.open(BytesIO(img_data))
+            self.logger.warning(f"Opened image: size={img.size}, mode={img.mode}")
+            
+            # Convert to RGB if needed
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+                self.logger.warning("Converted image to RGB mode")
+            
+            # Resize image to match expected dimensions
+            if img.size != (self.screenshot_shape[1], self.screenshot_shape[0]):
+                self.logger.warning(f"Resizing image from {img.size} to {(self.screenshot_shape[1], self.screenshot_shape[0])}")
+                img = img.resize((self.screenshot_shape[1], self.screenshot_shape[0]), Image.Resampling.LANCZOS)
+            
+            # Convert to numpy array
+            array = np.array(img, dtype=np.uint8)
+            self.logger.warning(f"Converted to numpy array: shape={array.shape}, dtype={array.dtype}")
+            return array
+            
+        except Exception as e:
+            self.logger.error(f"Error processing screenshot: {str(e)}", exc_info=True)
+            return np.zeros(self.screenshot_shape, dtype=np.uint8)
 
     def _state_to_observation(self, state: Optional[Dict]) -> Dict[str, np.ndarray]:
         """Convert the raw state from RuneLite into a gym observation."""
         if not state:
+            self.logger.warning("No state available, returning empty observation")
             return self._get_empty_observation()
 
         # Process screenshot if available
         screenshot = np.zeros(self.screenshot_shape, dtype=np.uint8)
         if state.get('screenshot'):
+            self.logger.warning("Found screenshot in state")
             screenshot = self._process_screenshot(state['screenshot'])
+            if screenshot is None or screenshot.shape != self.screenshot_shape:
+                self.logger.error(f"Invalid screenshot shape: {screenshot.shape if screenshot is not None else None}, expected {self.screenshot_shape}")
+                screenshot = np.zeros(self.screenshot_shape, dtype=np.uint8)
+            else:
+                self.logger.warning(f"Successfully processed screenshot: shape={screenshot.shape}, dtype={screenshot.dtype}, range=[{screenshot.min()}, {screenshot.max()}]")
+        else:
+            self.logger.warning("No screenshot in state")
 
         def safe_get(d: Dict, *keys, default=0):
             for key in keys:
