@@ -103,6 +103,26 @@ class TrainingCallback(BaseCallback):
         self.screenshot_log_interval = 5000  # Increased from 2000 to 5000 steps
         self.last_action_log = 0
         self.action_log_interval = 2000  # Log actions every 2000 steps
+        
+        # Track player movement
+        self.last_position = None
+        self.total_distance_moved = 0.0
+        self.movement_heatmap = {}
+        self.last_heatmap_log = 0
+        self.heatmap_log_interval = 5000  # Log heatmap every 5000 steps
+        
+        # Track combat stats
+        self.total_damage_dealt = 0
+        self.npcs_killed = 0
+        self.deaths = 0
+        self.combat_time = 0.0
+        self.last_combat_state = False
+        self.last_health = None
+        self.damage_taken = 0
+        
+        # Track skill progression
+        self.initial_skills = {}
+        self.skill_milestones = set()
 
     def _init_callback(self) -> None:
         """Initialize the TensorBoard writer."""
@@ -118,6 +138,103 @@ class TrainingCallback(BaseCallback):
         if self.writer:
             self.writer.add_scalar(tag, value, step)
 
+    def _log_player_state(self, info: Dict) -> None:
+        """Log detailed player state information."""
+        if not self.writer:
+            return
+            
+        timestep = self.num_timesteps
+        player = info.get("state", {}).get("player", {})
+        if not player:
+            return
+
+        # Log position and movement
+        location = player.get("location", {})
+        current_pos = (location.get("x", 0), location.get("y", 0))
+        if self.last_position:
+            dx = current_pos[0] - self.last_position[0]
+            dy = current_pos[1] - self.last_position[1]
+            distance = math.sqrt(dx*dx + dy*dy)
+            self.total_distance_moved += distance
+            
+            # Log movement metrics
+            self._log_scalar("movement/distance_per_step", distance, timestep)
+            self._log_scalar("movement/total_distance", self.total_distance_moved, timestep)
+            
+            # Update movement heatmap
+            chunk_x = current_pos[0] // 8
+            chunk_y = current_pos[1] // 8
+            chunk_key = f"{chunk_x},{chunk_y}"
+            self.movement_heatmap[chunk_key] = self.movement_heatmap.get(chunk_key, 0) + 1
+            
+            # Log heatmap periodically
+            if timestep - self.last_heatmap_log >= self.heatmap_log_interval:
+                for chunk, visits in self.movement_heatmap.items():
+                    self._log_scalar(f"heatmap/chunk_{chunk}", visits, timestep)
+                self.last_heatmap_log = timestep
+        self.last_position = current_pos
+        
+        # Log combat stats
+        health = player.get("health", {})
+        current_health = health.get("current", 0)
+        max_health = health.get("maximum", 1)
+        health_ratio = current_health / max_health
+        
+        self._log_scalar("player/health_ratio", health_ratio, timestep)
+        self._log_scalar("player/run_energy", player.get("runEnergy", 0.0), timestep)
+        
+        # Track damage taken
+        if self.last_health is not None and current_health < self.last_health:
+            damage = self.last_health - current_health
+            self.damage_taken += damage
+            self._log_scalar("combat/damage_taken", damage, timestep)
+            self._log_scalar("combat/total_damage_taken", self.damage_taken, timestep)
+        self.last_health = current_health
+        
+        # Track combat time and state
+        in_combat = player.get("inCombat", False)
+        if in_combat != self.last_combat_state:
+            if in_combat:
+                self._log_scalar("combat/engagements", 1, timestep)
+            else:
+                combat_duration = time.time() - self.combat_time
+                self._log_scalar("combat/duration", combat_duration, timestep)
+        if in_combat:
+            self.combat_time = time.time()
+        self.last_combat_state = in_combat
+        
+        # Log skill levels and experience
+        skills = player.get("skills", {})
+        for skill_name, skill_data in skills.items():
+            level = skill_data.get("level", 1)
+            exp = skill_data.get("experience", 0)
+            
+            # Initialize skill tracking
+            if skill_name not in self.initial_skills:
+                self.initial_skills[skill_name] = {"level": level, "exp": exp}
+            
+            # Log current levels and experience gains
+            self._log_scalar(f"skills/{skill_name}/level", level, timestep)
+            exp_gain = exp - self.initial_skills[skill_name]["exp"]
+            self._log_scalar(f"skills/{skill_name}/exp_gain", exp_gain, timestep)
+            
+            # Log significant level milestones
+            milestone_key = f"{skill_name}_{level}"
+            if level > self.initial_skills[skill_name]["level"] and milestone_key not in self.skill_milestones:
+                self.skill_milestones.add(milestone_key)
+                self._log_scalar(f"skills/{skill_name}/level_ups", 1, timestep)
+        
+        # Log NPC information
+        npcs = info.get("state", {}).get("npcs", [])
+        if npcs:
+            nearby_npcs = len(npcs)
+            combat_npcs = len([npc for npc in npcs if npc.get("combatLevel", 0) > 0])
+            avg_npc_level = sum(npc.get("combatLevel", 0) for npc in npcs) / len(npcs)
+            
+            self._log_scalar("npcs/nearby_count", nearby_npcs, timestep)
+            self._log_scalar("npcs/combat_npcs", combat_npcs, timestep)
+            self._log_scalar("npcs/average_level", avg_npc_level, timestep)
+
     def _on_step(self) -> bool:
         """Called after each environment step."""
         try:
@@ -125,8 +242,6 @@ class TrainingCallback(BaseCallback):
             info = infos[0] if infos else {}
             rewards = self.locals.get("rewards", [])
             reward = rewards[0] if rewards else 0.0
-            new_obs = self.locals.get("new_obs", None)
-            obs = new_obs[0] if isinstance(new_obs, (list, np.ndarray)) else {}
             actions = self.locals.get("actions", None)
             action = actions[0] if isinstance(actions, (list, np.ndarray)) else None
 
@@ -145,28 +260,21 @@ class TrainingCallback(BaseCallback):
                 except Exception as e:
                     logger.error(f"Error updating action_counts: {e}")
 
+            # Log detailed player state
+            self._log_player_state(info)
+
             # Log to TensorBoard less frequently
             if self.writer and timestep % 10 == 0:  # Changed from 1 to 10
-                # Basic metrics only
+                # Basic metrics
                 self._log_scalar("rewards/step", reward, timestep)
                 self._log_scalar("rewards/cumulative", self.current_reward, timestep)
                 
-                # Log health only when it changes significantly
-                if info.get("health", {}).get("current", 0) / max(info.get("health", {}).get("maximum", 1), 1) < 0.5:
-                    self._log_scalar("player/health_ratio", info.get("health", {}).get("current", 0) / max(info.get("health", {}).get("maximum", 1), 1), timestep)
-                
-                # Log combat stats less frequently
-                if timestep % 100 == 0:
-                    self._log_scalar("player/in_combat", int(info.get("inCombat", False)), timestep)
-                    if info.get("npcs", []):
-                        self._log_scalar("npcs/count", len(info.get("npcs", [])), timestep)
-
                 # Action frequencies logged less often
                 if timestep % self.action_log_interval == 0:
                     for action_name, freq in self.action_counts.items():
                         self._log_scalar(f"actions/frequency/{action_name}", freq, timestep)
 
-            # Log significant events with higher thresholds
+            # Log significant events
             if info.get("exp_gain", 0) > 10000:  # Increased from 5000
                 logger.warning(f"Major exp gain: {info['exp_gain']:,}")
 
