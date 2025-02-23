@@ -19,7 +19,7 @@ import os
 import base64
 from io import BytesIO
 from PIL import Image
-from PIL.ImageFile import ImageFile
+from PIL.Image import Image as PILImage
 from gymnasium.spaces import Dict as GymDict
 
 if TYPE_CHECKING:
@@ -32,11 +32,15 @@ FloatArray = np.ndarray
 
 nest_asyncio.apply()
 
-# Configure logging to be less verbose
+# Configure logging
 logging.basicConfig(
-    level=logging.WARNING,  # Change from INFO to WARNING
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    level=logging.ERROR,  # Only show errors by default
+    handlers=[
+        logging.StreamHandler()
+    ]
 )
+logger = logging.getLogger(__name__)
 
 class Action(Enum):
     MOVE_FORWARD = 0
@@ -57,11 +61,13 @@ class RuneScapeEnv(gym.Env):
 
     def __init__(self, websocket_url: str = "ws://localhost:43595", task: str = "combat"):
         super().__init__()
-        self.logger = logging.getLogger("RuneScapeEnv")
-        self.logger.setLevel(logging.INFO)  # Keep important env logs at INFO
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.ERROR)  # Only show errors
         
-        # Add a handler that only shows WARNING and above for websockets
-        logging.getLogger('websockets').setLevel(logging.WARNING)
+        # Set websockets logger to ERROR and disable all websocket debug output
+        logging.getLogger('websockets').setLevel(logging.ERROR)
+        logging.getLogger('websockets.client').setLevel(logging.ERROR)
+        logging.getLogger('websockets.protocol').setLevel(logging.ERROR)
         
         self.websocket_url = websocket_url
         self.task = task
@@ -135,7 +141,6 @@ class RuneScapeEnv(gym.Env):
             try:
                 async with websockets.connect(self.websocket_url) as websocket:
                     self.ws = websocket
-                    self.logger.info("Connected to RuneLite")
                     
                     while True:
                         try:
@@ -149,13 +154,12 @@ class RuneScapeEnv(gym.Env):
                             self.interfaces_open = state.get('interfacesOpen', False)
                             self.path_obstructed = state.get('pathObstructed', False)
                             
-                        except ValidationError as e:
-                            self.logger.error(f"Invalid state received: {e}")
+                        except ValidationError:
+                            pass
                         except websockets.ConnectionClosed:
-                            self.logger.warning("WebSocket connection closed")
                             break
-                        except json.JSONDecodeError as e:
-                            self.logger.error(f"Failed to parse message: {e}")
+                        except json.JSONDecodeError:
+                            pass
                         except Exception as e:
                             self.logger.error(f"Error processing message: {e}")
                             
@@ -185,60 +189,43 @@ class RuneScapeEnv(gym.Env):
         Asynchronously send a command via the websocket with rate limiting and retry logic.
         """
         if self.ws is None:
-            self.logger.error("WebSocket not connected")
             return
 
         max_retries = 3
         retry_count = 0
-        last_error = None
 
         while retry_count < max_retries:
-            try:
-                # Validate command against schema
-                validate(instance=command, schema=self.command_schema)
+            # Validate command against schema
+            validate(instance=command, schema=self.command_schema)
+            
+            # Convert command to JSON for comparison
+            cmd_json = json.dumps(command)
+            
+            # Check if this is a duplicate command
+            current_time = time.time()
+            if (self.last_command == cmd_json and 
+                current_time - self.command_time < self.action_cooldown):
+                return
                 
-                # Convert command to JSON for comparison
-                cmd_json = json.dumps(command)
+            # Rate limit commands
+            wait_time = self.action_cooldown - (current_time - self.command_time)
+            if wait_time > 0:
+                time.sleep(wait_time)
                 
-                # Check if this is a duplicate command
-                current_time = time.time()
-                if (self.last_command == cmd_json and 
-                    current_time - self.command_time < self.action_cooldown):
-                    self.logger.debug(f"Skipping duplicate command: {cmd_json}")
-                    return
-                    
-                # Rate limit commands
-                if current_time - self.command_time < self.min_command_interval:
-                    wait_time = self.min_command_interval - (current_time - self.command_time)
-                    self.logger.debug(f"Rate limiting - waiting {wait_time:.2f}s")
-                    await asyncio.sleep(wait_time)
-                    
-                # Update command tracking
-                self.last_command = cmd_json
-                self.command_time = current_time
+            # Update command tracking
+            self.last_command = cmd_json
+            self.command_time = current_time
+            
+            # Send command
+            if not self.ws.open:
+                return
                 
-                # Send command
-                if not self.ws.open:
-                    raise Exception("WebSocket connection is closed")
-                    
-                await self.ws.send(cmd_json)
-                self.logger.debug(f"Sent command: {cmd_json}")
-                
-                # Wait longer after sending command
-                await asyncio.sleep(0.2)  # Increased from 0.1
-                return  # Success, exit retry loop
-                
-            except ValidationError as e:
-                self.logger.error(f"Invalid command schema: {e}")
-                return  # Don't retry schema validation errors
-            except Exception as e:
-                last_error = str(e)
-                retry_count += 1
-                if retry_count < max_retries:
-                    self.logger.warning(f"Command failed (attempt {retry_count}/{max_retries}): {e}")
-                    await asyncio.sleep(0.5 * retry_count)  # Exponential backoff
-                else:
-                    self.logger.error(f"Command failed after {max_retries} attempts. Last error: {e}")
+            await self.ws.send(cmd_json)
+            return  # Success, exit retry loop
+            
+            retry_count += 1
+            if retry_count < max_retries:
+                await asyncio.sleep(0.5 * retry_count)  # Exponential backoff
 
     def step(self, action: Action) -> Tuple[Dict[str, np.ndarray], float, bool, bool, Dict[str, Any]]:
         """Execute one step in the environment."""
@@ -246,25 +233,15 @@ class RuneScapeEnv(gym.Env):
         current_time = time.time()
         if self.last_action_time and current_time - self.last_action_time < self.action_cooldown:
             sleep_time = self.action_cooldown - (current_time - self.last_action_time)
-            self.logger.debug(f"Waiting {sleep_time:.1f}s for action cooldown")
             time.sleep(sleep_time)
         
         # Convert and execute action
         command = self._action_to_command(action)
-        if command is not None:
-            if self.loop and not self.loop.is_closed():
-                future = asyncio.run_coroutine_threadsafe(self._execute_command(command), self.loop)
-                try:
-                    # Increased timeout and added more detailed error handling
-                    future.result(timeout=2.0)  # Increased from 1.0
-                    self.last_action = action
-                    self.last_action_time = time.time()
-                except asyncio.TimeoutError:
-                    self.logger.error("Command execution timed out after 2 seconds")
-                except Exception as e:
-                    self.logger.error(f"Error executing command: {str(e)}", exc_info=True)
-            else:
-                self.logger.error("Event loop not available for sending command")
+        if command is not None and self.loop and not self.loop.is_closed():
+            future = asyncio.run_coroutine_threadsafe(self._execute_command(command), self.loop)
+            future.result(timeout=2.0)  # Increased from 1.0
+            self.last_action = action
+            self.last_action_time = time.time()
         
         # Wait for state update with exponential backoff
         max_wait = 0.5
@@ -322,25 +299,21 @@ class RuneScapeEnv(gym.Env):
         }
 
     def _process_screenshot(self, screenshot_base64: str) -> np.ndarray:
-        """Convert base64 screenshot to numpy array and resize if needed."""
-        try:
-            # Decode base64 string to image
-            img_data = base64.b64decode(screenshot_base64)
-            img: ImageFile = cast(ImageFile, Image.open(BytesIO(img_data)))
-            
-            # Convert to RGB if needed
-            if img.mode != 'RGB':
-                img = img.convert('RGB')
-            
-            # Resize image to match expected dimensions
-            if img.size != (self.screenshot_shape[1], self.screenshot_shape[0]):
-                img = img.resize((self.screenshot_shape[1], self.screenshot_shape[0]), Image.Resampling.LANCZOS)
-            
-            # Convert to numpy array
-            return np.array(img, dtype=np.uint8)
-        except Exception as e:
-            self.logger.error(f"Error processing screenshot: {e}")
-            return np.zeros(self.screenshot_shape, dtype=np.uint8)
+        """Convert base64 screenshot to numpy array"""
+        # Decode base64 string to image
+        img_data = base64.b64decode(screenshot_base64)
+        img: PILImage = Image.open(BytesIO(img_data))
+        
+        # Convert to RGB if needed
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+        
+        # Resize image to match expected dimensions
+        if img.size != (self.screenshot_shape[1], self.screenshot_shape[0]):
+            img = img.resize((self.screenshot_shape[1], self.screenshot_shape[0]), Image.Resampling.LANCZOS)
+        
+        # Convert to numpy array
+        return np.array(img, dtype=np.uint8)
 
     def _state_to_observation(self, state: Optional[Dict]) -> Dict[str, np.ndarray]:
         """Convert the raw state from RuneLite into a gym observation."""
@@ -351,11 +324,6 @@ class RuneScapeEnv(gym.Env):
         screenshot = np.zeros(self.screenshot_shape, dtype=np.uint8)
         if state.get('screenshot'):
             screenshot = self._process_screenshot(state['screenshot'])
-
-        # Remove debug logging of raw state
-        # self.logger.info(f"Raw state: {json.dumps(state, indent=2)}")
-        # self.logger.info(f"Player health from state: {state.get('playerHealth', '?')}")
-        # self.logger.info(f"Player max health from state: {state.get('playerMaxHealth', '?')}")
 
         def safe_get(d: Dict, *keys, default=0):
             for key in keys:
@@ -466,7 +434,8 @@ class RuneScapeEnv(gym.Env):
         if current_combat_exp > self.last_combat_exp:
             exp_gain = current_combat_exp - self.last_combat_exp
             reward += float(exp_gain) * 0.5
-            self.logger.info(f"Gained {exp_gain} combat exp")  # Simplified reward logging
+            if exp_gain > 1000:  # Only log very significant gains
+                self.logger.warning(f"Major exp gain: {exp_gain}")
         self.last_combat_exp = current_combat_exp
 
         # Health management during combat
@@ -474,14 +443,13 @@ class RuneScapeEnv(gym.Env):
             health = player.get('health', {})
             health_ratio = health.get('current', 0) / max(health.get('maximum', 1), 1)
             
-            if health_ratio < 0.3:
+            if health_ratio < 0.2:  # Only log when health is critically low
                 reward -= 5.0
-                self.logger.warning("Low health during combat")  # Changed from info to warning
+                self.logger.error("Critical health during combat!")
 
         # Penalty for being stuck
         if self.consecutive_same_pos > 2 and not player.get('inCombat', False):
             reward -= 0.5
-            self.logger.debug("Penalty for inactivity")  # Changed from info to debug
 
         return reward
 
@@ -497,130 +465,126 @@ class RuneScapeEnv(gym.Env):
     def _action_to_command(self, action: Action) -> Optional[Dict]:
         """Convert a high-level action into a command that follows the schema."""
         if not self.current_state:
-            self.logger.warning("No current state available")
             return None
             
-        try:
-            if isinstance(action, (int, np.integer)):
-                action = Action(action)
+        if isinstance(action, (int, np.integer)):
+            action = Action(action)
+        
+        player = self.current_state.get('player', {})
+        location = player.get('location', {})
+        current_x = location.get('x', 0)
+        current_y = location.get('y', 0)
+        
+        if action == Action.ATTACK:
+            # Find nearest attackable NPC
+            npcs = self.current_state.get('npcs', [])
+            attackable_npcs = [
+                npc for npc in npcs 
+                if npc.get('combatLevel', 0) > 0
+                and not npc.get('interacting', False)
+                and npc.get('id') != self.last_target_id
+            ]
             
-            player = self.current_state.get('player', {})
-            location = player.get('location', {})
-            current_x = location.get('x', 0)
-            current_y = location.get('y', 0)
-            
-            if action == Action.ATTACK:
-                # Find nearest attackable NPC
-                npcs = self.current_state.get('npcs', [])
+            if not attackable_npcs:
                 attackable_npcs = [
                     npc for npc in npcs 
                     if npc.get('combatLevel', 0) > 0
-                    and not npc.get('interacting', False)
                     and npc.get('id') != self.last_target_id
                 ]
-                
-                if not attackable_npcs:
-                    attackable_npcs = [
-                        npc for npc in npcs 
-                        if npc.get('combatLevel', 0) > 0
-                        and npc.get('id') != self.last_target_id
-                    ]
-                
-                if attackable_npcs:
-                    nearest_npc = min(attackable_npcs, key=lambda x: x.get('distance', float('inf')))
-                    self.last_target_id = nearest_npc.get('id')
-                    
-                    return {
-                        "action": "moveAndClick",
-                        "data": {
-                            "targetType": "npc",
-                            "action": "Attack",
-                            "npcId": nearest_npc['id']
-                        }
-                    }
-                else:
-                    # Move randomly to find NPCs
-                    import random
-                    action = random.choice([
-                        Action.MOVE_FORWARD,
-                        Action.MOVE_BACKWARD,
-                        Action.MOVE_LEFT,
-                        Action.MOVE_RIGHT
-                    ])
             
-            # Movement commands
-            move_distance = 2
-            if action == Action.MOVE_FORWARD:
-                return {
-                    "action": "moveAndClick",
-                    "data": {
-                        "targetType": "coordinates",
-                        "action": "Move",
-                        "x": current_x,
-                        "y": current_y + move_distance
-                    }
-                }
-            elif action == Action.MOVE_BACKWARD:
-                return {
-                    "action": "moveAndClick",
-                    "data": {
-                        "targetType": "coordinates",
-                        "action": "Move",
-                        "x": current_x,
-                        "y": current_y - move_distance
-                    }
-                }
-            elif action == Action.MOVE_LEFT:
-                return {
-                    "action": "moveAndClick",
-                    "data": {
-                        "targetType": "coordinates",
-                        "action": "Move",
-                        "x": current_x - move_distance,
-                        "y": current_y
-                    }
-                }
-            elif action == Action.MOVE_RIGHT:
-                return {
-                    "action": "moveAndClick",
-                    "data": {
-                        "targetType": "coordinates",
-                        "action": "Move",
-                        "x": current_x + move_distance,
-                        "y": current_y
-                    }
-                }
-            elif action == Action.ROTATE_LEFT:
-                return {
-                    "action": "camera_rotate",
-                    "data": {
-                        "right": False
-                    }
-                }
-            elif action == Action.ROTATE_RIGHT:
-                return {
-                    "action": "camera_rotate",
-                    "data": {
-                        "right": True
-                    }
-                }
-            elif action == Action.ZOOM_IN:
-                return {
-                    "action": "camera_zoom",
-                    "data": {
-                        "in": True
-                    }
-                }
-            elif action == Action.ZOOM_OUT:
-                return {
-                    "action": "camera_zoom",
-                    "data": {
-                        "in": False
-                    }
-                }
-            elif action == Action.DO_NOTHING:
-                return None
+            if attackable_npcs:
+                nearest_npc = min(attackable_npcs, key=lambda x: x.get('distance', float('inf')))
+                self.last_target_id = nearest_npc.get('id')
                 
-        except Exception as e:
-            self.logger.error(f"Error converting action to command: {e}")
+                return {
+                    "action": "moveAndClick",
+                    "data": {
+                        "targetType": "npc",
+                        "action": "Attack",
+                        "npcId": nearest_npc['id']
+                    }
+                }
+            else:
+                # Move randomly to find NPCs
+                import random
+                action = random.choice([
+                    Action.MOVE_FORWARD,
+                    Action.MOVE_BACKWARD,
+                    Action.MOVE_LEFT,
+                    Action.MOVE_RIGHT
+                ])
+        
+        # Movement commands
+        move_distance = 2
+        if action == Action.MOVE_FORWARD:
+            return {
+                "action": "moveAndClick",
+                "data": {
+                    "targetType": "coordinates",
+                    "action": "Move",
+                    "x": current_x,
+                    "y": current_y + move_distance
+                }
+            }
+        elif action == Action.MOVE_BACKWARD:
+            return {
+                "action": "moveAndClick",
+                "data": {
+                    "targetType": "coordinates",
+                    "action": "Move",
+                    "x": current_x,
+                    "y": current_y - move_distance
+                }
+            }
+        elif action == Action.MOVE_LEFT:
+            return {
+                "action": "moveAndClick",
+                "data": {
+                    "targetType": "coordinates",
+                    "action": "Move",
+                    "x": current_x - move_distance,
+                    "y": current_y
+                }
+            }
+        elif action == Action.MOVE_RIGHT:
+            return {
+                "action": "moveAndClick",
+                "data": {
+                    "targetType": "coordinates",
+                    "action": "Move",
+                    "x": current_x + move_distance,
+                    "y": current_y
+                }
+            }
+        elif action == Action.ROTATE_LEFT:
+            return {
+                "action": "camera_rotate",
+                "data": {
+                    "right": False
+                }
+            }
+        elif action == Action.ROTATE_RIGHT:
+            return {
+                "action": "camera_rotate",
+                "data": {
+                    "right": True
+                }
+            }
+        elif action == Action.ZOOM_IN:
+            return {
+                "action": "camera_zoom",
+                "data": {
+                    "in": True
+                }
+            }
+        elif action == Action.ZOOM_OUT:
+            return {
+                "action": "camera_zoom",
+                "data": {
+                    "in": False
+                }
+            }
+        elif action == Action.DO_NOTHING:
             return None
+        
+        return None  # Default return for any unhandled cases

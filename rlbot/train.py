@@ -12,138 +12,95 @@ from rich.logging import RichHandler
 from rich.console import Console
 import json
 from jsonschema import validate
+import time
+from typing import List
 
-# Set up rich console logging with markup enabled
-console = Console()
+# Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    datefmt="[%X]",
-    handlers=[RichHandler(console=console, rich_tracebacks=True)]
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    level=logging.ERROR,  # Only show errors by default
+    handlers=[
+        logging.StreamHandler()
+    ]
 )
-logger = logging.getLogger("rlbot")
+logger = logging.getLogger(__name__)
 
-class VerboseCallback(BaseCallback):
-    """Custom callback for detailed training information"""
-    
-    def __init__(self, verbose=0):
-        super().__init__(verbose)
+# Initialize console for rich output
+console = Console()
+
+class TrainingCallback(BaseCallback):
+    def __init__(self, verbose: int = 0):
+        super().__init__(verbose=verbose)
         self.episode_count = 0
-        self.step_count = 0
-        self.last_total_exp = None
-        self.episode_rewards = []
         self.current_reward = 0
-        
-        # Load schemas
-        schema_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(schema_dir, 'command_schema.json')) as f:
-            self.command_schema = json.load(f)
-        with open(os.path.join(schema_dir, 'state_schema.json')) as f:
-            self.state_schema = json.load(f)
+        self.rewards: List[float] = []
+        self.last_log_time = time.time()
+        self.log_interval = 60  # Only log every 60 seconds
         
     def _on_step(self) -> bool:
-        self.step_count += 1
-        env = self.training_env.get_attr('env')[0]
+        """
+        This method will be called by the model after each call to `env.step()`.
+        """
+        # Get info from the last step
+        info = self.locals.get('infos', [{}])[0]
+        reward = self.locals.get('rewards', [0.0])[0]
         
-        # Log the action taken
-        actions = self.locals.get('actions')
-        if actions:
-            action = actions[0]
-            action_name = list(Action)[action].name
-            logger.info(f"Taking action: {action_name}")
+        self.current_reward += reward
+        
+        # Only log significant events
+        if info.get('exp_gain', 0) > 1000:  # Only log major exp gains
+            logger.warning(f"Major exp gain: {info['exp_gain']:,}")
+        
+        # Get health from state structure
+        state = info.get('state', {})
+        player = state.get('player', {})
+        health = player.get('health', {})
+        current_health = health.get('current', 100)
+        max_health = health.get('maximum', 100)
+        
+        if current_health < max_health * 0.2:  # Critical health threshold
+            logger.error(f"Critical health: {current_health}/{max_health}")
+        
+        # Periodic status update
+        current_time = time.time()
+        if current_time - self.last_log_time >= self.log_interval:
+            logger.warning(f"Status - Episode: {self.episode_count}, Current Reward: {self.current_reward:.2f}")
+            self.last_log_time = current_time
             
-            # Validate command if one was generated
-            command = env._action_to_command(action)
-            if command:
-                try:
-                    validate(instance=command, schema=self.command_schema)
-                except Exception as e:
-                    logger.error(f"Invalid command generated: {e}")
+        return True  # If the callback returns False, training is aborted early
         
-        # Log reward received
-        rewards = self.locals.get('rewards')
-        if rewards:
-            reward = rewards[0]
-            if reward != 0:
-                logger.info(f"Received reward: {reward:.2f}")
+    def _on_rollout_start(self) -> None:
+        """
+        A rollout is the collection of environment interaction
+        using the current policy.
+        """
+        self.episode_count += 1
         
-        # Get current state information
-        if hasattr(env, 'current_state') and env.current_state:
-            try:
-                # Validate state against schema
-                validate(instance=env.current_state, schema=self.state_schema)
-            except Exception as e:
-                logger.error(f"Invalid state received: {e}")
-                
-            # Track experience gains
-            player = env.current_state.get('player', {})
-            skills = player.get('skills', {})
-            combat_skills = ['ATTACK', 'STRENGTH', 'DEFENCE', 'RANGED', 'MAGIC', 'HITPOINTS']
-            total_exp = sum(
-                skills.get(skill, {}).get('experience', 0)
-                for skill in combat_skills
-            )
-            
-            if self.last_total_exp is not None:
-                exp_gain = total_exp - self.last_total_exp
-                if exp_gain > 0:
-                    logger.info(f"Combat experience gained: {exp_gain:,}")
-                    self.logger.record('train/exp_gain', exp_gain)
-            self.last_total_exp = total_exp
-            
-            # Log player state every 10 steps
-            if self.step_count % 10 == 0:
-                health = player.get('health', {})
-                logger.info(f"Player State - Health: {health.get('current', 0)}/{health.get('maximum', 1)} | "
-                          f"In Combat: {player.get('inCombat', False)} | "
-                          f"Run Energy: {player.get('runEnergy', 0):.1f}%")
-            
-            # Log NPC interactions
-            npcs = env.current_state.get('npcs', [])
-            interacting_npcs = [npc for npc in npcs if npc.get('interacting')]
-            if interacting_npcs:
-                logger.info(f"Interacting with {len(interacting_npcs)} NPCs")
-                for npc in interacting_npcs:
-                    health = npc.get('health', {})
-                    logger.info(f"  - {npc.get('name', 'Unknown')} "
-                              f"(Level {npc.get('combatLevel', '?')}) - "
-                              f"Health: {health.get('current', '?')}/{health.get('maximum', '?')}")
-        
-        # Track rewards
-        infos = self.locals.get('infos')
-        if infos:
-            info = infos[0]
-            if info.get('terminal_observation') is not None:  # Episode ended
-                self.episode_count += 1
-                self.episode_rewards.append(self.current_reward)
-                avg_reward = np.mean(self.episode_rewards[-100:])
-                logger.info(f"Episode {self.episode_count} finished!")
-                logger.info(f"Reward: {self.current_reward:.2f} | Last 100 Average: {avg_reward:.2f}")
-                self.current_reward = 0
-        else:
-            self.current_reward += reward
-        
-        return True
+    def _on_rollout_end(self) -> None:
+        """
+        This event is triggered before updating the policy.
+        """
+        self.rewards.append(self.current_reward)
+        self.current_reward = 0
 
 def get_device():
     """Get the best available device for training"""
     if torch.cuda.is_available():
         device = "cuda"
         device_name = torch.cuda.get_device_name(0)
-        logger.info(f"Using CUDA device: {device_name}")
+        logger.warning(f"Using CUDA device: {device_name}")  # Keep this as warning - important setup info
     elif torch.backends.mps.is_available():
         device = "mps"
-        logger.info("Using Apple MPS (Metal) device")
+        logger.warning("Using Apple MPS (Metal) device")  # Keep this as warning - important setup info
     else:
         device = "cpu"
-        logger.info("Using CPU device")
+        logger.warning("Using CPU device")  # Keep this as warning - important setup info
     return torch.device(device)
 
 def make_env(task="combat"):
     """Create and wrap the RuneScape environment"""
-    logger.info(f"Creating environment for task: {task}")
     env = RuneScapeEnv(task=task)
-    env = Monitor(env, "logs/train")
+    env = Monitor(env, "logs/train", allow_early_resets=True)
     return env
 
 def train_combat_bot(total_timesteps=1000000):
@@ -153,9 +110,6 @@ def train_combat_bot(total_timesteps=1000000):
     log_dir = f"./logs/combat_bot_{timestamp}"
     os.makedirs(f"{log_dir}/checkpoints", exist_ok=True)
     os.makedirs(f"{log_dir}/eval", exist_ok=True)
-    
-    logger.info(f"Starting training session: {timestamp}")
-    logger.info(f"Log directory: {log_dir}")
     
     # Create and vectorize environment
     env = DummyVecEnv([make_env])
@@ -184,7 +138,6 @@ def train_combat_bot(total_timesteps=1000000):
     device = get_device()
     
     # Initialize PPO model with enhanced parameters
-    logger.info("Initializing PPO model...")
     model = PPO(
         policy="MultiInputPolicy",
         env=env,
@@ -193,7 +146,7 @@ def train_combat_bot(total_timesteps=1000000):
         batch_size=64,
         n_epochs=10,
         gamma=0.99,
-        verbose=1,
+        verbose=0,  # Reduce SB3 verbosity
         device=device
     )
     
@@ -203,7 +156,8 @@ def train_combat_bot(total_timesteps=1000000):
         save_path=f"{log_dir}/checkpoints",
         name_prefix="combat_bot",
         save_replay_buffer=True,
-        save_vecnormalize=True
+        save_vecnormalize=True,
+        verbose=0  # Reduce callback verbosity
     )
     
     eval_env = DummyVecEnv([make_env])
@@ -236,35 +190,23 @@ def train_combat_bot(total_timesteps=1000000):
         eval_freq=5000,
         deterministic=True,
         render=False,
-        n_eval_episodes=5
+        n_eval_episodes=5,
+        verbose=0  # Reduce callback verbosity
     )
     
-    verbose_callback = VerboseCallback()
+    training_callback = TrainingCallback()
     
-    try:
-        logger.info("Starting model training...")
-        logger.info("Press Ctrl+C to stop training gracefully")
-        
-        model.learn(
-            total_timesteps=total_timesteps,
-            callback=[checkpoint_callback, eval_callback, verbose_callback],
-            progress_bar=True
-        )
-        
-        logger.info("Training completed successfully!")
-        model.save(f"{log_dir}/final_model")
-        env.save(f"{log_dir}/vec_normalize.pkl")
-        
-    except KeyboardInterrupt:
-        logger.warning("Training interrupted by user")
-        model.save(f"{log_dir}/interrupted_model")
-        env.save(f"{log_dir}/vec_normalize.pkl")
-    except Exception as e:
-        logger.error(f"Training failed with error: {str(e)}", exc_info=True)
-        raise
-    finally:
-        env.close()
-        eval_env.close()
+    model.learn(
+        total_timesteps=total_timesteps,
+        callback=[checkpoint_callback, eval_callback, training_callback],
+        progress_bar=True
+    )
+    
+    model.save(f"{log_dir}/final_model")
+    env.save(f"{log_dir}/vec_normalize.pkl")
+    
+    env.close()
+    eval_env.close()
 
 def test_combat_bot(model_path, vec_normalize_path):
     """Test a trained combat bot"""
@@ -309,11 +251,7 @@ def test_combat_bot(model_path, vec_normalize_path):
         env.close()
 
 if __name__ == "__main__":
-    try:
-        console.print("RuneScape AI Training Bot")
-        console.print("Make sure RuneLite is running with the RLBot plugin enabled")
-        console.print("Waiting for WebSocket connection...\n")
-        train_combat_bot(total_timesteps=1000000)
-    except Exception as e:
-        logger.error(f"Program failed with error: {str(e)}", exc_info=True)
-        raise 
+    console.print("RuneScape AI Training Bot")
+    console.print("Make sure RuneLite is running with the RLBot plugin enabled")
+    console.print("Waiting for WebSocket connection...\n")
+    train_combat_bot(total_timesteps=1000000) 
