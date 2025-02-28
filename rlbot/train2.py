@@ -7,10 +7,7 @@ utilities for training a combat bot. It leverages PPO from Stable Baselines3 and
 to TensorBoard.
 """
 
-try:
-    import gymnasium as gym
-except ImportError:
-    import gym  # type: ignore
+import gymnasium as gym
 
 import asyncio
 import base64
@@ -27,6 +24,8 @@ from datetime import datetime
 from enum import Enum
 from io import BytesIO
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from dotenv import load_dotenv
+load_dotenv()
 
 import nest_asyncio
 import numpy as np
@@ -38,11 +37,31 @@ import websockets
 from jsonschema import validate, ValidationError
 from torch.utils.tensorboard import SummaryWriter
 from rich.console import Console
+from openai import OpenAI
 
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback, BaseCallback
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
+
+# -----------------------------------------------------------------------------
+# Constants
+# -----------------------------------------------------------------------------
+class WidgetID:
+    """Widget group IDs from RuneLite's WidgetID.java"""
+    WORLD_MAP_GROUP_ID = 595
+    INVENTORY_GROUP_ID = 149
+    SKILLS_GROUP_ID = 320
+    EQUIPMENT_GROUP_ID = 387
+    PRAYER_GROUP_ID = 541
+    SPELLBOOK_GROUP_ID = 218
+    BANK_GROUP_ID = 12
+    DIALOG_GROUP_ID = 231
+    CHATBOX_GROUP_ID = 162
+
+# OpenAI Configuration
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+openai_client = OpenAI()
 
 # -----------------------------------------------------------------------------
 # Logging & Console Setup
@@ -66,21 +85,15 @@ for ws_logger in ["websockets", "websockets.client", "websockets.protocol"]:
 # Action Definitions
 # -----------------------------------------------------------------------------
 class Action(Enum):
-    MOVE_N = 0
-    MOVE_NE = 1
-    MOVE_E = 2
-    MOVE_SE = 3
-    MOVE_S = 4
-    MOVE_SW = 5
-    MOVE_W = 6
-    MOVE_NW = 7
-    DO_NOTHING = 8
-    ROTATE_LEFT = 9
-    ROTATE_RIGHT = 10
-    ZOOM_IN = 11
-    ZOOM_OUT = 12
-    ATTACK = 13
-    INTERACT = 14  # For doors, gates, etc.
+    ATTACK = 0
+    MOVE_FORWARD = 1
+    MOVE_BACKWARD = 2
+    MOVE_LEFT = 3
+    MOVE_RIGHT = 4
+    INTERFACE_ACTION = 5
+    
+    def __int__(self):
+        return self.value
 
 # -----------------------------------------------------------------------------
 # Training Callback for Custom TensorBoard Logging
@@ -91,224 +104,339 @@ class TrainingCallback(BaseCallback):
     """
     def __init__(self, verbose: int = 0):
         super().__init__(verbose=verbose)
+        # Initialize all tracking variables
         self.episode_count = 0
         self.current_reward = 0.0
         self.rewards: List[float] = []
         self.last_log_time = time.time()
-        self.log_interval = 600  # Increased from 300 to 600 seconds (10 minutes)
+        self.log_interval = 600  # 10 minutes
         self.writer: Optional[SummaryWriter] = None
         self.step_in_episode = 0
-        self.action_counts = {action.name: 0 for action in Action}
-        self.last_screenshot_log = 0
-        self.screenshot_log_interval = 5000  # Increased from 2000 to 5000 steps
+        
+        # Action tracking with moving windows
+        self.action_counts: Dict[str, int] = {action.name: 0 for action in Action}
+        self.action_window: List[Action] = []  # Track recent actions
+        self.window_size = 100  # Size of moving window
         self.last_action_log = 0
-        self.action_log_interval = 2000  # Log actions every 2000 steps
+        self.action_log_interval = 100
         
-        # Track player movement
-        self.last_position = None
+        # Movement tracking
+        self.last_position: Optional[Tuple[float, float]] = None
         self.total_distance_moved = 0.0
-        self.movement_heatmap = {}
-        self.last_heatmap_log = 0
-        self.heatmap_log_interval = 5000  # Log heatmap every 5000 steps
+        self.last_movement_log = 0
+        self.movement_log_interval = 100
+        self.position_history: List[Tuple[float, float]] = []  # Track position history
+        self.stuck_threshold = 10  # Number of steps to consider "stuck"
         
-        # Track combat stats
+        # Combat tracking
         self.total_damage_dealt = 0
-        self.npcs_killed = 0
-        self.deaths = 0
-        self.combat_time = 0.0
+        self.total_damage_taken = 0
+        self.combat_engagements = 0
+        self.combat_duration = 0.0
         self.last_combat_state = False
+        self.combat_start_time: Optional[float] = None
         self.last_health = None
-        self.damage_taken = 0
+        self.combat_success_rate = 0.0
+        self.successful_combats = 0
         
-        # Track skill progression
-        self.initial_skills = {}
-        self.skill_milestones = set()
+        # NPC tracking
+        self.last_npc_log = 0
+        self.npc_log_interval = 100
+        self.npc_interaction_history: List[int] = []  # Track NPC IDs interacted with
+        
+        # Player state tracking
+        self.last_player_log = 0
+        self.player_log_interval = 100
+        self.death_count = 0
+        self.last_death_time = 0
+        self.avg_survival_time = 0.0
+        
+        # Skills tracking
+        self.initial_skills: Dict[str, Dict[str, int]] = {}
+        self.skill_names = [
+            "Agility", "Attack", "Construction", "Cooking", "Crafting", "Defence",
+            "Farming", "Firemaking", "Fishing", "Fletching", "Herblore", "Hitpoints",
+            "Hunter", "Magic", "Mining", "Prayer", "Ranged", "Runecraft", "Slayer",
+            "Smithing", "Strength", "Thieving", "Woodcutting"
+        ]
+        self.exp_gain_rate: Dict[str, float] = {skill: 0.0 for skill in self.skill_names}
+        
+        # Training metrics
+        self.approx_kl = 0.0
+        self.clip_fraction = 0.0
+        self.clip_range = 0.2
+        self.entropy_loss = 0.0
+        self.explained_variance = 0.0
+        self.learning_rate = 0.0003
+        self.policy_loss = 0.0
+        self.value_loss = 0.0
+        self.fps = 0
+        
+        # Performance metrics
+        self.action_success_rate = 0.0
+        self.failed_actions = 0
+        self.successful_actions = 0
+        self.exploration_efficiency = 0.0
+        self.unique_areas_visited: Set[Tuple[int, int]] = set()
+        self.visited_positions: Set[Tuple[float, float]] = set()
+        
+        # Rollout tracking
+        self.episode_lengths: List[int] = []
+        self.episode_rewards: List[float] = []
+        self.reward_history: List[float] = []  # Track reward history
+        self.avg_reward_window = 100  # Window size for moving average
+        
+        # Initialize the callback
+        self._init_callback()
 
     def _init_callback(self) -> None:
         """Initialize the TensorBoard writer."""
-        if not getattr(self.model, "tensorboard_log", None):
-            return
-        tb_log_dir = str(self.model.tensorboard_log)
-        log_dir = os.path.join(tb_log_dir, "metrics")  # Simple, clean directory name
+        log_dir = os.path.join(get_tensorboard_dir(), "metrics")
         os.makedirs(log_dir, exist_ok=True)
         self.writer = SummaryWriter(log_dir=log_dir, comment="")
+        if self.verbose > 0:
+            print(f"Initialized TensorBoard writer in {log_dir}")
 
     def _log_scalar(self, tag: str, value: float, step: int) -> None:
         """Helper method to log a scalar value to TensorBoard."""
         if self.writer:
             self.writer.add_scalar(tag, value, step)
 
-    def _log_player_state(self, info: Dict) -> None:
-        """Log detailed player state information."""
-        if not self.writer:
-            return
-            
-        timestep = self.num_timesteps
-        player = info.get("state", {}).get("player", {})
-        if not player:
-            return
+    def _update_action_metrics(self, action: Action, success: bool) -> None:
+        """Update action-related metrics."""
+        if success:
+            self.successful_actions += 1
+        else:
+            self.failed_actions += 1
+        total_actions = self.successful_actions + self.failed_actions
+        self.action_success_rate = self.successful_actions / total_actions if total_actions > 0 else 0.0
+        
+        # Update action window
+        self.action_window.append(action)
+        if len(self.action_window) > self.window_size:
+            self.action_window.pop(0)
 
-        # Log position and movement
-        location = player.get("location", {})
-        current_pos = (location.get("x", 0), location.get("y", 0))
-        if self.last_position:
-            dx = current_pos[0] - self.last_position[0]
-            dy = current_pos[1] - self.last_position[1]
-            distance = math.sqrt(dx*dx + dy*dy)
-            self.total_distance_moved += distance
+    def _update_movement_metrics(self, current_pos: Tuple[float, float]) -> None:
+        """Update movement-related metrics."""
+        self.position_history.append(current_pos)
+        if len(self.position_history) > self.stuck_threshold:
+            self.position_history.pop(0)
             
-            # Log movement metrics
-            self._log_scalar("movement/distance_per_step", distance, timestep)
-            self._log_scalar("movement/total_distance", self.total_distance_moved, timestep)
-            
-            # Update movement heatmap
-            chunk_x = current_pos[0] // 8
-            chunk_y = current_pos[1] // 8
-            chunk_key = f"{chunk_x},{chunk_y}"
-            self.movement_heatmap[chunk_key] = self.movement_heatmap.get(chunk_key, 0) + 1
-            
-            # Log heatmap periodically
-            if timestep - self.last_heatmap_log >= self.heatmap_log_interval:
-                for chunk, visits in self.movement_heatmap.items():
-                    self._log_scalar(f"heatmap/chunk_{chunk}", visits, timestep)
-                self.last_heatmap_log = timestep
-        self.last_position = current_pos
-        
-        # Log combat stats
-        health = player.get("health", {})
-        current_health = health.get("current", 0)
-        max_health = health.get("maximum", 1)
-        health_ratio = current_health / max_health
-        
-        self._log_scalar("player/health_ratio", health_ratio, timestep)
-        self._log_scalar("player/run_energy", player.get("runEnergy", 0.0), timestep)
-        
-        # Track damage taken
-        if self.last_health is not None and current_health < self.last_health:
-            damage = self.last_health - current_health
-            self.damage_taken += damage
-            self._log_scalar("combat/damage_taken", damage, timestep)
-            self._log_scalar("combat/total_damage_taken", self.damage_taken, timestep)
-        self.last_health = current_health
-        
-        # Track combat time and state
-        in_combat = player.get("inCombat", False)
+        # Calculate if stuck
+        if len(self.position_history) >= self.stuck_threshold:
+            recent_positions = self.position_history[-self.stuck_threshold:]
+            unique_positions = set(recent_positions)
+            if len(unique_positions) == 1:  # All positions are the same
+                self._log_scalar("movement/stuck_duration", self.stuck_threshold, self.num_timesteps)
+
+    def _update_combat_metrics(self, in_combat: bool, current_health: int, max_health: int) -> None:
+        """Update combat-related metrics."""
         if in_combat != self.last_combat_state:
             if in_combat:
-                self._log_scalar("combat/engagements", 1, timestep)
-            else:
-                combat_duration = time.time() - self.combat_time
-                self._log_scalar("combat/duration", combat_duration, timestep)
-        if in_combat:
-            self.combat_time = time.time()
-        self.last_combat_state = in_combat
-        
-        # Log skill levels and experience
-        skills = player.get("skills", {})
-        for skill_name, skill_data in skills.items():
-            level = skill_data.get("level", 1)
-            exp = skill_data.get("experience", 0)
-            
-            # Initialize skill tracking
-            if skill_name not in self.initial_skills:
-                self.initial_skills[skill_name] = {"level": level, "exp": exp}
-            
-            # Log current levels and experience gains
-            self._log_scalar(f"skills/{skill_name}/level", level, timestep)
-            exp_gain = exp - self.initial_skills[skill_name]["exp"]
-            self._log_scalar(f"skills/{skill_name}/exp_gain", exp_gain, timestep)
-            
-            # Log significant level milestones
-            milestone_key = f"{skill_name}_{level}"
-            if level > self.initial_skills[skill_name]["level"] and milestone_key not in self.skill_milestones:
-                self.skill_milestones.add(milestone_key)
-                self._log_scalar(f"skills/{skill_name}/level_ups", 1, timestep)
-        
-        # Log NPC information
-        npcs = info.get("state", {}).get("npcs", [])
-        if npcs:
-            nearby_npcs = len(npcs)
-            combat_npcs = len([npc for npc in npcs if npc.get("combatLevel", 0) > 0])
-            avg_npc_level = sum(npc.get("combatLevel", 0) for npc in npcs) / len(npcs)
-            
-            self._log_scalar("npcs/nearby_count", nearby_npcs, timestep)
-            self._log_scalar("npcs/combat_npcs", combat_npcs, timestep)
-            self._log_scalar("npcs/average_level", avg_npc_level, timestep)
+                self.combat_engagements += 1
+                self.combat_start_time = time.time()
+            elif self.combat_start_time is not None:
+                combat_duration = time.time() - self.combat_start_time
+                self.combat_duration += combat_duration
+                # Consider combat successful if health is above 50%
+                if current_health > max_health * 0.5:
+                    self.successful_combats += 1
+                self.combat_success_rate = self.successful_combats / self.combat_engagements
 
     def _on_step(self) -> bool:
-        """Called after each environment step."""
-        try:
-            infos = self.locals.get("infos", [])
-            info = infos[0] if infos else {}
-            rewards = self.locals.get("rewards", [])
-            reward = rewards[0] if rewards else 0.0
-            actions = self.locals.get("actions", None)
-            action = actions[0] if isinstance(actions, (list, np.ndarray)) else None
+        infos = self.locals["infos"] if "infos" in self.locals else []
+        info = infos[0] if infos else {}
+        rewards = self.locals["rewards"] if "rewards" in self.locals else []
+        reward = float(rewards[0]) if rewards else 0.0
+        actions = self.locals["actions"] if "actions" in self.locals else None
+        action = actions[0] if isinstance(actions, (list, np.ndarray)) else None
+        
+        timestep = self.num_timesteps
+        current_time = time.time()
 
-            self.current_reward += reward
-            self.step_in_episode += 1
-            timestep = self.num_timesteps
+        # Update basic metrics
+        self.current_reward += reward
+        self.step_in_episode += 1
+        
+        if self.writer:
+            # Get state information first
+            state = info["state"] if "state" in info else {}
+            player = state["player"] if "player" in state else {}
+            
+            # Log screenshot if available
+            if "screenshot" in state:
+                screenshot_data = state["screenshot"]
+                if isinstance(screenshot_data, str) and screenshot_data:
+                    img_data = base64.b64decode(screenshot_data)
+                    with Image.open(BytesIO(img_data)) as img:
+                        if img.mode != "RGB":
+                            img = img.convert("RGB")
+                        screenshot = np.array(img).transpose(2, 0, 1)  # Convert to CHW format
+                        screenshot = np.expand_dims(screenshot, 0)  # Add batch dimension
+                        self.writer.add_images('environment/screenshot', screenshot, timestep)
 
-            # Update action frequency count
+            # Log rewards with moving average
+            self.reward_history.append(reward)
+            if len(self.reward_history) > self.avg_reward_window:
+                self.reward_history.pop(0)
+            avg_reward = float(np.mean(self.reward_history)) if self.reward_history else 0.0
+            self._log_scalar("rewards/step", reward, timestep)
+            self._log_scalar("rewards/moving_average", avg_reward, timestep)
+            self._log_scalar("rewards/cumulative", self.current_reward, timestep)
+            
+            # Action analysis
             if action is not None:
-                try:
-                    if isinstance(action, (int, np.integer)):
-                        action_enum = Action(int(action))
-                        self.action_counts[action_enum.name] += 1
-                    else:
-                        self.action_counts[str(action)] = self.action_counts.get(str(action), 0) + 1
-                except Exception as e:
-                    logger.error(f"Error updating action_counts: {e}")
-
-            # Log detailed player state
-            self._log_player_state(info)
-
-            # Log to TensorBoard less frequently
-            if self.writer and timestep % 10 == 0:  # Changed from 1 to 10
-                # Basic metrics
-                self._log_scalar("rewards/step", reward, timestep)
-                self._log_scalar("rewards/cumulative", self.current_reward, timestep)
+                action_enum = Action(int(action)) if isinstance(action, (int, np.integer)) else action
+                self.action_counts[action_enum.name] = self.action_counts[action_enum.name] + 1 if action_enum.name in self.action_counts else 1
                 
-                # Action frequencies logged less often
-                if timestep % self.action_log_interval == 0:
-                    for action_name, freq in self.action_counts.items():
-                        self._log_scalar(f"actions/frequency/{action_name}", freq, timestep)
+                # Log action distributions and patterns every step
+                total_actions = sum(self.action_counts.values())
+                for name, count in self.action_counts.items():
+                    self._log_scalar(f"actions/frequency/{name}", count, timestep)
+                    self._log_scalar(f"actions/distribution/{name}", 
+                                  float(count/total_actions if total_actions > 0 else 0), 
+                                  timestep)
+                
+                # Log action success metrics
+                self._log_scalar("actions/success_rate", self.action_success_rate, timestep)
+                self._log_scalar("actions/failed_actions", self.failed_actions, timestep)
+            
+            # Player state and combat metrics - log every step
+            if player:
+                health = player["health"] if "health" in player else {}
+                current_health = health["current"] if "current" in health else 0
+                max_health = health["maximum"] if "maximum" in health else 1
+                health_ratio = float(current_health / max_health if max_health > 0 else 0)
+                
+                # Health and combat metrics
+                self._log_scalar("player/health_ratio", health_ratio, timestep)
+                self._log_scalar("player/run_energy", float(player["runEnergy"] if "runEnergy" in player else 0.0), timestep)
+                self._log_scalar("combat/in_combat", int(player["inCombat"] if "inCombat" in player else False), timestep)
+                self._log_scalar("combat/success_rate", self.combat_success_rate, timestep)
+                self._log_scalar("combat/total_engagements", self.combat_engagements, timestep)
+                
+                # Track damage and update combat metrics
+                if self.last_health is not None and current_health < self.last_health:
+                    damage = self.last_health - current_health
+                    self.total_damage_taken += damage
+                    self._log_scalar("combat/damage_taken", float(damage), timestep)
+                    self._log_scalar("combat/total_damage_taken", float(self.total_damage_taken), timestep)
+                self.last_health = current_health
+                
+                # Update combat state
+                in_combat = player["inCombat"] if "inCombat" in player else False
+                self._update_combat_metrics(in_combat, current_health, max_health)
+                self.last_combat_state = in_combat
+            
+            # Movement and exploration metrics - log every step
+            location = player["location"] if "location" in player else {}
+            current_pos = (location["x"] if "x" in location else 0, location["y"] if "y" in location else 0)
+            if current_pos != self.last_position:
+                if self.last_position:
+                    dx = current_pos[0] - self.last_position[0]
+                    dy = current_pos[1] - self.last_position[1]
+                    distance = math.sqrt(dx*dx + dy*dy)
+                    self.total_distance_moved += distance
+                    
+                    # Log movement metrics
+                    self._log_scalar("movement/step_distance", distance, timestep)
+                    self._log_scalar("movement/total_distance", self.total_distance_moved, timestep)
+                    
+                    # Track unique areas
+                    chunk_x, chunk_y = current_pos[0] // 8, current_pos[1] // 8  # Convert to chunk coordinates
+                    self.unique_areas_visited.add((chunk_x, chunk_y))
+                    self._log_scalar("exploration/unique_areas", len(self.unique_areas_visited), timestep)
+                
+                self._update_movement_metrics(current_pos)
+            self.last_position = current_pos
+            
+            # NPC interaction metrics - log every step
+            npcs = state["npcs"] if "npcs" in state else []
+            if npcs:
+                interacting_npcs = [npc for npc in npcs if npc["interacting"] if "interacting" in npc]
+                self._log_scalar("npcs/total_nearby", len(npcs), timestep)
+                self._log_scalar("npcs/interacting", len(interacting_npcs), timestep)
+                
+                # Track combat-level appropriate NPCs
+                player_combat_level = self._calculate_combat_level(player["skills"] if "skills" in player else {})
+                appropriate_level_npcs = [
+                    npc for npc in npcs
+                    if abs(npc["combatLevel"] if "combatLevel" in npc else 0 - player_combat_level) < 20
+                ]
+                self._log_scalar("npcs/appropriate_level", len(appropriate_level_npcs), timestep)
+            
+            # Skill progression metrics - log every step
+            skills = player["skills"] if "skills" in player else {}
+            for skill_name in self.skill_names:
+                if skill_name in skills:
+                    skill_data = skills[skill_name]
+                    level = skill_data["level"] if "level" in skill_data else 1
+                    exp = skill_data["experience"] if "experience" in skill_data else 0
+                    
+                    if skill_name not in self.initial_skills:
+                        self.initial_skills[skill_name] = {"level": level, "exp": exp}
+                    
+                    # Calculate and log experience rates
+                    exp_gain = exp - self.initial_skills[skill_name]["exp"]
+                    time_elapsed = (current_time - self.last_log_time) / 3600  # Convert to hours
+                    if time_elapsed > 0:
+                        exp_rate = exp_gain / time_elapsed
+                        self.exp_gain_rate[skill_name] = exp_rate
+                        self._log_scalar(f"skills/{skill_name}/exp_rate", exp_rate, timestep)
+                    
+                    self._log_scalar(f"skills/{skill_name}/level", level, timestep)
+                    self._log_scalar(f"skills/{skill_name}/total_exp_gain", exp_gain, timestep)
+            
+            # Training performance metrics
+            if hasattr(self.locals, "approx_kl"):
+                self._log_scalar("train/approx_kl", self.locals["approx_kl"], timestep)
+                self._log_scalar("train/clip_fraction", self.locals["clip_fraction"], timestep)
+                self._log_scalar("train/entropy_loss", self.locals["entropy_loss"], timestep)
+                self._log_scalar("train/explained_variance", self.locals["explained_variance"], timestep)
+                self._log_scalar("train/learning_rate", self.learning_rate, timestep)
+                self._log_scalar("train/policy_loss", self.locals["policy_gradient_loss"], timestep)
+                self._log_scalar("train/value_loss", self.locals["value_loss"], timestep)
+            
+            # Episode statistics
+            if len(self.episode_lengths) > 0:
+                self._log_scalar("episode/avg_length", float(np.mean(self.episode_lengths[-100:])), timestep)
+            if len(self.episode_rewards) > 0:
+                self._log_scalar("episode/avg_reward", float(np.mean(self.episode_rewards[-100:])), timestep)
+            
+            # Performance metrics
+            self._log_scalar("performance/action_success_rate", self.action_success_rate, timestep)
+            self._log_scalar("performance/exploration_efficiency", 
+                           len(self.unique_areas_visited) / (self.step_in_episode + 1), timestep)
+            
+            # Flush writer to ensure all metrics are written
+            self.writer.flush()
 
-            # Log significant events
-            if info.get("exp_gain", 0) > 10000:  # Increased from 5000
-                logger.warning(f"Major exp gain: {info['exp_gain']:,}")
-
-            current_time = time.time()
-            if current_time - self.last_log_time >= self.log_interval:
-                logger.warning(f"Status - Episode: {self.episode_count}, Current Reward: {self.current_reward:.2f}")
-                self.last_log_time = current_time
-
-            # Clear memory less frequently
-            if timestep % 5000 == 0:  # Increased from 1000
-                gc.collect()
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
-                elif hasattr(torch.mps, "empty_cache"):
-                    torch.mps.empty_cache()
-
-        except Exception as e:
-            logger.error(f"Error in callback: {e}")
         return True
 
     def _on_rollout_start(self) -> None:
-        """Called at the start of each rollout."""
+        """Called when collecting new experiences starts."""
         self.episode_count += 1
         self.step_in_episode = 0
+        self.episode_lengths.append(self.step_in_episode)
+        self.episode_rewards.append(self.current_reward)
 
     def _on_rollout_end(self) -> None:
-        """Called at the end of each rollout."""
+        """Called when collecting new experiences ends."""
         if self.writer:
+            # Log episode summary statistics
             self.writer.add_scalar("episode/total_reward", self.current_reward, self.episode_count)
             self.writer.add_scalar("episode/length", self.step_in_episode, self.episode_count)
+            self.writer.add_scalar("episode/combat_success_rate", self.combat_success_rate, self.episode_count)
+            self.writer.add_scalar("episode/exploration_coverage", 
+                                 len(self.unique_areas_visited), self.episode_count)
             self.writer.flush()
+        
+        # Reset episode-specific metrics
         self.rewards.append(self.current_reward)
         self.current_reward = 0.0
-        # Clear memory at the end of each rollout
+        self.action_counts = {action.name: 0 for action in Action}
+        
+        # Memory management
         gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
@@ -316,15 +444,44 @@ class TrainingCallback(BaseCallback):
             torch.mps.empty_cache()
 
     def _on_training_end(self) -> None:
-        """Cleanup when training ends."""
+        """Called when training ends."""
         if self.writer:
+            # Log final summary statistics
+            self.writer.add_scalar("training/final_combat_success_rate", self.combat_success_rate, 0)
+            self.writer.add_scalar("training/final_action_success_rate", self.action_success_rate, 0)
+            self.writer.add_scalar("training/total_unique_areas", len(self.unique_areas_visited), 0)
+            self.writer.add_scalar("training/total_combat_engagements", self.combat_engagements, 0)
+            self.writer.add_scalar("training/total_distance_moved", self.total_distance_moved, 0)
             self.writer.close()
-        # Final memory cleanup
+        
+        # Memory cleanup
         gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         elif hasattr(torch.mps, "empty_cache"):
             torch.mps.empty_cache()
+
+    def _calculate_combat_level(self, skills: Dict[str, Dict[str, int]]) -> int:
+        """Calculate the combat level based on skill levels."""
+        # Get base skill levels, defaulting to 1 if not found
+        attack = skills.get("ATTACK", {}).get("level", 1)
+        strength = skills.get("STRENGTH", {}).get("level", 1)
+        defence = skills.get("DEFENCE", {}).get("level", 1)
+        hitpoints = skills.get("HITPOINTS", {}).get("level", 10)  # Base HP is 10
+        prayer = skills.get("PRAYER", {}).get("level", 1)
+        ranged = skills.get("RANGED", {}).get("level", 1)
+        magic = skills.get("MAGIC", {}).get("level", 1)
+
+        # Calculate base combat level using RuneScape formula
+        base = 0.25 * (defence + hitpoints + math.floor(prayer/2))
+        melee = 0.325 * (attack + strength)
+        range_level = 0.325 * (math.floor(3 * ranged/2))
+        magic_level = 0.325 * (math.floor(3 * magic/2))
+
+        # Use the highest of melee, range, or magic
+        combat = base + max(melee, range_level, magic_level)
+        
+        return math.floor(combat)
 
 # -----------------------------------------------------------------------------
 # Device Utility
@@ -354,10 +511,15 @@ def make_env(task: str = "combat") -> gym.Env:
     env = Monitor(env, filename=os.path.join(log_dir, "monitor.csv"), allow_early_resets=True)
     return env
 
-def train_combat_bot(total_timesteps: int = 1_000_000, checkpoint: Optional[str] = None) -> None:
-    """Train the combat bot using PPO, automatically resuming from the latest checkpoint if available."""
+def get_tensorboard_dir() -> str:
     base_dir = os.path.join(os.path.dirname(__file__), "logs")
     tb_log_dir = os.path.join(base_dir, "tb_logs")
+    return tb_log_dir
+
+
+def train_combat_bot(total_timesteps: int = 1_000_000, checkpoint: Optional[str] = None) -> None:
+    """Train the combat bot using PPO, automatically resuming from the latest checkpoint if available."""
+    tb_log_dir = get_tensorboard_dir()
     checkpoint_dir = os.path.join(tb_log_dir, "checkpoints")
     metrics_dir = os.path.join(tb_log_dir, "metrics")
     os.makedirs(checkpoint_dir, exist_ok=True)
@@ -415,10 +577,16 @@ def train_combat_bot(total_timesteps: int = 1_000_000, checkpoint: Optional[str]
 
     device = get_device()
     
-    # Configure policy kwargs to reduce memory usage
+    # Configure policy kwargs with improved architecture
     policy_kwargs = dict(
-        net_arch=[64, 64],  # Smaller network architecture
-        activation_fn=torch.nn.ReLU
+        net_arch=[
+            dict(
+                pi=[128, 128, 64],  # Policy network
+                vf=[128, 128, 64]   # Value network
+            )
+        ],
+        activation_fn=torch.nn.ReLU,
+        ortho_init=True
     )
     
     # Initialize PPO with optimized parameters
@@ -430,17 +598,20 @@ def train_combat_bot(total_timesteps: int = 1_000_000, checkpoint: Optional[str]
                 env=env,
                 device=device,
                 tensorboard_log=metrics_dir,
-                learning_rate=0.0003,
-                n_steps=512,
-                batch_size=32,
-                n_epochs=5,
-                gamma=0.99,
-                verbose=1,
-                ent_coef=0.01,
-                vf_coef=0.5,
-                max_grad_norm=0.5,
-                use_sde=False,
-                gae_lambda=0.95
+                # Adjusted parameters for better stability
+                learning_rate=1e-4,           # Reduced learning rate
+                n_steps=2048,                 # Increased steps per update
+                batch_size=256,               # Increased batch size
+                n_epochs=10,                  # More epochs per update
+                gamma=0.99,                   # Standard discount factor
+                gae_lambda=0.95,              # GAE parameter
+                clip_range=0.2,               # Standard clip range
+                clip_range_vf=0.2,            # Value function clip range
+                ent_coef=0.005,              # Reduced entropy coefficient
+                vf_coef=0.5,                 # Value function coefficient
+                max_grad_norm=0.5,           # Gradient clipping
+                target_kl=0.015,             # Target KL divergence
+                verbose=1
             )
             # Load environment normalization stats if they exist
             env_stats_path = os.path.join(checkpoint_dir, "vec_normalize.pkl")
@@ -460,20 +631,22 @@ def train_combat_bot(total_timesteps: int = 1_000_000, checkpoint: Optional[str]
         model = PPO(
             policy="MultiInputPolicy",
             env=env,
-            learning_rate=0.0003,
-            n_steps=512,  # Reduced from 2048
-            batch_size=32,  # Reduced from 64
-            n_epochs=5,    # Reduced from 10
-            gamma=0.99,
+            learning_rate=1e-4,           # Reduced learning rate
+            n_steps=2048,                 # Increased steps per update
+            batch_size=256,               # Increased batch size
+            n_epochs=10,                  # More epochs per update
+            gamma=0.99,                   # Standard discount factor
+            gae_lambda=0.95,              # GAE parameter
+            clip_range=0.2,               # Standard clip range
+            clip_range_vf=0.2,            # Value function clip range
+            ent_coef=0.005,              # Reduced entropy coefficient
+            vf_coef=0.5,                 # Value function coefficient
+            max_grad_norm=0.5,           # Gradient clipping
+            target_kl=0.015,             # Target KL divergence
             verbose=1,
             device=device,
-            tensorboard_log=metrics_dir,  # Use metrics directory
-            policy_kwargs=policy_kwargs,
-            ent_coef=0.01,
-            vf_coef=0.5,
-            max_grad_norm=0.5,
-            use_sde=False,  # Disable stochastic dynamics estimation
-            gae_lambda=0.95
+            tensorboard_log=metrics_dir,
+            policy_kwargs=policy_kwargs
         )
 
     # Configure torch for memory optimization
@@ -482,9 +655,10 @@ def train_combat_bot(total_timesteps: int = 1_000_000, checkpoint: Optional[str]
     elif device.type == "cuda":
         torch.cuda.empty_cache()
     
-    # Save checkpoints more frequently
+    # Save checkpoints more frequently early in training
+    checkpoint_freq = lambda steps: 1000 if steps < 50000 else 5000
     checkpoint_callback = CheckpointCallback(
-        save_freq=1000,  # Save every 1000 steps
+        save_freq=checkpoint_freq(0),  # Initial frequency
         save_path=checkpoint_dir,
         name_prefix="combat_bot",
         save_replay_buffer=False,
@@ -520,11 +694,11 @@ def train_combat_bot(total_timesteps: int = 1_000_000, checkpoint: Optional[str]
         eval_env,
         best_model_save_path=os.path.join(tb_log_dir, "eval"),
         log_path=os.path.join(tb_log_dir, "eval"),
-        eval_freq=10000,  # Increased from 5000
+        eval_freq=5000,  # Evaluate more frequently
         deterministic=True,
         render=False,
-        n_eval_episodes=3,  # Reduced from 5
-        verbose=0
+        n_eval_episodes=5,
+        verbose=1
     )
 
     training_callback = TrainingCallback()
@@ -546,7 +720,8 @@ def train_combat_bot(total_timesteps: int = 1_000_000, checkpoint: Optional[str]
             callback=[checkpoint_callback, eval_callback, training_callback],
             progress_bar=True,
             reset_num_timesteps=not resume_training,  # Only reset if not resuming
-            tb_log_name="training"  # Use fixed name for TensorBoard logs
+            tb_log_name="training",  # Use fixed name for TensorBoard logs
+            log_interval=100  # Log more frequently
         )
     except KeyboardInterrupt:
         logger.warning("\nTraining interrupted! Saving checkpoint...")
@@ -621,7 +796,7 @@ class RuneScapeEnv(gym.Env):
             logging.getLogger(ws_logger).setLevel(logging.CRITICAL)  # Only show critical errors
 
         # Action rate limiting parameters
-        self.actions_per_minute_limit = 100
+        self.actions_per_minute_limit = 30
         self.min_action_interval = 60.0 / self.actions_per_minute_limit  # 0.6 seconds between actions
         self.action_times: List[float] = []  # Track action timestamps
         self.last_action_time = 0.0
@@ -645,6 +820,7 @@ class RuneScapeEnv(gym.Env):
         self.current_state: Optional[Dict] = None
         self.last_combat_exp = 0
         self.visited_areas: Set[Tuple[int, int]] = set()
+        self.visited_positions: Set[Tuple[float, float]] = set()  # Add visited_positions set
         self.interfaces_open = False
         self.path_obstructed = False
         self.last_action: Optional[Action] = None
@@ -687,6 +863,13 @@ class RuneScapeEnv(gym.Env):
             "exploration_score": gym.spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32)
         })
         self.action_space = gym.spaces.Discrete(len(Action))
+
+        # Track interface state
+        self.interface_open = False
+        self.last_interface_check = 0
+        self.interface_check_cooldown = 2.0  # Check every 2 seconds
+        self.consecutive_interface_frames = 0
+        self.max_interface_frames = 5  # Number of consecutive frames before considering interface stuck
 
     def _run_websocket_loop(self) -> None:
         """Run the websocket event loop in a separate thread."""
@@ -746,6 +929,7 @@ class RuneScapeEnv(gym.Env):
         # Reset other state variables
         self.last_combat_exp = 0
         self.visited_areas.clear()
+        self.visited_positions.clear()  # Clear visited positions
         self.last_action = None
         self.last_position = None
         self.consecutive_same_pos = 0
@@ -892,9 +1076,9 @@ class RuneScapeEnv(gym.Env):
             "player_run_energy": np.zeros(1, dtype=np.float32),
             "skills": np.ones(23, dtype=np.int32),
             "npcs": np.zeros((10, 6), dtype=np.float32),
-            "in_combat": np.zeros(1, dtype=np.int32),
-            "interfaces_open": np.zeros(1, dtype=np.int32),
-            "path_obstructed": np.zeros(1, dtype=np.int32),
+            "in_combat": 0,  # Changed to int for Discrete
+            "interfaces_open": 0,  # Changed to int for Discrete
+            "path_obstructed": 0,  # Changed to int for Discrete
             "current_chunk": np.zeros(2, dtype=np.int32),
             "visited_chunks_count": np.zeros(1, dtype=np.int32),
             "nearby_areas": np.zeros((9, 5), dtype=np.float32),
@@ -949,44 +1133,30 @@ class RuneScapeEnv(gym.Env):
     def _state_to_observation(self, state: Optional[Dict]) -> Dict[str, np.ndarray]:
         """Convert the raw state from RuneLite into a gym observation."""
         if not state:
-            self.logger.warning("No state available, returning empty observation")
             return self._get_empty_observation()
-
-        def safe_get(d: Dict, *keys, default=0):
-            for key in keys:
-                if not isinstance(d, dict):
-                    return default
-                d = d.get(key, default)
-            return d if d is not None else default
 
         # Initialize screenshot with empty array
         screenshot = np.zeros(self.screenshot_shape, dtype=np.uint8)
         
-        # Try to get screenshot from state
-        try:
-            if "screenshot" in state:
-                screenshot_data = state["screenshot"]
-                if isinstance(screenshot_data, str) and screenshot_data:
-                    try:
-                        screenshot = self._process_screenshot(screenshot_data)
-                    except Exception as e:
-                        self.logger.error(f"Error processing screenshot data: {e}", exc_info=True)
-                elif isinstance(screenshot_data, dict) and "data" in screenshot_data:
-                    try:
-                        screenshot = self._process_screenshot(screenshot_data["data"])
-                    except Exception as e:
-                        self.logger.error(f"Error processing screenshot from data field: {e}", exc_info=True)
-                else:
-                    self.logger.debug(f"Invalid screenshot data type: {type(screenshot_data)}")
-            else:
-                self.logger.debug("No screenshot in state")
-        except Exception as e:
-            self.logger.error(f"Error handling screenshot: {e}", exc_info=True)
+        # Process screenshot if available
+        if "screenshot" in state:
+            screenshot_data = state["screenshot"]
+            if isinstance(screenshot_data, str) and screenshot_data:
+                img_data = base64.b64decode(screenshot_data)
+                with Image.open(BytesIO(img_data)) as img:
+                    if img.mode != "RGB":
+                        img = img.convert("RGB")
+                    if img.size != (self.screenshot_shape[1], self.screenshot_shape[0]):
+                        img = img.resize(
+                            (self.screenshot_shape[1], self.screenshot_shape[0]),
+                            Image.Resampling.LANCZOS
+                        )
+                    screenshot = np.array(img, dtype=np.uint8)
 
-        player = state.get("player", {})
-        health = player.get("health", {})
-        current_health = health.get("current", 1)
-        max_health = health.get("maximum", 1)
+        player = state["player"] if "player" in state else {}
+        health = player["health"] if "health" in player else {}
+        current_health = health["current"] if "current" in health else 1
+        max_health = health["maximum"] if "maximum" in health else 1
 
         # Log health changes, especially after death
         if hasattr(self, '_last_health') and self._last_health != current_health:
@@ -996,76 +1166,119 @@ class RuneScapeEnv(gym.Env):
         self._last_health = current_health
 
         health_array = np.array([current_health], dtype=np.int32)
-        prayer = np.array([player.get("prayer", 0)], dtype=np.int32)
-        run_energy = np.array([player.get("runEnergy", 0.0)], dtype=np.float32)
+        prayer = np.array([player["prayer"] if "prayer" in player else 0], dtype=np.int32)
+        run_energy = np.array([player["runEnergy"] if "runEnergy" in player else 0.0], dtype=np.float32)
 
-        skills = player.get("skills", {})
+        skills = player["skills"] if "skills" in player else {}
         combat_stats = np.array([
-            skills.get("ATTACK", {}).get("level", 1),
-            skills.get("STRENGTH", {}).get("level", 1),
-            skills.get("DEFENCE", {}).get("level", 1),
-            skills.get("RANGED", {}).get("level", 1),
-            skills.get("MAGIC", {}).get("level", 1),
-            skills.get("HITPOINTS", {}).get("level", 1),
-            skills.get("PRAYER", {}).get("level", 1)
+            skills["ATTACK"]["level"] if "ATTACK" in skills and "level" in skills["ATTACK"] else 1,
+            skills["STRENGTH"]["level"] if "STRENGTH" in skills and "level" in skills["STRENGTH"] else 1,
+            skills["DEFENCE"]["level"] if "DEFENCE" in skills and "level" in skills["DEFENCE"] else 1,
+            skills["RANGED"]["level"] if "RANGED" in skills and "level" in skills["RANGED"] else 1,
+            skills["MAGIC"]["level"] if "MAGIC" in skills and "level" in skills["MAGIC"] else 1,
+            skills["HITPOINTS"]["level"] if "HITPOINTS" in skills and "level" in skills["HITPOINTS"] else 10,
+            skills["PRAYER"]["level"] if "PRAYER" in skills and "level" in skills["PRAYER"] else 1
         ], dtype=np.int32)
 
-        npcs = state.get("npcs", [])
-        npcs.sort(key=lambda x: x.get("distance", float("inf")))
+        npcs = state["npcs"] if "npcs" in state else []
+        npcs.sort(key=lambda x: x["distance"] if "distance" in x else float("inf"))
         npc_features = np.zeros((10, 6), dtype=np.float32)
         for i, npc in enumerate(npcs[:10]):
-            health_current = npc.get("health", {}).get("current", 0)
-            health_max = max(npc.get("health", {}).get("maximum", 1), 1)
+            if "health" in npc:
+                health_current = npc["health"]["current"] if "current" in npc["health"] else 0
+                health_max = max(npc["health"]["maximum"] if "maximum" in npc["health"] else 1, 1)
+            else:
+                health_current = 0
+                health_max = 1
             health_ratio = health_current / health_max
             npc_features[i] = np.array([
-                npc.get("id", 0),
-                npc.get("level", 0),
-                npc.get("distance", 0),
-                float(npc.get("interacting", False)),
+                npc["id"] if "id" in npc else 0,
+                npc["level"] if "level" in npc else 0,
+                npc["distance"] if "distance" in npc else 0,
+                float(npc["interacting"] if "interacting" in npc else False),
                 health_ratio,
                 1.0
             ], dtype=np.float32)
 
         skills_array = np.ones(23, dtype=np.int32)
         for i, skill in enumerate(skills.values()):
-            if i < 23:
-                skills_array[i] = skill.get("level", 1)
+            if i < 23 and "level" in skill:
+                skills_array[i] = skill["level"]
 
+        # Process interface information
+        interfaces = np.zeros((10, 4), dtype=np.float32)
+        interface_text = ""
+        interface_options = ""
+        
+        if "interfaces" in state:
+            for i, interface in enumerate(state["interfaces"][:10]):  # Limit to 10 interfaces
+                interfaces[i] = [
+                    interface["id"] if "id" in interface else 0,
+                    interface["groupId"] if "groupId" in interface else 0,
+                    1 if "text" in interface else 0,
+                    len(interface["options"]) if "options" in interface else 0
+                ]
+                
+                # Store text of first interface with text
+                if not interface_text and "text" in interface:
+                    interface_text = interface["text"]
+                
+                # Store options of first interface with options
+                if not interface_options and "options" in interface:
+                    interface_options = "|".join(opt["text"] for opt in interface["options"])
+        
+        location = player["location"] if "location" in player else {}
         return {
             "screenshot": screenshot,
-            "player_position": np.array([player.get("location", {}).get("x", 0), player.get("location", {}).get("y", 0), player.get("location", {}).get("plane", 0)], dtype=np.float32),
+            "player_position": np.array([
+                location["x"] if "x" in location else 0,
+                location["y"] if "y" in location else 0,
+                location["plane"] if "plane" in location else 0
+            ], dtype=np.float32),
             "player_combat_stats": combat_stats,
             "player_health": health_array,
             "player_prayer": prayer,
             "player_run_energy": run_energy,
             "skills": skills_array,
             "npcs": npc_features,
-            "in_combat": np.array([player.get("inCombat", False)], dtype=np.int32),
-            "interfaces_open": np.array([1 if self.interfaces_open else 0], dtype=np.int32),
-            "path_obstructed": np.array([1 if self.path_obstructed else 0], dtype=np.int32),
+            "in_combat": int(player["inCombat"] if "inCombat" in player else False),
+            "interfaces_open": int(self.interfaces_open),
+            "path_obstructed": int(self.path_obstructed),
             "current_chunk": np.array([
-                safe_get(state, "exploration", "currentChunk", "x", default=0),
-                safe_get(state, "exploration", "currentChunk", "y", default=0)
+                state["exploration"]["currentChunk"]["x"] if "exploration" in state and "currentChunk" in state["exploration"] and "x" in state["exploration"]["currentChunk"] else 0,
+                state["exploration"]["currentChunk"]["y"] if "exploration" in state and "currentChunk" in state["exploration"] and "y" in state["exploration"]["currentChunk"] else 0
             ], dtype=np.int32),
-            "visited_chunks_count": np.array([safe_get(state, "exploration", "visitedChunks", default=0)], dtype=np.int32),
+            "visited_chunks_count": np.array([
+                state["exploration"]["visitedChunks"] if "exploration" in state and "visitedChunks" in state["exploration"] else 0
+            ], dtype=np.int32),
             "nearby_areas": np.zeros((9, 5), dtype=np.float32),
-            "exploration_score": np.array([0.0], dtype=np.float32)
+            "exploration_score": np.array([0.0], dtype=np.float32),
+            "interfaces": interfaces,
+            "interface_text": interface_text,
+            "interface_options": interface_options
         }
 
     def _calculate_reward(self, state: Optional[Dict]) -> float:
-        """
-        Compute reward based on combat experience gains, health management, combat engagement,
-        movement efficiency, and resource management.
-        """
+        """Compute reward based on various factors."""
         if not state:
             return 0.0
         reward = 0.0
-        player = state.get("player", {})
-        skills = player.get("skills", {})
-
+        
+        # Get player data
+        player = state["player"] if "player" in state else {}
+        skills = player["skills"] if "skills" in player else {}
+        
+        # Add interface penalty
+        if self.interfaces_open:
+            self.consecutive_interface_frames += 1
+            if self.consecutive_interface_frames > self.max_interface_frames:
+                reward -= 0.5  # Penalty for leaving interfaces open
+        else:
+            self.consecutive_interface_frames = 0
+            
         # Combat experience rewards
         combat_skills = ["ATTACK", "STRENGTH", "DEFENCE", "RANGED", "MAGIC", "HITPOINTS"]
-        current_combat_exp = sum(skills.get(skill, {}).get("experience", 0) for skill in combat_skills)
+        current_combat_exp = sum(skills[skill]["experience"] if skill in skills and "experience" in skills[skill] else 0 for skill in combat_skills)
         if current_combat_exp > self.last_combat_exp:
             exp_gain = current_combat_exp - self.last_combat_exp
             # Scale exp rewards logarithmically to prevent exploitation
@@ -1075,9 +1288,9 @@ class RuneScapeEnv(gym.Env):
         self.last_combat_exp = current_combat_exp
 
         # Health management rewards/penalties
-        health = player.get("health", {})
-        current_health = health.get("current", 0)
-        max_health = health.get("maximum", 1)
+        health = player["health"] if "health" in player else {}
+        current_health = health["current"] if "current" in health else 0
+        max_health = health["maximum"] if "maximum" in health else 1
         health_ratio = current_health / max_health
 
         # Progressive health penalties
@@ -1096,149 +1309,218 @@ class RuneScapeEnv(gym.Env):
             self.logger.error("Death occurred!")
 
         # Combat engagement rewards
-        in_combat = player.get("inCombat", False)
+        in_combat = player["inCombat"] if "inCombat" in player else False
         if in_combat:
             reward += 0.3  # Base combat engagement reward
             # Additional reward for fighting appropriate level NPCs
-            npcs = state.get("npcs", [])
+            npcs = state["npcs"] if "npcs" in state else []
             if npcs:
                 player_combat_level = self._calculate_combat_level(skills)
                 for npc in npcs:
-                    if npc.get("interacting", False):  # If NPC is interacting with player
-                        npc_level = npc.get("combatLevel", 0)
-                        level_difference = abs(player_combat_level - npc_level)
-                        if level_difference <= 10:  # Reward fighting appropriate level NPCs
+                    if npc["interacting"] if "interacting" in npc else False:  # If NPC is interacting with player
+                        npc_level = npc["combatLevel"] if "combatLevel" in npc else 0
+                        level_diff = abs(npc_level - player_combat_level)
+                        if level_diff < 10:  # Reward fighting NPCs close to player's level
                             reward += 0.2
-                        elif level_difference > 20:  # Penalize fighting very weak/strong NPCs
+                        elif level_diff > 20:  # Penalty for fighting NPCs too far from player's level
                             reward -= 0.1
 
         # Movement and position rewards/penalties
-        current_pos = (
-            player.get("location", {}).get("x", 0),
-            player.get("location", {}).get("y", 0)
-        )
+        location = player["location"] if "location" in player else {}
+        current_pos = (location["x"] if "x" in location else 0, location["y"] if "y" in location else 0)
         
         # Penalize staying still when not in combat
-        if self.consecutive_same_pos > 2 and not in_combat:
-            reward -= 0.5 * (self.consecutive_same_pos - 2)  # Progressive penalty
-        
-        # Update position tracking
-        if hasattr(self, 'last_position') and self.last_position:
+        if not in_combat:
             if current_pos == self.last_position:
                 self.consecutive_same_pos += 1
+                if self.consecutive_same_pos > 10:  # After 10 ticks of not moving
+                    reward -= 0.1 * (self.consecutive_same_pos - 10)  # Increasing penalty
             else:
-                # Reward for exploring new areas
-                if current_pos not in getattr(self, 'visited_positions', set()):
-                    reward += 0.1
-                    self.visited_positions = getattr(self, 'visited_positions', set()) | {current_pos}
+                # Reward exploration of new areas
+                if current_pos not in self.visited_positions:
+                    reward += 0.5  # Significant reward for exploring new areas
+                    self.visited_positions.add(current_pos)
                 self.consecutive_same_pos = 0
         self.last_position = current_pos
 
         # Prayer and run energy management
-        prayer_points = player.get("prayer", 0)
-        run_energy = player.get("runEnergy", 0.0)
+        prayer_points = player["prayer"] if "prayer" in player else 0
+        run_energy = player["runEnergy"] if "runEnergy" in player else 0.0
         
         # Penalize completely depleted resources
         if prayer_points == 0:
-            reward -= 0.2
+            reward -= 0.1
         if run_energy < 5.0:
-            reward -= 0.2
+            reward -= 0.1
 
-        # Clip final reward to prevent extreme values
-        return np.clip(reward, -100.0, 100.0)
+        # Add rewards for successful interface interactions
+        if "interfaces" in state:
+            for interface in state["interfaces"]:
+                if "text" in interface and "Enter Wilderness" in interface["text"]:
+                    # Give a small reward for finding the wilderness interface
+                    reward += 0.1
+                    
+                    # Check if we're in the wilderness in the next state
+                    if self.current_state and self.current_state["inWilderness"] if "inWilderness" in self.current_state else False:
+                        # Give a larger reward for successfully entering
+                        reward += 1.0
+        
+        return reward
 
-    def _calculate_combat_level(self, skills: Dict) -> int:
-        """Calculate the player's combat level based on their skills."""
+    def _is_episode_done(self, state: Optional[Dict]) -> bool:
+        """Check if the episode is done."""
+        if not state:
+            return True
+
+        # Only end episode on death
+        current_health = state["player"]["health"]["current"] if "player" in state and "health" in state["player"] else 0
+        return current_health <= 0
+
+    def _calculate_combat_level(self, skills: Dict[str, Dict[str, int]]) -> int:
+        """Calculate the combat level based on skill levels."""
+        # Get base skill levels, defaulting to 1 if not found
         attack = skills.get("ATTACK", {}).get("level", 1)
         strength = skills.get("STRENGTH", {}).get("level", 1)
         defence = skills.get("DEFENCE", {}).get("level", 1)
-        hitpoints = skills.get("HITPOINTS", {}).get("level", 10)
+        hitpoints = skills.get("HITPOINTS", {}).get("level", 10)  # Base HP is 10
         prayer = skills.get("PRAYER", {}).get("level", 1)
         ranged = skills.get("RANGED", {}).get("level", 1)
         magic = skills.get("MAGIC", {}).get("level", 1)
 
-        # Base combat calculation
+        # Calculate base combat level using RuneScape formula
         base = 0.25 * (defence + hitpoints + math.floor(prayer/2))
         melee = 0.325 * (attack + strength)
         range_level = 0.325 * (math.floor(3 * ranged/2))
         magic_level = 0.325 * (math.floor(3 * magic/2))
-        
-        # Use highest combat style
+
+        # Use the highest of melee, range, or magic
         combat = base + max(melee, range_level, magic_level)
+        
         return math.floor(combat)
 
-    def _is_episode_done(self, state: Optional[Dict]) -> bool:
-        """Determine if the episode is finished."""
-        if not state:
-            return False
-        player = state.get("player", {})
-        health = player.get("health", {})
-        current_health = health.get("current", 0)
-        
-        # Check for respawn
-        if hasattr(self, '_last_health') and self._last_health is not None:
-            if self._last_health <= 0 and current_health > 0:
-                self.logger.warning("Player has respawned!")
-                return True  # End episode on respawn
-        
-        # Update last health
-        self._last_health = current_health
-        
-        # Log death events
-        if current_health <= 0 and not getattr(self, '_death_logged', False):
-            self.logger.warning("Episode ending due to death (health: 0)")
-            self._death_logged = True
-            
-        # Log if no NPCs remain
-        if len(state.get("npcs", [])) == 0:
-            self.logger.warning("Episode ending due to no NPCs remaining")
-            
-        return current_health <= 0 or len(state.get("npcs", [])) == 0
+    def _get_gpt4_interface_decision(self, interfaces: List[Dict]) -> Optional[Dict]:
+        """Use GPT-4 to decide which interface option to select."""
+        if not interfaces or not OPENAI_API_KEY:
+            return None
+
+        # Format the interface options for GPT-4
+        interface_descriptions = []
+        for interface in interfaces:
+            if "options" in interface and interface["options"]:
+                options_text = [opt["text"] for opt in interface["options"]]
+                interface_text = interface.get("text", "")
+                interface_descriptions.append({
+                    "id": interface["id"],
+                    "groupId": interface["groupId"],
+                    "text": interface_text,
+                    "options": options_text
+                })
+
+        if not interface_descriptions:
+            return None
+
+        # Define the function for structured output
+        functions = [
+            {
+                "name": "select_interface_option",
+                "description": "Select the most appropriate interface option based on the context",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "interfaceId": {
+                            "type": "integer",
+                            "description": "The ID of the selected interface"
+                        },
+                        "groupId": {
+                            "type": "integer",
+                            "description": "The group ID of the selected interface"
+                        },
+                        "optionText": {
+                            "type": "string",
+                            "description": "The text of the selected option"
+                        },
+                        "reasoning": {
+                            "type": "string",
+                            "description": "Brief explanation for why this option was chosen"
+                        }
+                    },
+                    "required": ["interfaceId", "groupId", "optionText", "reasoning"]
+                }
+            }
+        ]
+
+        try:
+            # Call GPT-4 API with function calling
+            response = openai_client.chat.completions.create(
+                model="gpt-4",
+                messages=[{
+                    "role": "system",
+                    "content": """You are an AI playing RuneScape. You need to decide which interface option to click.
+Consider:
+1. Safety (avoid dangerous options)
+2. Progress (prefer options that advance gameplay)
+3. Resource management (consider health/prayer/etc.)"""
+                }, {
+                    "role": "user",
+                    "content": f"Here are the available interfaces and their options:\n\n{json.dumps(interface_descriptions, indent=2)}\n\nWhich option should be selected?"
+                }],
+                functions=functions,
+                function_call={"name": "select_interface_option"},
+                temperature=0.2,
+                max_tokens=150
+            )
+
+            # Get the function call
+            function_call = response.choices[0].message.function_call
+            if not function_call:
+                self.logger.warning("No function call in GPT-4 response")
+                return None
+
+            # Parse the function arguments
+        except Exception as e:
+            self.logger.error(f"Error getting GPT-4 interface decision: {e}")
+            return None
 
     def _action_to_command(self, action: Action) -> Optional[Dict]:
         """Convert a high-level action into a command following the schema."""
         if not self.current_state:
             return None
+            
         if isinstance(action, (int, np.integer)):
-            action = Action(int(action))
+            action = Action(action)
         
-        player = self.current_state.get("player", {})
-        location = player.get("location", {})
-        current_x = location.get("x", 0)
-        current_y = location.get("y", 0)
-        
-        # Base movement distance varies by direction (diagonal vs cardinal)
-        base_distance = random.randint(3, 5)  # Randomize movement distance slightly
-        diagonal_distance = int(base_distance * 0.707)  # cos(45°) ≈ 0.707
-        
-        # Check for nearby objects that might need interaction
-        nearby_objects = self._get_nearby_interactable_objects()
+        player = self.current_state["player"] if "player" in self.current_state else {}
+        location = player["location"] if "location" in player else {}
+        current_x = location["x"] if "x" in location else 0
+        current_y = location["y"] if "y" in location else 0
         
         if action == Action.ATTACK:
-            npcs = self.current_state.get("npcs", [])
+            # Find nearest attackable NPC
+            npcs = self.current_state["npcs"] if "npcs" in self.current_state else []
             # Filter for attackable NPCs, considering level difference
-            player_combat_level = self._calculate_combat_level(player.get("skills", {}))
+            player_combat_level = self._calculate_combat_level(player["skills"] if "skills" in player else {})
             attackable_npcs = [
                 npc for npc in npcs
-                if (npc.get("combatLevel", 0) > 0 and 
-                    abs(npc.get("combatLevel", 0) - player_combat_level) < 20 and  # Level difference check
-                    not npc.get("interacting", False) and 
-                    npc.get("id") != self.last_target_id)
+                if ("combatLevel" in npc and 
+                    abs(npc["combatLevel"] - player_combat_level) < 20 and  # Level difference check
+                    not npc["interacting"] if "interacting" in npc else False and 
+                    "id" in npc and npc["id"] != self.last_target_id)
             ]
             
             if not attackable_npcs:
                 # Fallback to any non-interacting NPCs if none match our criteria
                 attackable_npcs = [
                     npc for npc in npcs
-                    if npc.get("combatLevel", 0) > 0 and not npc.get("interacting", False)
+                    if ("combatLevel" in npc and npc["combatLevel"] > 0 and 
+                        not npc["interacting"] if "interacting" in npc else False)
                 ]
             
             if attackable_npcs:
                 # Sort by combination of distance and level appropriateness
                 nearest_npc = min(attackable_npcs, 
-                    key=lambda x: (x.get("distance", float("inf")) * 
-                                 (1 + abs(x.get("combatLevel", 0) - player_combat_level) / 20)))
-                self.last_target_id = nearest_npc.get("id")
+                    key=lambda x: (x["distance"] if "distance" in x else float("inf")) * 
+                                 (1 + abs(x["combatLevel"] if "combatLevel" in x else 0 - player_combat_level) / 20))
+                self.last_target_id = nearest_npc["id"]
                 return {
                     "action": "moveAndClick",
                     "data": {
@@ -1247,74 +1529,113 @@ class RuneScapeEnv(gym.Env):
                         "npcId": nearest_npc["id"]
                     }
                 }
+            else:
+                # No NPCs found - explore more aggressively
+                # Calculate exploration direction based on visited areas
+                current_chunk = (
+                    self.current_state["exploration"]["currentChunk"]["x"] if "exploration" in self.current_state and "currentChunk" in self.current_state["exploration"] and "x" in self.current_state["exploration"]["currentChunk"] else 0,
+                    self.current_state["exploration"]["currentChunk"]["y"] if "exploration" in self.current_state and "currentChunk" in self.current_state["exploration"] and "y" in self.current_state["exploration"]["currentChunk"] else 0
+                )
+                
+                # Get nearby chunks that haven't been visited
+                nearby_chunks = [
+                    (current_chunk[0] + dx, current_chunk[1] + dy)
+                    for dx, dy in [(0,1), (1,0), (0,-1), (-1,0)]
+                    if (current_chunk[0] + dx, current_chunk[1] + dy) not in self.visited_areas
+                ]
+                
+                if nearby_chunks:
+                    # Move towards nearest unvisited chunk
+                    target_chunk = min(nearby_chunks, key=lambda c: abs(c[0] - current_chunk[0]) + abs(c[1] - current_chunk[1]))
+                    dx = target_chunk[0] - current_chunk[0]
+                    dy = target_chunk[1] - current_chunk[1]
+                    
+                    if abs(dx) > abs(dy):
+                        action = Action.MOVE_RIGHT if dx > 0 else Action.MOVE_LEFT
+                    else:
+                        action = Action.MOVE_FORWARD if dy > 0 else Action.MOVE_BACKWARD
+                else:
+                    # All nearby chunks visited, move randomly
+                    action = random.choice([
+                        Action.MOVE_FORWARD,
+                        Action.MOVE_BACKWARD,
+                        Action.MOVE_LEFT,
+                        Action.MOVE_RIGHT
+                    ])
         
-        elif action == Action.INTERACT and nearby_objects:
-            obj = nearby_objects[0]  # Take closest interactable object
-            return {
-                "action": "moveAndClick",
-                "data": {
-                    "targetType": "object",
-                    "objectId": obj["id"],
-                    "action": obj["action"],
-                    "x": obj["x"],
-                    "y": obj["y"]
-                }
-            }
-        
-        # Movement commands with collision avoidance
-        movement_commands = {
-            Action.MOVE_N:  (current_x, current_y + base_distance),
-            Action.MOVE_NE: (current_x + diagonal_distance, current_y + diagonal_distance),
-            Action.MOVE_E:  (current_x + base_distance, current_y),
-            Action.MOVE_SE: (current_x + diagonal_distance, current_y - diagonal_distance),
-            Action.MOVE_S:  (current_x, current_y - base_distance),
-            Action.MOVE_SW: (current_x - diagonal_distance, current_y - diagonal_distance),
-            Action.MOVE_W:  (current_x - base_distance, current_y),
-            Action.MOVE_NW: (current_x - diagonal_distance, current_y + diagonal_distance)
-        }
-        
-        if action in movement_commands:
-            target_x, target_y = movement_commands[action]
-            
-            # Check if path is blocked
-            if self._is_path_blocked(current_x, current_y, target_x, target_y):
-                # Try to find alternative path or interact with blocking object
-                alt_path = self._find_alternative_path(current_x, current_y, target_x, target_y)
-                if alt_path:
-                    target_x, target_y = alt_path
-                elif nearby_objects:  # If blocked by interactable object, interact with it
-                    obj = nearby_objects[0]
-                    return {
-                        "action": "moveAndClick",
-                        "data": {
-                            "targetType": "object",
-                            "objectId": obj["id"],
-                            "action": obj["action"],
-                            "x": obj["x"],
-                            "y": obj["y"]
-                        }
-                    }
-            
+        # Movement commands
+        move_distance = 2
+        if action == Action.MOVE_FORWARD:
             return {
                 "action": "moveAndClick",
                 "data": {
                     "targetType": "coordinates",
                     "action": "Move",
-                    "x": target_x,
-                    "y": target_y
+                    "x": current_x,
+                    "y": current_y + move_distance
                 }
             }
-        elif action == Action.ROTATE_LEFT:
-            return {"action": "camera_rotate", "data": {"right": False}}
-        elif action == Action.ROTATE_RIGHT:
-            return {"action": "camera_rotate", "data": {"right": True}}
-        elif action == Action.ZOOM_IN:
-            return {"action": "camera_zoom", "data": {"in": True}}
-        elif action == Action.ZOOM_OUT:
-            return {"action": "camera_zoom", "data": {"in": False}}
-        elif action == Action.DO_NOTHING:
-            return None
-        
+        elif action == Action.MOVE_BACKWARD:
+            return {
+                "action": "moveAndClick",
+                "data": {
+                    "targetType": "coordinates",
+                    "action": "Move",
+                    "x": current_x,
+                    "y": current_y - move_distance
+                }
+            }
+        elif action == Action.MOVE_LEFT:
+            return {
+                "action": "moveAndClick",
+                "data": {
+                    "targetType": "coordinates",
+                    "action": "Move",
+                    "x": current_x - move_distance,
+                    "y": current_y
+                }
+            }
+        elif action == Action.MOVE_RIGHT:
+            return {
+                "action": "moveAndClick",
+                "data": {
+                    "targetType": "coordinates",
+                    "action": "Move",
+                    "x": current_x + move_distance,
+                    "y": current_y
+                }
+            }
+        elif action == Action.INTERFACE_ACTION:
+            # Get all available interfaces
+            interfaces = self.current_state["interfaces"] if "interfaces" in self.current_state else []
+            
+            # Find interfaces with available options
+            clickable_interfaces = [
+                interface for interface in interfaces
+                if "options" in interface and interface["options"]
+            ]
+            
+            if clickable_interfaces:
+                # Use GPT-4 to decide which option to select
+                decision = self._get_gpt4_interface_decision(clickable_interfaces)
+                if decision:
+                    return {
+                        "action": "interfaceAction",
+                        "data": decision
+                    }
+                else:
+                    # Fallback to selecting the first option if GPT-4 fails
+                    interface = clickable_interfaces[0]
+                    option = interface["options"][0]
+                    return {
+                        "action": "interfaceAction",
+                        "data": {
+                            "interfaceId": interface["id"],
+                            "groupId": interface["groupId"],
+                            "optionText": option["text"]
+                        }
+                    }
+            
         return None
 
     def _get_nearby_interactable_objects(self) -> List[Dict]:
@@ -1322,27 +1643,29 @@ class RuneScapeEnv(gym.Env):
         if not self.current_state:
             return []
         
-        objects = self.current_state.get("objects", [])
-        player_loc = self.current_state.get("player", {}).get("location", {})
-        current_x = player_loc.get("x", 0)
-        current_y = player_loc.get("y", 0)
+        objects = self.current_state["objects"] if "objects" in self.current_state else []
+        player_loc = self.current_state["player"]["location"] if "player" in self.current_state and "location" in self.current_state["player"] else {}
+        current_x = player_loc["x"] if "x" in player_loc else 0
+        current_y = player_loc["y"] if "y" in player_loc else 0
         
         interactable_objects = []
         for obj in objects:
-            obj_x = obj.get("location", {}).get("x", 0)
-            obj_y = obj.get("location", {}).get("y", 0)
+            if "location" not in obj:
+                continue
+            obj_x = obj["location"]["x"] if "x" in obj["location"] else 0
+            obj_y = obj["location"]["y"] if "y" in obj["location"] else 0
             
             # Calculate distance to object
             distance = math.sqrt((obj_x - current_x)**2 + (obj_y - current_y)**2)
             
             # Check if object has relevant actions
-            actions = obj.get("actions", [])
+            actions = obj["actions"] if "actions" in obj else []
             interactable_actions = ["Open", "Close", "Enter", "Exit", "Climb", "Use"]
             
             for action in actions:
                 if action in interactable_actions and distance < 10:  # Within reasonable distance
                     interactable_objects.append({
-                        "id": obj.get("id"),
+                        "id": obj["id"] if "id" in obj else None,
                         "action": action,
                         "x": obj_x,
                         "y": obj_y,
@@ -1359,7 +1682,7 @@ class RuneScapeEnv(gym.Env):
             return False
         
         # Get collision data from state
-        collision_data = self.current_state.get("collisionData", {})
+        collision_data = self.current_state["collisionData"] if "collisionData" in self.current_state else {}
         if not collision_data:
             return False
         
@@ -1378,7 +1701,8 @@ class RuneScapeEnv(gym.Env):
             check_y = int(start_y + (dy * i / steps))
             
             # Check if point is blocked in collision map
-            if collision_data.get(f"{check_x},{check_y}", False):
+            key = f"{check_x},{check_y}"
+            if key in collision_data and collision_data[key]:
                 return True
         
         return False
@@ -1395,6 +1719,52 @@ class RuneScapeEnv(gym.Env):
                 return (new_x, new_y)
         
         return None
+
+    def _check_interfaces_open(self) -> bool:
+        """Check if any interfaces are currently open."""
+        if not self.current_state:
+            return False
+            
+        # List of interface IDs that should be closed
+        interface_groups = [
+            WidgetID.WORLD_MAP_GROUP_ID,  # World map
+            WidgetID.INVENTORY_GROUP_ID,   # Inventory
+            WidgetID.SKILLS_GROUP_ID,      # Skills
+            WidgetID.EQUIPMENT_GROUP_ID,   # Equipment
+            WidgetID.PRAYER_GROUP_ID,      # Prayer
+            WidgetID.SPELLBOOK_GROUP_ID,   # Magic spellbook
+            WidgetID.BANK_GROUP_ID,        # Bank
+            WidgetID.DIALOG_GROUP_ID,      # Dialog boxes
+            WidgetID.CHATBOX_GROUP_ID      # Chat interfaces
+        ]
+        
+        widgets = self.current_state["widgets"] if "widgets" in self.current_state else {}
+        for group_id in interface_groups:
+            if str(group_id) in widgets and not widgets[str(group_id)]["hidden"] if "hidden" in widgets[str(group_id)] else True:
+                return True
+                
+        return False
+
+    def _close_interface_command(self) -> Dict:
+        """Generate command to close the current interface."""
+        return {
+            "action": "pressKey",
+            "data": {
+                "key": "ESCAPE"
+            }
+        }
+
+    def _log_interface_metrics(self, info: Dict) -> None:
+        """Log interface-related metrics to TensorBoard."""
+        if not hasattr(self, 'writer') or not self.writer:
+            return
+            
+        timestep = self.num_timesteps
+        self._log_scalar("interfaces/open", int(self.interface_open), timestep)
+        self._log_scalar("interfaces/consecutive_frames", self.consecutive_interface_frames, timestep)
+        
+        if self.interface_open:
+            self._log_scalar("interfaces/time_spent", self.interface_check_cooldown, timestep)
 
 # -----------------------------------------------------------------------------
 # Main Execution

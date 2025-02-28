@@ -1,0 +1,8 @@
+---
+description: Code rules
+globs: 
+alwaysApply: false
+---
+Never use try except or try catch blocks, if you see one, remove it. 
+
+Always delete unused variables, functions, or imports. 

@@ -1,6 +1,6 @@
 {
-  "title": "RLBot Game State Schema",
-  "description": "Schema for game state information sent from RuneLite plugin to Python agent",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RLBot State Schema",
   "type": "object",
   "properties": {
     "player": {
@@ -24,21 +24,20 @@
           "required": ["current", "maximum"]
         },
         "inCombat": { "type": "boolean" },
+        "isRunning": { "type": "boolean" },
         "runEnergy": { "type": "number" },
         "skills": {
           "type": "object",
-          "patternProperties": {
-            "^[A-Z_]+$": {
-              "type": "object",
-              "properties": {
-                "level": { "type": "integer" },
-                "realLevel": { "type": "integer" },
-                "experience": { "type": "integer" }
-              },
-              "required": ["level", "realLevel", "experience"]
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "level": { "type": "integer" },
+              "realLevel": { "type": "integer" },
+              "experience": { "type": "integer" }
             }
           }
-        }
+        },
+        "prayer": { "type": "integer" }
       },
       "required": ["location", "health", "inCombat", "runEnergy", "skills"]
     },
@@ -56,8 +55,7 @@
               "x": { "type": "integer" },
               "y": { "type": "integer" },
               "plane": { "type": "integer" }
-            },
-            "required": ["x", "y", "plane"]
+            }
           },
           "health": {
             "type": "object",
@@ -68,8 +66,7 @@
           },
           "interacting": { "type": "boolean" },
           "distance": { "type": "number" }
-        },
-        "required": ["id", "name", "combatLevel", "location", "interacting", "distance"]
+        }
       }
     },
     "objects": {
@@ -85,15 +82,13 @@
               "x": { "type": "integer" },
               "y": { "type": "integer" },
               "plane": { "type": "integer" }
-            },
-            "required": ["x", "y", "plane"]
+            }
           },
           "actions": {
             "type": "array",
             "items": { "type": "string" }
           }
-        },
-        "required": ["id", "name", "location", "actions"]
+        }
       }
     },
     "groundItems": {
@@ -110,13 +105,42 @@
               "x": { "type": "integer" },
               "y": { "type": "integer" },
               "plane": { "type": "integer" }
-            },
-            "required": ["x", "y", "plane"]
+            }
+          }
+        }
+      }
+    },
+    "interfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "type": { "type": "string" },
+          "text": { "type": "string" },
+          "actions": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "interfacesOpen": { "type": "boolean" },
+    "pathObstructed": { "type": "boolean" },
+    "exploration": {
+      "type": "object",
+      "properties": {
+        "currentChunk": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "integer" },
+            "y": { "type": "integer" }
           }
         },
-        "required": ["id", "name", "quantity", "location"]
+        "visitedChunks": { "type": "integer" }
       }
-    }
+    },
+    "screenshot": { "type": "string" }
   },
   "required": ["player", "npcs", "objects", "groundItems"]
 } 

@@ -1,0 +1,6 @@
+---
+description: This is the command to use to build the client
+globs: 
+alwaysApply: false
+---
+You must be in the runelite folder and run mvn clean install -DskipTests

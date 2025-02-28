@@ -1,0 +1,6 @@
+---
+description: This is the required way to run the client
+globs: 
+alwaysApply: false
+---
+Run it from /Applications/RuneLite.app/Contents/MacOS/RuneLite
