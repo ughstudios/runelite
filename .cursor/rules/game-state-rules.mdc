@@ -1,0 +1,6 @@
+---
+description: Any code related to the game state
+globs: 
+alwaysApply: false
+---
+Any code related to the game state must ensure that it strictly follows the [state_schema.json](mdc:rlbot/state_schema.json)
