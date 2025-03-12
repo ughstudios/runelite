@@ -1,121 +1,109 @@
-# RuneScape AI Bot
+# RuneScape AI Training Bot
 
-This project implements a reinforcement learning agent that can play RuneScape through the RuneLite client API.
+A reinforcement learning agent for playing RuneScape using Proximal Policy Optimization (PPO).
+
+## Overview
+
+This project implements an AI-powered bot for RuneScape using reinforcement learning. The system connects to the RuneLite client (a third-party RuneScape client) via a custom plugin and learns to perform actions automatically.
+
+The agent is trained using PPO (Proximal Policy Optimization) from Stable Baselines3 to learn optimal behavior based on game state observations and rewards.
 
 ## Features
 
-- Fully automated combat training
-- Smart NPC targeting and interaction
-- Inventory management (food, potions)
-- Health and prayer management
-- Extensive state observation (skills, inventory, NPCs)
-- Configurable reward system
-- Real-time monitoring and logging
+- **Custom Gymnasium Environment**: Connects to RuneScape through RuneLite via WebSockets
+- **Combined Neural Network**: Processes both screenshots and vector data from the game
+- **Reward System**: Rewards for gaining XP, managing health, exploring, and combat
+- **Multiple Actions**: Movement, combat, interactions with objects and NPCs, camera controls
+- **Structured Training**: Checkpoints, TensorBoard logging, and evaluation metrics
 
 ## Requirements
 
 - Python 3.8+
-- RuneLite client with RLBot plugin
-- Required Python packages (install via `pip install -r requirements.txt`):
-  - gym==0.21.0
-  - numpy>=1.19.0
-  - websocket-client>=1.2.1
-  - stable-baselines3>=1.5.0
-  - torch>=1.9.0
+- RuneLite client with the RLBot plugin
+- Packages listed in `requirements.txt`
 
-## Setup
+## Installation
 
-1. Build and run the modified RuneLite client:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/runescape_bot_runelite.git
+   cd runescape_bot_runelite
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Install and configure the RLBot plugin in your RuneLite client
+
+## Usage
+
+### Testing the Connection
+
+To test if the system can connect to RuneLite:
+
 ```bash
-cd runelite
-mvn clean install -DskipTests
-java -jar runelite-client/target/client-1.11.2-SNAPSHOT-shaded.jar
+python -m rlbot.main --test
 ```
 
-2. Enable the RLBot plugin in RuneLite settings
+### Training an Agent
 
-3. Set up the Python environment:
+To start training a combat bot:
+
 ```bash
-cd rlbot
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-pip install -r requirements.txt
+python -m rlbot.main --timesteps 1000000
 ```
 
-## Training the Bot
+Optional arguments:
+- `--debug`: Enable detailed debug logging
+- `--verbose`: Enable verbose output
+- `--timesteps`: Specify the number of training timesteps (default: 1,000,000)
 
-1. Start training:
-```bash
-python train.py
-```
+## Project Structure
 
-The training script will:
-- Create a new log directory with timestamp
-- Save checkpoints every 10,000 steps
-- Save the best model based on evaluation
-- Log training metrics to TensorBoard
-- Handle training interruptions gracefully
+- `rlbot/` - Main package
+  - `src/` - Source code
+    - `environment.py` - RuneScape environment implementation
+    - `models.py` - Data models for game state
+    - `websocket_client.py` - WebSocket communication with RuneLite
+    - `extractors.py` - Feature extractors for neural network
+    - `training.py` - Training and evaluation functions
+  - `main.py` - Entry point script
+  - `logs/` - Log files and TensorBoard logs
+  - `models/` - Saved model files
+  - `checkpoints/` - Training checkpoints
 
-2. Monitor training progress:
-```bash
-tensorboard --logdir logs/combat_bot_latest/tensorboard/
-```
+## How It Works
 
-## Testing the Bot
+1. The RuneLite client runs with the RLBot plugin enabled, which exposes game state via WebSocket
+2. Our Python code connects to this WebSocket to receive game state updates
+3. The agent processes these states through a neural network to decide on actions
+4. Actions are sent back to RuneLite via WebSocket to control the game character
+5. The agent learns through rewards for successful behaviors
 
-1. Test a trained model:
-```python
-from train import test_combat_bot
+## Training Process
 
-test_combat_bot(
-    model_path="logs/combat_bot_latest/final_model.zip",
-    vec_normalize_path="logs/combat_bot_latest/vec_normalize.pkl"
-)
-```
+The training follows these steps:
+1. Environment initialization and connection to RuneLite
+2. State observation including screenshot and game data
+3. Action selection by the neural network
+4. Execution of action in the game
+5. Reward calculation based on outcomes
+6. Neural network update using PPO algorithm
 
-## Configuration
+## Future Improvements
 
-The bot's behavior can be configured through:
+- Support for more in-game activities beyond combat
+- Improved vision processing for scene understanding
+- Inventory management capabilities
+- Quest completion functionality
 
-1. Environment parameters in `runescape_env.py`:
-- Action space definition
-- Observation space structure
-- Reward calculation
-- Episode termination conditions
+## License
 
-2. Training parameters in `train.py`:
-- Learning rate
-- Batch size
-- Training steps
-- Model architecture
-- Exploration settings
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Safety Features
+## Acknowledgments
 
-The bot includes several safety measures:
-- Action rate limiting
-- Health monitoring
-- Safe area restrictions
-- Graceful error handling
-- Clean shutdown procedures
-
-## Extending the Bot
-
-The bot can be extended to support more tasks by:
-
-1. Adding new action types in `Action` enum
-2. Implementing new task handlers in `_execute_action`
-3. Creating appropriate reward functions
-4. Defining task-specific termination conditions
-
-## Contributing
-
-Feel free to contribute by:
-1. Adding new features
-2. Improving the reward system
-3. Optimizing the model architecture
-4. Adding support for more RuneScape activities
-
-## Disclaimer
-
-This bot is for educational purposes only. Using automated tools in RuneScape may violate the game's terms of service. Use at your own risk. 
+- RuneLite developers for the excellent client
+- Stable Baselines3 team for the reinforcement learning framework 
