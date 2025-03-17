@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Data models for the RuneScape environment.
 
@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 
 class Location(BaseModel):
     """Location of an entity in the game world."""
+
     x: int
     y: int
     plane: int = 0
@@ -18,12 +19,14 @@ class Location(BaseModel):
 
 class Health(BaseModel):
     """Health of an entity."""
+
     current: int
     maximum: int
 
 
 class Skill(BaseModel):
     """Skill with level and experience."""
+
     level: int
     realLevel: int = 0
     experience: int = 0
@@ -31,6 +34,7 @@ class Skill(BaseModel):
 
 class Player(BaseModel):
     """Player character data."""
+
     location: Location
     health: Health
     inCombat: bool = False
@@ -42,6 +46,7 @@ class Player(BaseModel):
 
 class NPC(BaseModel):
     """Non-player character data."""
+
     id: int
     name: str = ""
     combatLevel: int = 0
@@ -54,6 +59,7 @@ class NPC(BaseModel):
 
 class GameObject(BaseModel):
     """Game object data (e.g., trees, doors)."""
+
     id: int
     name: str = ""
     location: Location
@@ -63,6 +69,7 @@ class GameObject(BaseModel):
 
 class GroundItem(BaseModel):
     """Item on the ground."""
+
     id: int
     name: str = ""
     quantity: int = 1
@@ -71,12 +78,14 @@ class GroundItem(BaseModel):
 
 class InterfaceOption(BaseModel):
     """Option for an interface element."""
+
     text: str = ""
     type: str = ""
 
 
 class InterfaceElement(BaseModel):
     """Interface element (menu, dialog, etc.)."""
+
     id: int
     groupId: int = 0
     type: str = ""
@@ -87,18 +96,23 @@ class InterfaceElement(BaseModel):
 
 class ChunkCoordinate(BaseModel):
     """Coordinate of a map chunk."""
+
     x: int
     y: int
 
 
 class Exploration(BaseModel):
     """Player's exploration data."""
-    currentChunk: ChunkCoordinate = Field(default_factory=lambda: ChunkCoordinate(x=0, y=0))
+
+    currentChunk: ChunkCoordinate = Field(
+        default_factory=lambda: ChunkCoordinate(x=0, y=0)
+    )
     visitedChunks: int = 0
 
 
 class GameState(BaseModel):
     """Complete game state."""
+
     player: Player
     npcs: List[NPC] = []
     objects: List[GameObject] = []
@@ -107,4 +121,4 @@ class GameState(BaseModel):
     interfacesOpen: bool = False
     pathObstructed: bool = False
     exploration: Optional[Exploration] = None
-    screenshot: str  # Screenshot is always expected to be provided 
+    screenshot: str

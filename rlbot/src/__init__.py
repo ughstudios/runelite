@@ -8,19 +8,18 @@ agent to play RuneScape via the RuneLite client.
 from .environment import RuneScapeEnv, Action
 from .models import GameState, Player, NPC
 from .extractors import CombinedExtractor
-from .training import test_connection, train_combat_bot, make_env, create_ppo_agent
+from .training import test_connection, train_bot, create_ppo_agent
 from .websocket_client import WebSocketClient
 
 __all__ = [
-    'RuneScapeEnv',
-    'Action',
-    'GameState',
-    'Player',
-    'NPC',
-    'CombinedExtractor',
-    'test_connection',
-    'train_combat_bot',
-    'make_env',
-    'create_ppo_agent',
-    'WebSocketClient'
-] 
+    "RuneScapeEnv",
+    "Action",
+    "GameState",
+    "Player",
+    "NPC",
+    "CombinedExtractor",
+    "test_connection",
+    "train_bot",
+    "create_ppo_agent",
+    "WebSocketClient",
+]

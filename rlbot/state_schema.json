@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema
   "title": "RLBot State Schema",
   "type": "object",
   "properties": {
@@ -125,8 +125,6 @@
         }
       }
     },
-    "interfacesOpen": { "type": "boolean" },
-    "pathObstructed": { "type": "boolean" },
     "exploration": {
       "type": "object",
       "properties": {
