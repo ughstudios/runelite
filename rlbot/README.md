@@ -1,3 +1,58 @@
+# RuneScape Bot Agent
+
+This is a RuneScape bot agent built using the OpenAI Agents SDK that can control the game using mouse movements, camera controls, and interact with game objects.
+
+## Features
+
+- Take screenshots of the game
+- Control mouse movements and clicks
+- Control camera movement using WASD keys
+- Interact with game objects using the REST API
+- Convert game coordinates to screen coordinates
+- Maintain game state context
+
+## Setup
+
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+2. Create a screenshots directory:
+```bash
+mkdir screenshots
+```
+
+3. Make sure the RuneLite client is running with the RLBot plugin enabled.
+
+## Usage
+
+Run the agent:
+```bash
+python agent.py
+```
+
+The agent can be controlled by giving it natural language commands, for example:
+- "Get the game state and click on any tree you find"
+- "Move the camera north for 2 seconds"
+- "Take a screenshot of the current view"
+
+## Important Notes
+
+1. The game coordinate to screen coordinate conversion in `game_to_screen_coords()` needs to be calibrated for your specific setup.
+
+2. Make sure the RuneLite client is running and the RLBot plugin is enabled before running the agent.
+
+3. The agent uses the REST API endpoint at `http://localhost:43595` by default.
+
+## Customization
+
+You can modify the agent's behavior by:
+1. Adding new tool functions
+2. Adjusting the coordinate conversion logic
+3. Modifying the agent's instructions
+4. Adding new game state models as needed
+
 
 
 A reinforcement learning agent for playing RuneScape using Proximal Policy Optimization (PPO).

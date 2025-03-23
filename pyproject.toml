@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "rlbot"
+version = "0.1.0"
+description = "RuneScape bot using OpenAI Agents"
+authors = ["Daniel Gleason"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+openai-agents = "^0.0.6"
+requests = "^2.32.3"
+pyautogui = "^0.9.54"
+pydantic = "^2.10.6"
+python-dotenv = "^1.0.1"
+pyobjc-framework-quartz = {markers = "sys_platform == \"darwin\"", version = "^11.0"}
+pywin32 = {markers = "sys_platform == \"win32\"", version = "^310"}
+types-requests = "^2.32.0.20250306"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

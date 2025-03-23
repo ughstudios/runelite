@@ -1,0 +1,8 @@
+python-dotenv==1.0.0
+requests==2.31.0
+pyautogui==0.9.54
+pydantic==2.5.2
+agents==1.4.0
+openai==1.12.0
+pyobjc-framework-Quartz==10.1; sys_platform == 'darwin'  # For macOS
+pywin32==306; sys_platform == 'win32'  # For Windows 
