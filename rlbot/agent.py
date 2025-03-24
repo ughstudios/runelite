@@ -1,10 +1,7 @@
 from dotenv import load_dotenv
-
-# Load environment variables from .env file - MUST be before other imports
 load_dotenv()
 
 import os
-import json
 import requests
 import pyautogui
 import asyncio
@@ -12,9 +9,10 @@ import time
 import base64
 import importlib.util
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict
 from agents import Runner, Agent, ModelSettings, function_tool
 import random
+
 
 class Location(BaseModel):
     x: int = Field(..., description="X coordinate")
@@ -123,9 +121,7 @@ class GameContext(BaseModel):
 
     def __init__(self, **data):
         super().__init__(**data)
-        # Convert screenshot_dir to absolute path relative to current directory
         self.screenshot_dir = os.path.abspath(os.path.join(os.getcwd(), self.screenshot_dir))
-        # Create the directory if it doesn't exist
         os.makedirs(self.screenshot_dir, exist_ok=True)
 
 class MouseMoveParams(BaseModel):
@@ -302,7 +298,16 @@ async def main():
             move_camera,
             get_game_state,
             click_game_object
-        ]
+        ],
+        model="gpt-4o",
+        model_settings=ModelSettings(
+            temperature=0.5,
+            max_tokens=1000,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0,
+            tool_choice="required"
+        )
     )
     print("Created agent")
     
@@ -310,7 +315,8 @@ async def main():
     result = await Runner.run(
         agent,
         "Get the current game state",
-        context=context
+        context=context,
+        max_turns=50
     )
     print("Successfully accessed game state")
     print(f"Test result: {result}")
@@ -329,8 +335,10 @@ async def main():
     result = await Runner.run(
         agent,
         "Look for nearby trees or resources",
-        context=context
+        context=context,
+        max_turns=50
     )
+
     print("Got result from agent")
     print(f"Bot result: {result}")
     if hasattr(result, 'error'):
@@ -344,6 +352,7 @@ async def main():
                 print(f"Error from raw response: {response.error}")
             if hasattr(response, 'content'):
                 print(f"Raw response content: {response.content}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

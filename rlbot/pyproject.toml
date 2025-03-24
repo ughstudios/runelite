@@ -15,6 +15,7 @@ openai-agents = "^0.0.6"
 openai = "^1.66.0"
 types-requests = "^2.31.0.10"
 types-pyautogui = "^0.9.3"
+pyobjc-framework-Quartz = "^10.1"
 
 [build-system]
 requires = ["poetry-core"]
