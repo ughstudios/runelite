@@ -1,9 +1,0 @@
----
-description: The rlbot plugin and rlbot python agent should log to here
-globs: 
-alwaysApply: false
----
-/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot/logs
-
-Use rlbot-plugin.log for the runelite plugin
-and use rlbot.log for the python code. 

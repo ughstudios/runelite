@@ -1,6 +1,0 @@
----
-description: Never use try except blocks
-globs: 
-alwaysApply: false
----
-Remove all try except, if you have to use a try except to fix a problem, that means there's a flaw in the design of your code and you need to fix the code, not mask it with try/except. 
