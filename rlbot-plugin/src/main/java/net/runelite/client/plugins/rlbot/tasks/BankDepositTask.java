@@ -257,6 +257,11 @@ public class BankDepositTask implements Task {
                 context.logger.warn("[BankDeposit] Blacklisting non-bankable object: " + best.getId() + " at " + best.getWorldLocation());
                 return;
             }
+            // Skip if persistently blacklisted
+            if (BankDiscovery.isBlacklisted(best.getWorldLocation())) {
+                context.logger.warn("[BankDeposit] Skipping blacklisted bank at " + best.getWorldLocation());
+                return;
+            }
             // Ensure unobstructed; rotate camera if needed
             java.awt.Point proj = ObjectFinder.projectToCanvas(context, best);
             if (proj == null) {
@@ -269,28 +274,35 @@ public class BankDepositTask implements Task {
                 return;
             }
             
-            // Use direct mouse movement and clicking for more reliable interaction
+            // Prefer explicit menu action to avoid left-click defaulting to Talk-to Banker through walls
             BankDiscovery.setLastTargetedBank(best.getWorldLocation());
-            context.logger.info("[BankDeposit] Clicking bank object at " + best.getWorldLocation());
-            
+            context.logger.info("[BankDeposit] Interacting with bank object via menuAction at " + best.getWorldLocation());
+
             try {
-                // Move mouse to bank and click
-                context.input.smoothMouseMove(proj);
-                
-                // Wait a bit for mouse movement to complete, then click
-                context.setBusyForMs(300);
-                
-                // Click on the bank mesh
-                context.input.click();
-                context.setBusyForMs(200); // Reduced from 1200ms
-                
-                // Retry open once if widget not visible soon
+                context.input.interactWithGameObject(best, "Bank");
+                context.setBusyForMs(250);
+
+                // If widget not open after interaction, attempt a small step toward the bank and retry once
                 if (!isBankOpen(context)) {
-                    context.setBusyForMs(300);
-                    context.input.click();
-                    context.setBusyForMs(200); // Reduced from 1200ms
+                    context.logger.info("[BankDeposit] Bank not open after interact; stepping toward and retrying");
+                    WorldPathing.clickStepToward(context, best.getWorldLocation(), 4);
+                    context.setBusyForMs(600);
+
+                    if (!isBankOpen(context)) {
+                        // Retry interaction once more
+                        context.input.interactWithGameObject(best, "Bank");
+                        context.setBusyForMs(300);
+                    }
                 }
-                
+
+                if (!isBankOpen(context)) {
+                    // Could still be unreachable (counter/wall). Blacklist and back off
+                    context.logger.warn("[BankDeposit] Bank still not open; blacklisting and backing off");
+                    BankDiscovery.blacklistLastTargetedBank();
+                    context.setBusyForMs(300);
+                    return;
+                }
+
             } catch (Exception e) {
                 context.logger.warn("[BankDeposit] Failed to interact with bank: " + e.getMessage());
             }

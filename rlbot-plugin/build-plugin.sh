@@ -1,27 +1,37 @@
 #!/bin/bash
-# Build RLBot plugin JAR from compiled RuneLite classes
+# Build the standalone RLBot plugin JAR using Maven, and copy to RuneLite sideloaded-plugins
+set -e
 
-echo "🔨 Building RLBot plugin JAR..."
+echo "🔨 Building RLBot plugin JAR (standalone)..."
 
-# Ensure RuneLite client is compiled
-cd runelite
-mvn compile -pl runelite-client -DskipTests -Dmaven.compiler.failOnError=false
-cd ..
+# Ensure Java 17 (RuneLite requires JDK17 toolchain)
+JAVA_17_PATH=$( /usr/libexec/java_home -v 17 2>/dev/null || true )
+if [ -z "$JAVA_17_PATH" ]; then
+  echo "❌ JDK 17 not found. Install with: brew install --cask temurin17" >&2
+  exit 1
+fi
+export JAVA_HOME="$JAVA_17_PATH"
+export PATH="$JAVA_HOME/bin:$PATH"
+echo "Using JAVA_HOME=$JAVA_HOME"
 
-# Create plugin JAR
-cd rlbot-plugin
+# Ensure local RuneLite shaded client JAR is installed to Maven local for compilation
+RL_ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+RL_CLIENT_SHADED="$RL_ROOT_DIR/runelite/runelite-client/target/client-1.11.16-SNAPSHOT-shaded.jar"
+if [ -f "$RL_CLIENT_SHADED" ]; then
+  echo "Installing local RuneLite shaded client to Maven repo: $RL_CLIENT_SHADED"
+  mvn -q install:install-file -Dfile="$RL_CLIENT_SHADED" -DgroupId=net.runelite -DartifactId=client -Dversion=1.11.16-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+else
+  echo "⚠️  Shaded client jar not found at $RL_CLIENT_SHADED; attempting to build it..."
+  (cd "$RL_ROOT_DIR/runelite/runelite-client" && mvn -q -DskipTests -Dmaven.compiler.failOnError=false -Pshade clean package) || true
+  if [ -f "$RL_CLIENT_SHADED" ]; then
+    mvn -q install:install-file -Dfile="$RL_CLIENT_SHADED" -DgroupId=net.runelite -DartifactId=client -Dversion=1.11.16-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+  else
+    echo "❌ Could not locate or build RuneLite shaded client jar; plugin build may fail."
+  fi
+fi
 
-# Create target directory structure
-mkdir -p target/classes/net/runelite/client/plugins/rlbot
-
-# Copy compiled RLBot classes from RuneLite
-cp -r ../runelite/runelite-client/target/classes/net/runelite/client/plugins/rlbot/* target/classes/net/runelite/client/plugins/rlbot/
-
-# Copy plugin metadata
-cp -r src/main/resources/* target/classes/
-
-# Create JAR
-jar cf target/rlbot-plugin-1.0.0.jar -C target/classes .
+# Build the rlbot-plugin with Maven
+mvn -q -DskipTests clean package
 
 # Copy to RuneLite sideloaded plugins directory
 mkdir -p ../runelite/sideloaded-plugins

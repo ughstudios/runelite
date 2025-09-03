@@ -23,8 +23,8 @@ public class ChopNearestTreeTask implements Task {
     private static int lastTargetObjectId = -1;
     @Override
     public boolean shouldRun(TaskContext context) {
-        if (context.isInventoryNearFull()) {
-            context.logger.info("[ChopTask] shouldRun() = false (inventory near full)");
+        if (context.isInventoryFull()) {
+            context.logger.info("[ChopTask] shouldRun() = false (inventory full)");
             return false;
         }
         
@@ -358,15 +358,15 @@ public class ChopNearestTreeTask implements Task {
                 net.runelite.api.Point cp = Perspective.localToCanvas(client, best.getLocalLocation(), 0);
                 if (cp != null) {
                     try { 
-                        context.input.smoothMouseMove(new java.awt.Point(cp.getX(), cp.getY())); 
-                        context.logger.info("[Task] Moved mouse to tree at canvas point: (" + cp.getX() + "," + cp.getY() + ")");
-                        
-                        // Wait a bit for mouse movement to complete, then click
-                        context.setBusyForMs(100);
-                        
-                        // Now click on the tree mesh
-                        context.input.click();
-                        context.logger.info("[Task] Clicked on tree mesh at canvas point: (" + cp.getX() + "," + cp.getY() + ")");
+                        // Move mouse to tree and click with validation in one step
+                        boolean clickSuccess = context.input.moveAndClickWithValidation(new java.awt.Point(cp.getX(), cp.getY()), "Chop");
+                        if (!clickSuccess) {
+                            context.logger.warn("[Task] Click validation failed - target may not have chop action");
+                            TreeDiscovery.markDepleted(best.getWorldLocation());
+                            context.setBusyForMs(100);
+                            return;
+                        }
+                        context.logger.info("[Task] Successfully clicked on tree at canvas point: (" + cp.getX() + "," + cp.getY() + ") with validation");
                         
                         // Set busy immediately to prevent overlapping actions
                         context.setBusyForMs(200); // Reduced from 500ms

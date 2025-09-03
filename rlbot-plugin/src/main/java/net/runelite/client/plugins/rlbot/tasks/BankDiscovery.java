@@ -21,6 +21,7 @@ public class BankDiscovery {
     private static final String[] BANK_NAMES = {"bank booth", "bank chest", "bank", "deposit box", "bank deposit box"};
     
     private static volatile WorldPoint lastTargetedBank = null;
+    // Note: Only persistent blacklist via RLBotConfigManager is used. No temporary runtime blacklist.
     
     /**
      * Scan the current scene for bank objects and add any new discoveries
@@ -92,7 +93,7 @@ public class BankDiscovery {
         
         for (RLBotConfigManager.BankLocation bank : banks) {
             WorldPoint wp = bank.toWorldPoint();
-            if (!RLBotConfigManager.isBankBlacklisted(wp)) {
+            if (!isBlacklisted(wp)) {
                 result.add(wp);
             }
         }

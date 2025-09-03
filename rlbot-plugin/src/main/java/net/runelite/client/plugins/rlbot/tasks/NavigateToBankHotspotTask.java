@@ -97,6 +97,20 @@ public class NavigateToBankHotspotTask extends NavigateToHotspotTask {
                        " freeSlots=" + freeSlots + " bankOpen=" + bankOpen);
         
         if (!inventoryFull) return false;
+
+        // If a usable, non-blacklisted bank object is currently visible, let BankDepositTask handle it
+        try {
+            final net.runelite.api.GameObject visibleBank = ObjectFinder.findNearestByAction(ctx, "Bank");
+            if (visibleBank != null) {
+                java.awt.Point p = ObjectFinder.projectToCanvas(ctx, visibleBank);
+                boolean blacklisted = BankDiscovery.isBlacklisted(visibleBank.getWorldLocation());
+                if (p != null && !blacklisted) {
+                    ctx.logger.info("[BankNav] Usable bank visible on-screen; deferring to BankDepositTask");
+                    return false;
+                }
+            }
+        } catch (Exception ignored) {}
+
         return !bankOpen;
     }
 

@@ -46,6 +46,14 @@ public final class ObjectFinder {
                                 ctx.logger.info("[ObjectFinder] Skipping bank table: id=" + go.getId() + ", name='" + comp.getName() + "'");
                                 continue;
                             }
+                            // If we're looking for a bank action, skip blacklisted bank world points entirely
+                            if (requiredAction != null && requiredAction.equalsIgnoreCase("Bank")) {
+                                WorldPoint wp = go.getWorldLocation();
+                                if (wp != null && BankDiscovery.isBlacklisted(wp)) {
+                                    ctx.logger.info("[ObjectFinder] Skipping blacklisted bank at " + wp);
+                                    continue;
+                                }
+                            }
                             
                             boolean hasAction = false;
                             for (String action : comp.getActions()) {
@@ -113,6 +121,14 @@ public final class ObjectFinder {
                         if (TreeDiscovery.isDepleted(tile.getWorldLocation())) {
                             ctx.logger.info("[ObjectFinder] Skipping depleted tree at " + tile.getWorldLocation());
                             continue;
+                        }
+                        // If searching for banks, skip blacklisted world points
+                        if (requiredAction != null && requiredAction.equalsIgnoreCase("Bank")) {
+                            WorldPoint wp = go.getWorldLocation();
+                            if (wp != null && BankDiscovery.isBlacklisted(wp)) {
+                                ctx.logger.info("[ObjectFinder] Skipping blacklisted bank at " + wp);
+                                continue;
+                            }
                         }
                         
                         if (requiredAction != null) {

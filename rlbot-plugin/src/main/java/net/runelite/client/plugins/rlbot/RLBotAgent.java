@@ -229,12 +229,15 @@ public class RLBotAgent {
         boolean[] mask = new boolean[tasks.size()];
         int eligibleCount = 0;
         int freeSlots = taskContext.getInventoryFreeSlots();
-        // Use the same logic as TaskContext.isInventoryNearFull() for consistency
-        boolean inventoryFull = taskContext.isInventoryNearFull();
+        // Inventory is considered full only when there are 0 free slots
+        boolean inventoryFull = taskContext.isInventoryFull();
         boolean treeVisible = isAnyTreeVisible();
         boolean bankVisible = isAnyBankVisible();
         boolean ditchVisible = isAnyDitchVisible();
         int stuckCount = taskContext.getNavNoProgressCount();
+        
+        // Debug logging to understand the inventory state
+        logger.info("[RL] Inventory state: freeSlots=" + freeSlots + ", inventoryFull=" + inventoryFull);
         
         for (int i = 0; i < tasks.size(); i++) {
             try {

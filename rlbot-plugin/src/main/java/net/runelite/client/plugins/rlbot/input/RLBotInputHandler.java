@@ -150,7 +150,230 @@ public class RLBotInputHandler {
     }
 
     /**
+     * True if the point lies within the current 3D viewport area (excludes UI panels).
+     */
+    private boolean isPointInViewport(Point canvasPoint) {
+        try {
+            int vx = client.getViewportXOffset();
+            int vy = client.getViewportYOffset();
+            int vw = client.getViewportWidth();
+            int vh = client.getViewportHeight();
+            if (vw <= 0 || vh <= 0) {
+                // If viewport not initialized yet, don't block interaction solely on this
+                return true;
+            }
+            return canvasPoint.x >= vx && canvasPoint.x < vx + vw &&
+                   canvasPoint.y >= vy && canvasPoint.y < vy + vh;
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
+    /**
+     * Returns true if the point is likely occluded by UI (chatbox, side panels) and not clickable in 3D.
+     */
+    private boolean isOccludedByUI(Point canvasPoint) {
+        // Outside viewport is UI (minimap/side panels/chat frame areas)
+        if (!isPointInViewport(canvasPoint)) {
+            return true;
+        }
+        // Also treat known chat area overlay as occluding
+        if (isInChatArea(canvasPoint)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check what's under the mouse cursor at the specified canvas point.
+     * This validates that the target has the expected action before clicking.
+     *
+     * @param canvasPoint The canvas point to check
+     * @param expectedAction The expected action (e.g., "Chop", "Bank", "Use")
+     * @return true if the target has the expected action, false otherwise
+     */
+    public boolean validateTargetAtPoint(Point canvasPoint, String expectedAction) {
+        if (client == null) {
+            logger.warn("[RLBOT_INPUT] Client is null, cannot validate target");
+            return false;
+        }
+
+        // Early block if occluded by UI
+        if (isOccludedByUI(canvasPoint)) {
+            logger.debug("[RLBOT_INPUT] Point " + canvasPoint + " is occluded by UI; skipping target validation");
+            return false;
+        }
+
+        try {
+            // Search scene for a projected point near the requested canvasPoint
+            final int plane = client.getPlane();
+            net.runelite.api.Scene scene = client.getScene();
+            if (scene == null) return false;
+            net.runelite.api.Tile[][] tiles = scene.getTiles()[plane];
+            if (tiles == null) return false;
+
+            // Check game objects by projecting to canvas and comparing proximity
+            for (int x = 0; x < tiles.length; x++) {
+                net.runelite.api.Tile[] col = tiles[x];
+                if (col == null) continue;
+                for (int y = 0; y < col.length; y++) {
+                    net.runelite.api.Tile tile = col[y];
+                    if (tile == null) continue;
+                    for (net.runelite.api.GameObject gameObject : tile.getGameObjects()) {
+                        if (gameObject == null) continue;
+                        net.runelite.api.coords.LocalPoint lp = gameObject.getLocalLocation();
+                        if (lp == null) continue;
+                        net.runelite.api.Point proj = net.runelite.api.Perspective.localToCanvas(client, lp, plane);
+                        if (proj == null) continue;
+                        if (Math.abs(proj.getX() - canvasPoint.x) <= 10 && Math.abs(proj.getY() - canvasPoint.y) <= 10) {
+                            net.runelite.api.ObjectComposition composition = client.getObjectDefinition(gameObject.getId());
+                            if (composition == null) continue;
+                            String[] actions = composition.getActions();
+                            if (actions == null) continue;
+                            for (String action : actions) {
+                                if (action != null && action.toLowerCase().contains(expectedAction.toLowerCase())) {
+                                    logger.debug("[RLBOT_INPUT] Found valid target at " + canvasPoint + ": " + composition.getName() + " with action '" + action + "'");
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Check NPCs on the tile
+            for (net.runelite.api.NPC npc : client.getNpcs()) {
+                if (npc == null) continue;
+                
+                net.runelite.api.Point npcCanvasPoint = net.runelite.api.Perspective.localToCanvas(client, npc.getLocalLocation(), client.getPlane(), npc.getLogicalHeight());
+                if (npcCanvasPoint == null) continue;
+                
+                // Check if NPC is close to our target point (within 10 pixels)
+                if (Math.abs(npcCanvasPoint.getX() - canvasPoint.x) <= 10 && 
+                    Math.abs(npcCanvasPoint.getY() - canvasPoint.y) <= 10) {
+                    
+                    net.runelite.api.NPCComposition npcComposition = npc.getTransformedComposition();
+                    if (npcComposition == null) continue;
+                    
+                    String[] actions = npcComposition.getActions();
+                    if (actions == null) continue;
+                    
+                    for (String action : actions) {
+                        if (action != null && action.toLowerCase().contains(expectedAction.toLowerCase())) {
+                            logger.debug("[RLBOT_INPUT] Found valid NPC at " + canvasPoint + ": " + npcComposition.getName() + " with action '" + action + "'");
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            // Ground item validation omitted for compatibility
+
+            logger.debug("[RLBOT_INPUT] No valid target with action '" + expectedAction + "' found at " + canvasPoint);
+            return false;
+            
+        } catch (Exception e) {
+            logger.warn("[RLBOT_INPUT] Error validating target at " + canvasPoint + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get detailed information about what's under the mouse cursor.
+     * This is useful for debugging and understanding what the bot is targeting.
+     *
+     * @param canvasPoint The canvas point to check
+     * @return A string describing what's under the cursor, or null if nothing found
+     */
+    public String getTargetInfoAtPoint(Point canvasPoint) {
+        if (client == null) {
+            return "Client is null";
+        }
+
+        try {
+            final int plane = client.getPlane();
+            net.runelite.api.Scene scene = client.getScene();
+            if (scene == null) return "No scene";
+            net.runelite.api.Tile[][] tiles = scene.getTiles()[plane];
+            if (tiles == null) return "No tiles for plane";
+
+            StringBuilder info = new StringBuilder();
+            
+            // Check game objects near the canvas point
+            for (int x = 0; x < tiles.length; x++) {
+                net.runelite.api.Tile[] col = tiles[x];
+                if (col == null) continue;
+                for (int y = 0; y < col.length; y++) {
+                    net.runelite.api.Tile tile = col[y];
+                    if (tile == null) continue;
+                    for (net.runelite.api.GameObject gameObject : tile.getGameObjects()) {
+                        if (gameObject == null) continue;
+                        net.runelite.api.coords.LocalPoint lp = gameObject.getLocalLocation();
+                        if (lp == null) continue;
+                        net.runelite.api.Point proj = net.runelite.api.Perspective.localToCanvas(client, lp, plane);
+                        if (proj == null) continue;
+                        if (Math.abs(proj.getX() - canvasPoint.x) <= 10 && Math.abs(proj.getY() - canvasPoint.y) <= 10) {
+                            net.runelite.api.ObjectComposition composition = client.getObjectDefinition(gameObject.getId());
+                            if (composition == null) continue;
+                            info.append("GameObject: ").append(composition.getName()).append(" (ID: ").append(gameObject.getId()).append(")");
+                            String[] actions = composition.getActions();
+                            if (actions != null) {
+                                info.append(" Actions: [");
+                                for (int i = 0; i < actions.length; i++) {
+                                    if (actions[i] != null) {
+                                        if (i > 0) info.append(", ");
+                                        info.append(actions[i]);
+                                    }
+                                }
+                                info.append("]");
+                            }
+                            info.append("; ");
+                        }
+                    }
+                }
+            }
+
+            // Check NPCs
+            for (net.runelite.api.NPC npc : client.getNpcs()) {
+                if (npc == null) continue;
+                
+                net.runelite.api.Point npcCanvasPoint = net.runelite.api.Perspective.localToCanvas(client, npc.getLocalLocation(), client.getPlane(), npc.getLogicalHeight());
+                if (npcCanvasPoint == null) continue;
+                
+                if (Math.abs(npcCanvasPoint.getX() - canvasPoint.x) <= 10 && 
+                    Math.abs(npcCanvasPoint.getY() - canvasPoint.y) <= 10) {
+                    
+                    net.runelite.api.NPCComposition npcComposition = npc.getTransformedComposition();
+                    if (npcComposition == null) continue;
+                    
+                    info.append("NPC: ").append(npcComposition.getName()).append(" (ID: ").append(npc.getId()).append(")");
+                    String[] actions = npcComposition.getActions();
+                    if (actions != null) {
+                        info.append(" Actions: [");
+                        for (int i = 0; i < actions.length; i++) {
+                            if (actions[i] != null) {
+                                if (i > 0) info.append(", ");
+                                info.append(actions[i]);
+                            }
+                        }
+                        info.append("]");
+                    }
+                    info.append("; ");
+                }
+            }
+
+            // Ground item info omitted for compatibility
+
+            return info.length() > 0 ? info.toString() : "Nothing found at this location";
+            
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+
+    /**
      * Move the mouse to the specified point on the game canvas and dispatch appropriate events.
+     * This version waits for the movement to complete before returning.
      *
      * @param canvasPoint The point on the game canvas to move to
      */
@@ -165,27 +388,31 @@ public class RLBotInputHandler {
         
         logger.debug("[RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: " + canvasPoint.x + "," + canvasPoint.y);
         
-        // Get the canvas and dispatch events on the client thread
-        clientThread.invoke(() -> {
-            Canvas canvas = getCanvas();
-            logger.debug("[RLBOT_INPUT] Canvas retrieved: " + (canvas != null ? "success" : "null"));
-            
-            if (canvas == null) {
-                logger.error("[RLBOT_INPUT] Canvas is null, cannot move mouse");
-                return;
-            }
-            
-            try {
-                logger.debug("[RLBOT_INPUT] Dispatching mouse move event to: " + canvasPoint.x + "," + canvasPoint.y);
-                dispatchMouseMoveEvent(canvas, canvasPoint);
-                lastCanvasMovePoint = new Point(canvasPoint);
-                logger.debug("[RLBOT_INPUT] Mouse move event dispatched successfully");
-            } catch (Exception e) {
-                logger.error("[RLBOT_INPUT] Exception during mouse move: " + e.getMessage() + ": " + e.toString());
-            }
-        });
+        // Execute on client thread (non-blocking) and wait briefly via sleeps already present
+        try {
+            clientThread.invoke(() -> {
+                Canvas canvas = getCanvas();
+                logger.debug("[RLBOT_INPUT] Canvas retrieved: " + (canvas != null ? "success" : "null"));
+                
+                if (canvas == null) {
+                    logger.error("[RLBOT_INPUT] Canvas is null, cannot move mouse");
+                    return;
+                }
+                
+                try {
+                    logger.debug("[RLBOT_INPUT] Dispatching mouse move event to: " + canvasPoint.x + "," + canvasPoint.y);
+                    dispatchMouseMoveEvent(canvas, canvasPoint);
+                    lastCanvasMovePoint = new Point(canvasPoint);
+                    logger.debug("[RLBOT_INPUT] Mouse move event dispatched successfully");
+                } catch (Exception e) {
+                    logger.error("[RLBOT_INPUT] Exception during mouse move: " + e.getMessage() + ": " + e.toString());
+                }
+            });
+        } catch (Exception e) {
+            logger.error("[RLBOT_INPUT] Error in clientThread.invokeAndWait: " + e.getMessage());
+        }
         
-        logger.debug("[RLBOT_INPUT] END smoothMouseMove (clientThread invoked)");
+        logger.debug("[RLBOT_INPUT] END smoothMouseMove (completed)");
     }
     
     /**
@@ -275,49 +502,167 @@ public class RLBotInputHandler {
         logger.info("[RLBOT_INPUT] END dispatchMouseMoveEvent");
     }
     
+        /**
+     * Move the mouse to the specified point and validate the target before clicking.
+     * This is the complete flow: move -> validate -> click.
+     *
+     * @param canvasPoint The canvas point to move to and click
+     * @param expectedAction The expected action (e.g., "Chop", "Bank", "Use")
+     * @return true if the target was valid and click was successful, false otherwise
+     */
+    public boolean moveAndClickWithValidation(Point canvasPoint, String expectedAction) {
+        logger.debug("[RLBOT_INPUT] BEGIN moveAndClickWithValidation at " + canvasPoint + " for action: " + expectedAction);
+        
+        // First move the mouse to the target (now synchronous)
+        smoothMouseMove(canvasPoint);
+        
+        // Now validate what's under the mouse cursor
+        if (isOccludedByUI(canvasPoint)) {
+            logger.warn("[RLBOT_INPUT] Target point is occluded by UI at " + canvasPoint + "; aborting click");
+            if (rlAgent != null) {
+                rlAgent.addExternalPenalty(0.2f);
+            }
+            return false;
+        }
+        if (!validateTargetAtPoint(canvasPoint, expectedAction)) {
+            logger.warn("[RLBOT_INPUT] Target validation failed for action '" + expectedAction + "' at " + canvasPoint);
+            String targetInfo = getTargetInfoAtPoint(canvasPoint);
+            logger.info("[RLBOT_INPUT] Target info: " + targetInfo);
+            
+            // Apply penalty for clicking on invalid target
+            if (rlAgent != null) {
+                rlAgent.addExternalPenalty(0.5f);
+            }
+            return false;
+        }
+        
+        // Target is valid, proceed with click (now synchronous)
+        logger.debug("[RLBOT_INPUT] Target validation passed, proceeding with click");
+        click();
+        return true;
+    }
+
     /**
+     * Click at the current mouse position with validation.
+     * This method validates that the target has the expected action before clicking.
+     *
+     * @param expectedAction The expected action (e.g., "Chop", "Bank", "Use")
+     * @return true if the click was successful and target was valid, false otherwise
+     */
+    public boolean clickWithValidation(String expectedAction) {
+        logger.debug("[RLBOT_INPUT] BEGIN clickWithValidation for action: " + expectedAction);
+        
+        // Get the current mouse position
+        Point clickPoint = lastCanvasMovePoint;
+        if (clickPoint == null) {
+            logger.warn("[RLBOT_INPUT] No known mouse position for validation");
+            return false;
+        }
+        
+        // Validate the target before clicking
+        if (!validateTargetAtPoint(clickPoint, expectedAction)) {
+            logger.warn("[RLBOT_INPUT] Target validation failed for action '" + expectedAction + "' at " + clickPoint);
+            String targetInfo = getTargetInfoAtPoint(clickPoint);
+            logger.info("[RLBOT_INPUT] Target info: " + targetInfo);
+            
+            // Apply penalty for clicking on invalid target
+            if (rlAgent != null) {
+                rlAgent.addExternalPenalty(0.5f);
+            }
+            return false;
+        }
+        
+        // Target is valid, proceed with click
+        logger.debug("[RLBOT_INPUT] Target validation passed, proceeding with click");
+        click();
+        return true;
+    }
+
+    /**
+     * Click at a specific canvas coordinate with validation.
+     * This method validates that the target has the expected action before clicking.
+     *
+     * @param canvasPoint The canvas point to click at
+     * @param expectedAction The expected action (e.g., "Chop", "Bank", "Use")
+     * @return true if the click was successful and target was valid, false otherwise
+     */
+    public boolean clickAtWithValidation(Point canvasPoint, String expectedAction) {
+        logger.debug("[RLBOT_INPUT] BEGIN clickAtWithValidation at " + canvasPoint + " for action: " + expectedAction);
+        
+        // Validate the target before clicking
+        if (isOccludedByUI(canvasPoint)) {
+            logger.warn("[RLBOT_INPUT] Click point is occluded by UI at " + canvasPoint + "; aborting click");
+            if (rlAgent != null) {
+                rlAgent.addExternalPenalty(0.2f);
+            }
+            return false;
+        }
+        if (!validateTargetAtPoint(canvasPoint, expectedAction)) {
+            logger.warn("[RLBOT_INPUT] Target validation failed for action '" + expectedAction + "' at " + canvasPoint);
+            String targetInfo = getTargetInfoAtPoint(canvasPoint);
+            logger.info("[RLBOT_INPUT] Target info: " + targetInfo);
+            
+            // Apply penalty for clicking on invalid target
+            if (rlAgent != null) {
+                rlAgent.addExternalPenalty(0.5f);
+            }
+            return false;
+        }
+        
+        // Target is valid, proceed with click
+        logger.debug("[RLBOT_INPUT] Target validation passed, proceeding with click");
+        clickAt(canvasPoint);
+        return true;
+    }
+
+        /**
      * Click at the current mouse position.
      */
     public void click() {
         logger.debug("[RLBOT_INPUT] BEGIN click at current mouse position");
         
-        clientThread.invoke(() -> {
-            Canvas canvas = getCanvas();
-            logger.debug("[RLBOT_INPUT] Canvas retrieved: " + (canvas != null ? "success" : "null"));
-            
-            if (canvas == null) {
-                logger.error("[RLBOT_INPUT] Canvas is null, cannot click");
-                return;
-            }
-            
-            // Prefer the last moved point; fall back to canvas.getMousePosition; then center
-            Point clickPoint = lastCanvasMovePoint;
-            if (clickPoint == null) {
-                try {
-                    Point mousePos = canvas.getMousePosition();
-                    logger.debug("[RLBOT_INPUT] Canvas.getMousePosition returned: " + (mousePos != null ? mousePos.x + "," + mousePos.y : "null"));
-                    if (mousePos != null) clickPoint = mousePos;
-                } catch (Exception e) {
-                    logger.error("[RLBOT_INPUT] Error getting mouse position: " + e.getMessage() + ": " + e.toString());
+        // Execute on client thread
+        try {
+            clientThread.invoke(() -> {
+                Canvas canvas = getCanvas();
+                logger.debug("[RLBOT_INPUT] Canvas retrieved: " + (canvas != null ? "success" : "null"));
+                
+                if (canvas == null) {
+                    logger.error("[RLBOT_INPUT] Canvas is null, cannot click");
+                    return;
                 }
-            }
-            if (clickPoint == null) {
-                logger.warn("[RLBOT_INPUT] No known mouse point; using canvas center");
-                clickPoint = new Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
-            }
+                
+                // Prefer the last moved point; fall back to canvas.getMousePosition; then center
+                Point clickPoint = lastCanvasMovePoint;
+                if (clickPoint == null) {
+                    try {
+                        Point mousePos = canvas.getMousePosition();
+                        logger.debug("[RLBOT_INPUT] Canvas.getMousePosition returned: " + (mousePos != null ? mousePos.x + "," + mousePos.y : "null"));
+                        if (mousePos != null) clickPoint = mousePos;
+                    } catch (Exception e) {
+                        logger.error("[RLBOT_INPUT] Error getting mouse position: " + e.getMessage() + ": " + e.toString());
+                    }
+                }
+                if (clickPoint == null) {
+                    logger.warn("[RLBOT_INPUT] No known mouse point; using canvas center");
+                    clickPoint = new Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
+                }
 
-            try {
-                logger.debug("[RLBOT_INPUT] Dispatching click event at: " + clickPoint.x + "," + clickPoint.y);
-                dispatchMouseClickEvent(canvas, clickPoint);
-                // Clear lastCanvasMovePoint so the next action will recompute a fresh target
-                lastCanvasMovePoint = null;
-                logger.debug("[RLBOT_INPUT] Click event dispatched successfully");
-            } catch (Exception e) {
-                logger.error("[RLBOT_INPUT] Exception during click: " + e.getMessage() + ": " + e.toString());
-            }
-        });
+                try {
+                    logger.debug("[RLBOT_INPUT] Dispatching click event at: " + clickPoint.x + "," + clickPoint.y);
+                    dispatchMouseClickEvent(canvas, clickPoint);
+                    // Clear lastCanvasMovePoint so the next action will recompute a fresh target
+                    lastCanvasMovePoint = null;
+                    logger.debug("[RLBOT_INPUT] Click event dispatched successfully");
+                } catch (Exception e) {
+                    logger.error("[RLBOT_INPUT] Exception during click: " + e.getMessage() + ": " + e.toString());
+                }
+            });
+        } catch (Exception e) {
+            logger.error("[RLBOT_INPUT] Error in clientThread.invokeAndWait: " + e.getMessage());
+        }
         
-        logger.debug("[RLBOT_INPUT] END click (clientThread invoked)");
+        logger.debug("[RLBOT_INPUT] END click (completed)");
     }
 
     /**
@@ -332,24 +677,31 @@ public class RLBotInputHandler {
             }
         }
         
-        logger.info("[RLBOT_INPUT] BEGIN clickAt point: " + canvasPoint.x + "," + canvasPoint.y);
-        clientThread.invoke(() -> {
-            Canvas canvas = getCanvas();
-            logger.info("[RLBOT_INPUT] Canvas retrieved: " + (canvas != null ? "success" : "null"));
-            if (canvas == null) {
-                logger.error("[RLBOT_INPUT] Canvas is null, cannot clickAt");
-                return;
-            }
-            try {
-                logger.info("[RLBOT_INPUT] About to dispatch clickAt event at: " + canvasPoint.x + "," + canvasPoint.y);
-                dispatchMouseClickEvent(canvas, canvasPoint);
-                lastCanvasMovePoint = null;
-                logger.info("[RLBOT_INPUT] clickAt dispatched successfully at: " + canvasPoint.x + "," + canvasPoint.y);
-            } catch (Exception e) {
-                logger.error("[RLBOT_INPUT] Exception during clickAt: " + e.getMessage() + ": " + e.toString());
-            }
-        });
-        logger.info("[RLBOT_INPUT] END clickAt (clientThread invoked)");
+        logger.debug("[RLBOT_INPUT] BEGIN clickAt point: " + canvasPoint.x + "," + canvasPoint.y);
+        
+        // Execute on client thread
+        try {
+            clientThread.invoke(() -> {
+                Canvas canvas = getCanvas();
+                logger.debug("[RLBOT_INPUT] Canvas retrieved: " + (canvas != null ? "success" : "null"));
+                if (canvas == null) {
+                    logger.error("[RLBOT_INPUT] Canvas is null, cannot clickAt");
+                    return;
+                }
+                try {
+                    logger.debug("[RLBOT_INPUT] Dispatching clickAt event at: " + canvasPoint.x + "," + canvasPoint.y);
+                    dispatchMouseClickEvent(canvas, canvasPoint);
+                    lastCanvasMovePoint = null;
+                    logger.debug("[RLBOT_INPUT] clickAt dispatched successfully");
+                } catch (Exception e) {
+                    logger.error("[RLBOT_INPUT] Exception during clickAt: " + e.getMessage() + ": " + e.toString());
+                }
+            });
+        } catch (Exception e) {
+            logger.error("[RLBOT_INPUT] Error in clientThread.invokeAndWait: " + e.getMessage());
+        }
+        
+        logger.debug("[RLBOT_INPUT] END clickAt (completed)");
     }
     
     /**

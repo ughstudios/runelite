@@ -544,6 +544,13 @@ public final class TaskContext {
         logger.info("[Context] isInventoryNearFull: " + freeSlots + " free slots, nearFull=" + nearFull);
         return nearFull;
     }
+    
+    public boolean isInventoryFull() {
+        int freeSlots = getInventoryFreeSlots();
+        boolean full = freeSlots <= 0;
+        logger.info("[Context] isInventoryFull: " + freeSlots + " free slots, full=" + full);
+        return full;
+    }
 
     public void updateNavProgress(int currentDistanceTiles) {
         long now = System.currentTimeMillis();

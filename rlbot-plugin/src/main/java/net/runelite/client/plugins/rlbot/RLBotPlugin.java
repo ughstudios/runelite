@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import javax.inject.Inject;
 import javax.swing.SwingUtilities;
 import net.runelite.api.*;
@@ -30,7 +32,6 @@ import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.ClientTick;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
-import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.DrawManager;
@@ -45,13 +46,15 @@ import net.runelite.client.plugins.rlbot.gamestate.RLBotGameStateGenerator;
 import net.runelite.client.plugins.rlbot.ui.RLBotOverlay;
 import net.runelite.client.plugins.rlbot.input.RLBotInputHandler;
 import net.runelite.client.plugins.rlbot.action.RLBotActionHandler;
+import net.runelite.api.MessageNode;
  
 import java.awt.MouseInfo;
 
 @PluginDescriptor(
     name = "RLBot",
     description = "RuneLite Bot Plugin for AI Training",
-    tags = {"bot", "ai", "training"}
+    tags = {"bot", "ai", "training"},
+    enabledByDefault = true
 )
 public class RLBotPlugin extends Plugin implements KeyListener {
 
@@ -59,16 +62,27 @@ public class RLBotPlugin extends Plugin implements KeyListener {
 
     private final ExecutorService screenshotExecutor = Executors.newSingleThreadExecutor(r -> {
         Thread thread = new Thread(r);
-        thread.setName("screenshot-thread");
+        thread.setName("rlbot-screenshot");
         thread.setDaemon(true);
         return thread;
     });
 
     private final ExecutorService gameStateExecutor = Executors.newSingleThreadExecutor(r -> {
         Thread thread = new Thread(r);
-        thread.setName("gamestate-thread");
+        thread.setName("rlbot-gamestate");
         thread.setDaemon(true);
         return thread;
+    });
+
+    // RLBot tick scheduler (avoids EventBus lambda issues from PluginClassLoader)
+    private final ScheduledExecutorService rlbotTickScheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r);
+            t.setName("rlbot-tick");
+            t.setDaemon(true);
+            return t;
+        }
     });
 
     private volatile boolean isGeneratingState = false;
@@ -78,6 +92,7 @@ public class RLBotPlugin extends Plugin implements KeyListener {
     private final Set<Point> visitedChunks = new HashSet<>();
     private final Map<Point, Long> lastVisitTime = new HashMap<>();
     private final Map<Point, AreaInfo> areaAssessments = new HashMap<>();
+    private final Set<Integer> processedChatMessageIds = new HashSet<>();
 
     @Inject
     private Client client;
@@ -208,12 +223,22 @@ public class RLBotPlugin extends Plugin implements KeyListener {
             }
         });
 
-        BufferedImage icon;
+        BufferedImage icon = null;
         try {
-            icon = ImageUtil.loadImageResource(RLBotPlugin.class, "/net/runelite/client/plugins/rlbot/rlbot_icon.png");
-        } catch (Exception e) {
-            icon = ImageUtil.loadImageResource(RLBotPlugin.class, "/net/runelite/client/ui/runescape.png");
-            logger.info("Could not load rlbot_icon.png, using fallback icon");
+            try {
+                icon = ImageUtil.loadImageResource(RLBotPlugin.class, "/net/runelite/client/plugins/rlbot/rlbot_icon.png");
+            } catch (Exception primary) {
+                logger.info("Could not load rlbot_icon.png, attempting fallback icon");
+                try {
+                    icon = ImageUtil.loadImageResource(RLBotPlugin.class, "/net/runelite/client/ui/runescape.png");
+                } catch (Exception secondary) {
+                    logger.warn("Fallback icon also missing; using generated placeholder icon");
+                    icon = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+                }
+            }
+        } catch (Throwable t) {
+            // Absolute last resort
+            icon = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
         }
         stateViewerButton = NavigationButton.builder()
             .tooltip("RLBot State")
@@ -226,6 +251,19 @@ public class RLBotPlugin extends Plugin implements KeyListener {
         // Show floating control window on startup
         try { controlWindow.showWindow(); } catch (Exception ignored) {}
 
+        // Schedule periodic internal ticks using our own scheduler; marshal to clientThread
+        try {
+            rlbotTickScheduler.scheduleAtFixedRate(() -> {
+                try {
+                    clientThread.invoke(() -> {
+                        try {
+                            onClientTickInternal();
+                            onGameTickInternal();
+                        } catch (Exception ignored) {}
+                    });
+                } catch (Exception ignored) {}
+            }, 50L, 50L, TimeUnit.MILLISECONDS);
+        } catch (Exception ignored) {}
         clientThread.invokeLater(() -> {
             try {
                 if (client == null || client.getGameState() != GameState.LOGGED_IN) {
@@ -256,6 +294,7 @@ public class RLBotPlugin extends Plugin implements KeyListener {
         try { controlWindow.hideWindow(); } catch (Exception ignored) {}
         screenshotExecutor.shutdown();
         gameStateExecutor.shutdown();
+        rlbotTickScheduler.shutdown();
         try {
             if (!screenshotExecutor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
                 screenshotExecutor.shutdownNow();
@@ -269,13 +308,15 @@ public class RLBotPlugin extends Plugin implements KeyListener {
         }
     }
 
-    @Subscribe
-    public void onGameTick(GameTick tick) {
+    // Replaced EventBus subscription with internal scheduler to avoid classloader lambda issues
+    private void onGameTickInternal() {
         tickCount++;
         if (!isRunning) return;
         if (tickCount % 10 == 0) {
             updateExplorationData();
         }
+        // Poll chat messages (since EventBus isn't used under PluginClassLoader)
+        scanChatForNewMessages();
         long currentTime = System.currentTimeMillis();
         // Throttle updates by configured interval; only update if enough time elapsed
         if (!isGeneratingState) {
@@ -290,8 +331,7 @@ public class RLBotPlugin extends Plugin implements KeyListener {
         }
     }
 
-    @Subscribe
-    public void onGameStateChanged(GameStateChanged gameStateChanged) {
+    private void onGameStateChangedInternal(GameStateChanged gameStateChanged) {
         if (!isRunning) {
             return;
         }
@@ -301,8 +341,7 @@ public class RLBotPlugin extends Plugin implements KeyListener {
         }
     }
 
-    @Subscribe
-    public void onChatMessage(ChatMessage event) {
+    private void onChatMessageInternal(ChatMessage event) {
         if (!isRunning || event == null) return;
         try {
             String msg = event.getMessage();
@@ -317,6 +356,41 @@ public class RLBotPlugin extends Plugin implements KeyListener {
                 } catch (Exception ignored) {}
             }
         } catch (Exception ignored) {}
+    }
+
+    // Poll chat messages and feed into our handler (EventBus not used here)
+    private void scanChatForNewMessages() {
+        try {
+            Iterable<MessageNode> messages = client.getMessages();
+            if (messages == null) return;
+            for (MessageNode node : messages) {
+                if (node == null) continue;
+                int id = node.getId();
+                if (processedChatMessageIds.contains(id)) continue;
+                processedChatMessageIds.add(id);
+                String msg = node.getValue();
+                if (msg == null) continue;
+                String lower = msg.toLowerCase();
+                if (lower.contains("can't reach that") || lower.contains("cant reach that")) {
+                    logger.warn("[Chat] Detected unreachable message; blacklisting last targeted bank/tree and punishing reward");
+                    net.runelite.client.plugins.rlbot.tasks.BankDiscovery.blacklistLastTargetedBank();
+                    net.runelite.client.plugins.rlbot.tasks.TreeDiscovery.blacklistLastTargetedTree();
+                    try { if (javaAgent != null) javaAgent.addExternalPenalty(0.5f); } catch (Exception ignored) {}
+                }
+                // Inventory full of logs — switch immediately to banking behavior
+                if (lower.contains("too full to hold any more logs") || lower.contains("inventory is too full")) {
+                    logger.info("[Chat] Inventory full of logs detected; cancelling actions and navigating to bank");
+                    try { inputHandler.pressKey(KeyEvent.VK_ESCAPE); } catch (Exception ignored) {}
+                    try { if (javaAgent != null) javaAgent.triggerNavigateBank(); } catch (Exception ignored) {}
+                }
+            }
+            // Prevent unbounded growth
+            if (processedChatMessageIds.size() > 2000) {
+                processedChatMessageIds.clear();
+            }
+        } catch (Exception e) {
+            logger.debug("[ChatPoll] Error while scanning chat: " + e.getMessage());
+        }
     }
 
     /**
@@ -494,9 +568,7 @@ public class RLBotPlugin extends Plugin implements KeyListener {
         return lastMouseLocation;
     }
 
-    @Subscribe
-    public void onClientTick(ClientTick event)
-    {
+    private void onClientTickInternal() {
         net.runelite.api.Point mousePos = client.getMouseCanvasPosition();
         if (mousePos != null && mousePos.getX() >= 0 && mousePos.getY() >= 0 && 
             mousePos.getX() < client.getCanvasWidth() && mousePos.getY() < client.getCanvasHeight())
