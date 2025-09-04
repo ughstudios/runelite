@@ -33,7 +33,11 @@ public class RLBotLogger {
      * @param message The message to log
      */
     public void info(String message) {
-        logger.info(message);
+        if (!config.quietLogging()) {
+            logger.info(message);
+        } else {
+            logger.debug(message);
+        }
     }
     
     /**
@@ -62,6 +66,12 @@ public class RLBotLogger {
     public void debug(String message) {
         if (config.debugLogging()) {
             logger.debug(message);
+        }
+    }
+
+    public void perf(String message) {
+        if (config.perfLogging()) {
+            logger.info("[PERF] " + message);
         }
     }
 

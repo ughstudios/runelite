@@ -591,81 +591,16 @@ public final class TaskContext {
         Player p = client.getLocalPlayer();
         if (p == null) return false;
         
-        try {
-            // Get all the values we need to pass to Python
-            long now = System.currentTimeMillis();
-            int anim = p.getAnimation();
-            int poseAnim = p.getPoseAnimation();
-            int graphic = p.getGraphic();
-            boolean isInteracting = p.getInteracting() != null;
-            boolean isRunning = client.getVarpValue(173) == 1;
-            
-            // Call Python script using ProcessBuilder
-            ProcessBuilder pb = new ProcessBuilder(
-                "python3",
-                "runelite/runelite-client/src/main/java/net/runelite/client/plugins/rlbot/tasks/PlayerWalkingDetector.py",
-                "is_player_walking",
-                String.valueOf(lastMoveMs),
-                String.valueOf(anim),
-                String.valueOf(poseAnim),
-                String.valueOf(graphic),
-                String.valueOf(isInteracting),
-                String.valueOf(isRunning),
-                String.valueOf(now)
-            );
-            
-            Process process = pb.start();
-            java.io.BufferedReader reader = new java.io.BufferedReader(
-                new java.io.InputStreamReader(process.getInputStream())
-            );
-            
-            String result = reader.readLine();
-            process.waitFor();
-            
-            if (result != null && result.trim().equals("True")) {
-                return true;
-            } else {
-                return false;
-            }
-            
-        } catch (Exception e) {
-            // Fallback to Java implementation if Python call fails
-            logger.warn("Python walking detection failed, falling back to Java implementation: " + e.getMessage());
-            return isPlayerWalkingJava();
-        }
-    }
-    
-    /**
-     * Java fallback implementation of walking detection
-     */
-    private boolean isPlayerWalkingJava() {
-        Player p = client.getLocalPlayer();
-        if (p == null) return false;
-        
-        // Method 1: Position change detection (most reliable)
+        // Method 1: Position change detection (reliable)
         long now = System.currentTimeMillis();
-        boolean positionChanged = now - lastMoveMs < 2000; // 2 second threshold
+        boolean positionChanged = now - lastMoveMs < 600; // moving very recently
         
         // Method 2: Check for specific walking/running animation IDs
         int anim = p.getAnimation();
-        boolean isWalkingAnim = anim == 819 || anim == 820 || anim == 821 || anim == 822 || anim == 824;
+        boolean isWalkingAnim = (anim == 819 || anim == 820 || anim == 821 || anim == 822 || anim == 824);
         
-        // Method 3: Check pose animation (might be different from main animation)
-        int poseAnim = p.getPoseAnimation();
-        boolean hasPoseAnimation = poseAnim != -1;
-        
-        // Method 4: Check graphic effects (some movement might show graphics)
-        int graphic = p.getGraphic();
-        boolean hasGraphic = graphic != -1;
-        
-        // Method 5: Check if player is interacting with something (might indicate movement)
-        boolean isInteracting = p.getInteracting() != null;
-        
-        // Method 6: Check if player is running (from RunHelper)
-        boolean isRunning = client.getVarpValue(173) == 1;
-        
-        // Combine all methods - if any indicate movement, consider player as moving
-        return positionChanged || isWalkingAnim || hasPoseAnimation || hasGraphic || isInteracting || isRunning;
+        // Combine: position change or explicit walk anim means walking
+        return positionChanged || isWalkingAnim;
     }
     
     public long getLastMoveMs() {

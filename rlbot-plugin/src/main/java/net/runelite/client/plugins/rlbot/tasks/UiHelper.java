@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 import java.awt.event.KeyEvent;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.MenuAction;
+import net.runelite.api.widgets.WidgetID;
 
 final class UiHelper {
     private static long lastUiCloseAttemptMs = 0L;
@@ -74,6 +75,10 @@ final class UiHelper {
 
     static boolean clickCloseIfVisible(TaskContext ctx) {
         try {
+            // Prefer exact group targeting to avoid hitting non-close 'X' widgets (e.g., Quantity X)
+            if (clickCloseForGroup(ctx, WidgetID.BANK_GROUP_ID)) return true;
+            if (clickCloseForGroup(ctx, WidgetID.DEPOSIT_BOX_GROUP_ID)) return true;
+
             // Heuristic search: scan recent top-layer component ids that commonly have Close
             int[] commonGroupIds = new int[] { 162, 593, 219, 164, 216, 193, 15, 12 };
             for (int groupId : commonGroupIds) {
@@ -92,6 +97,20 @@ final class UiHelper {
                     if (attemptClickIfClose(ctx, w)) return true;
                     if (dfsClickClose(ctx, w, 8000)) return true;
                 }
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
+    }
+
+    private static boolean clickCloseForGroup(TaskContext ctx, int groupId) {
+        try {
+            for (int child = 0; child < 500; child++) {
+                Widget w = ctx.client.getWidget(groupId, child);
+                if (w == null || w.isHidden()) continue;
+                // Strong filter: action/name contains Close, or small 'X' near top-right of bank area
+                if (!isCloseWidget(w)) continue;
+                if (attemptClickIfClose(ctx, w)) return true;
             }
         } catch (Exception ignored) {
         }
@@ -146,10 +165,18 @@ final class UiHelper {
             ctx.logger.warn("[UI] Failed to click on close widget: " + e.getMessage());
         }
         
-        // Then invoke the menu action
+        // Then invoke the menu action; prefer the widget's explicit action index when present
         ctx.clientThread.invoke(() -> {
             try {
-                ctx.client.menuAction(-1, widgetId, MenuAction.CC_OP, 1, -1, "Close", "");
+                int op = 1; // default CC_OP index
+                String[] actions = w.getActions();
+                if (actions != null) {
+                    for (int i = 0; i < actions.length; i++) {
+                        String a = actions[i];
+                        if (a != null && a.toLowerCase().contains("close")) { op = i + 1; break; }
+                    }
+                }
+                ctx.client.menuAction(-1, widgetId, MenuAction.CC_OP, op, -1, "Close", "");
             } catch (Exception ignored) {}
         });
         
@@ -172,7 +199,17 @@ final class UiHelper {
             String name = w.getName();
             if (name != null && name.toLowerCase().contains("close")) return true;
             String text = w.getText();
-            if (text != null && text.trim().equalsIgnoreCase("x")) return true;
+            if (text != null && text.trim().equalsIgnoreCase("x")) {
+                // Heuristic: only treat bare "X" as a close button if it's a small button
+                // near the top of the interface (avoid Quantity "X" near bank bottom).
+                java.awt.Rectangle b = w.getBounds();
+                if (b != null) {
+                    boolean smallButton = b.width <= 30 && b.height <= 30;
+                    boolean nearTop = b.y <= 150; // top strip of the interface
+                    if (smallButton && nearTop) return true;
+                }
+                return false; // otherwise, do not consider it a close button
+            }
         } catch (Exception ignored) {
         }
         return false;

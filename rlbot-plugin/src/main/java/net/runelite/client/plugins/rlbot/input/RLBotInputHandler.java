@@ -388,29 +388,39 @@ public class RLBotInputHandler {
         
         logger.debug("[RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: " + canvasPoint.x + "," + canvasPoint.y);
         
-        // Execute on client thread (non-blocking) and wait briefly via sleeps already present
-        try {
-            clientThread.invoke(() -> {
-                Canvas canvas = getCanvas();
-                logger.debug("[RLBOT_INPUT] Canvas retrieved: " + (canvas != null ? "success" : "null"));
-                
-                if (canvas == null) {
-                    logger.error("[RLBOT_INPUT] Canvas is null, cannot move mouse");
-                    return;
-                }
-                
-                try {
-                    logger.debug("[RLBOT_INPUT] Dispatching mouse move event to: " + canvasPoint.x + "," + canvasPoint.y);
-                    dispatchMouseMoveEvent(canvas, canvasPoint);
-                    lastCanvasMovePoint = new Point(canvasPoint);
-                    logger.debug("[RLBOT_INPUT] Mouse move event dispatched successfully");
-                } catch (Exception e) {
-                    logger.error("[RLBOT_INPUT] Exception during mouse move: " + e.getMessage() + ": " + e.toString());
-                }
-            });
-        } catch (Exception e) {
-            logger.error("[RLBOT_INPUT] Error in clientThread.invokeAndWait: " + e.getMessage());
-        }
+        // Run interpolation on a background daemon thread and post events to EDT
+        Thread mover = new Thread(() -> {
+            Canvas canvas = getCanvas();
+            if (canvas == null) {
+                logger.error("[RLBOT_INPUT] Canvas is null, cannot move mouse");
+                return;
+            }
+            Point start;
+            try {
+                Point mp = canvas.getMousePosition();
+                start = mp != null ? mp : new Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
+            } catch (Exception ex) {
+                start = new Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
+            }
+            int px = 20;
+            try {
+                px = ((net.runelite.client.plugins.rlbot.RLBotConfig)net.runelite.client.RuneLite.getInjector().getInstance(net.runelite.client.plugins.rlbot.RLBotConfig.class)).mouseMoveInterpolationPx();
+            } catch (Throwable ignore) {}
+            double dx = canvasPoint.x - start.x;
+            double dy = canvasPoint.y - start.y;
+            double dist = Math.hypot(dx, dy);
+            int steps = Math.max(1, (int)Math.ceil(dist / Math.max(5, px)));
+            for (int i = 1; i <= steps; i++) {
+                int x = start.x + (int)Math.round(dx * i / steps);
+                int y = start.y + (int)Math.round(dy * i / steps);
+                Point stepPoint = new Point(x, y);
+                SwingUtilities.invokeLater(() -> dispatchMouseMoveEvent(canvas, stepPoint));
+                try { Thread.sleep(8); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+            }
+            lastCanvasMovePoint = new Point(canvasPoint);
+        }, "rlbot-mouse-move");
+        mover.setDaemon(true);
+        mover.start();
         
         logger.debug("[RLBOT_INPUT] END smoothMouseMove (completed)");
     }
@@ -482,22 +492,8 @@ public class RLBotInputHandler {
         logger.info("[RLBOT_INPUT] Requesting focus on component: " + component.getClass().getName());
         component.requestFocus();
         
-        // Use SwingUtilities.invokeLater to avoid blocking the main thread
-        try {
-            logger.debug("[RLBOT_INPUT] Dispatching mouse move event via SwingUtilities.invokeLater");
-            SwingUtilities.invokeLater(() -> {
-                component.dispatchEvent(event);
-                logger.debug("[RLBOT_INPUT] Mouse move event dispatched");
-            });
-            // Add a small delay after mouse movement for human-like behavior
-            try {
-                Thread.sleep(25);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        } catch (Exception e) {
-            logger.error("[RLBOT_INPUT] Error dispatching mouse move event: " + e.getMessage() + ": " + e.toString());
-        }
+        // Post to EDT; no sleeps here
+        SwingUtilities.invokeLater(() -> component.dispatchEvent(event));
         
         logger.info("[RLBOT_INPUT] END dispatchMouseMoveEvent");
     }
@@ -537,8 +533,11 @@ public class RLBotInputHandler {
         }
         
         // Target is valid, proceed with click (now synchronous)
+        long t0 = System.nanoTime();
         logger.debug("[RLBOT_INPUT] Target validation passed, proceeding with click");
         click();
+        long t1 = System.nanoTime();
+        logger.perf("Input.moveAndClick validated click took " + ((t1 - t0) / 1_000_000) + " ms");
         return true;
     }
 
@@ -573,8 +572,11 @@ public class RLBotInputHandler {
         }
         
         // Target is valid, proceed with click
+        long t0 = System.nanoTime();
         logger.debug("[RLBOT_INPUT] Target validation passed, proceeding with click");
         click();
+        long t1 = System.nanoTime();
+        logger.perf("Input.clickWithValidation took " + ((t1 - t0) / 1_000_000) + " ms");
         return true;
     }
 
@@ -610,8 +612,11 @@ public class RLBotInputHandler {
         }
         
         // Target is valid, proceed with click
+        long t0 = System.nanoTime();
         logger.debug("[RLBOT_INPUT] Target validation passed, proceeding with click");
         clickAt(canvasPoint);
+        long t1 = System.nanoTime();
+        logger.perf("Input.clickAtWithValidation took " + ((t1 - t0) / 1_000_000) + " ms");
         return true;
     }
 
@@ -621,46 +626,28 @@ public class RLBotInputHandler {
     public void click() {
         logger.debug("[RLBOT_INPUT] BEGIN click at current mouse position");
         
-        // Execute on client thread
-        try {
-            clientThread.invoke(() -> {
-                Canvas canvas = getCanvas();
-                logger.debug("[RLBOT_INPUT] Canvas retrieved: " + (canvas != null ? "success" : "null"));
-                
-                if (canvas == null) {
-                    logger.error("[RLBOT_INPUT] Canvas is null, cannot click");
-                    return;
-                }
-                
-                // Prefer the last moved point; fall back to canvas.getMousePosition; then center
-                Point clickPoint = lastCanvasMovePoint;
-                if (clickPoint == null) {
-                    try {
-                        Point mousePos = canvas.getMousePosition();
-                        logger.debug("[RLBOT_INPUT] Canvas.getMousePosition returned: " + (mousePos != null ? mousePos.x + "," + mousePos.y : "null"));
-                        if (mousePos != null) clickPoint = mousePos;
-                    } catch (Exception e) {
-                        logger.error("[RLBOT_INPUT] Error getting mouse position: " + e.getMessage() + ": " + e.toString());
-                    }
-                }
-                if (clickPoint == null) {
-                    logger.warn("[RLBOT_INPUT] No known mouse point; using canvas center");
-                    clickPoint = new Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
-                }
-
+        // Run click on background thread and post events to EDT
+        Thread clicker = new Thread(() -> {
+            Canvas canvas = getCanvas();
+            if (canvas == null) {
+                logger.error("[RLBOT_INPUT] Canvas is null, cannot click");
+                return;
+            }
+            Point clickPoint = lastCanvasMovePoint;
+            if (clickPoint == null) {
                 try {
-                    logger.debug("[RLBOT_INPUT] Dispatching click event at: " + clickPoint.x + "," + clickPoint.y);
-                    dispatchMouseClickEvent(canvas, clickPoint);
-                    // Clear lastCanvasMovePoint so the next action will recompute a fresh target
-                    lastCanvasMovePoint = null;
-                    logger.debug("[RLBOT_INPUT] Click event dispatched successfully");
-                } catch (Exception e) {
-                    logger.error("[RLBOT_INPUT] Exception during click: " + e.getMessage() + ": " + e.toString());
-                }
-            });
-        } catch (Exception e) {
-            logger.error("[RLBOT_INPUT] Error in clientThread.invokeAndWait: " + e.getMessage());
-        }
+                    Point mousePos = canvas.getMousePosition();
+                    if (mousePos != null) clickPoint = mousePos;
+                } catch (Exception ignored) {}
+            }
+            if (clickPoint == null) {
+                clickPoint = new Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
+            }
+            dispatchMouseClickEvent(canvas, clickPoint);
+            lastCanvasMovePoint = null;
+        }, "rlbot-click");
+        clicker.setDaemon(true);
+        clicker.start();
         
         logger.debug("[RLBOT_INPUT] END click (completed)");
     }
@@ -679,27 +666,17 @@ public class RLBotInputHandler {
         
         logger.debug("[RLBOT_INPUT] BEGIN clickAt point: " + canvasPoint.x + "," + canvasPoint.y);
         
-        // Execute on client thread
-        try {
-            clientThread.invoke(() -> {
-                Canvas canvas = getCanvas();
-                logger.debug("[RLBOT_INPUT] Canvas retrieved: " + (canvas != null ? "success" : "null"));
-                if (canvas == null) {
-                    logger.error("[RLBOT_INPUT] Canvas is null, cannot clickAt");
-                    return;
-                }
-                try {
-                    logger.debug("[RLBOT_INPUT] Dispatching clickAt event at: " + canvasPoint.x + "," + canvasPoint.y);
-                    dispatchMouseClickEvent(canvas, canvasPoint);
-                    lastCanvasMovePoint = null;
-                    logger.debug("[RLBOT_INPUT] clickAt dispatched successfully");
-                } catch (Exception e) {
-                    logger.error("[RLBOT_INPUT] Exception during clickAt: " + e.getMessage() + ": " + e.toString());
-                }
-            });
-        } catch (Exception e) {
-            logger.error("[RLBOT_INPUT] Error in clientThread.invokeAndWait: " + e.getMessage());
-        }
+        Thread clicker = new Thread(() -> {
+            Canvas canvas = getCanvas();
+            if (canvas == null) {
+                logger.error("[RLBOT_INPUT] Canvas is null, cannot clickAt");
+                return;
+            }
+            dispatchMouseClickEvent(canvas, canvasPoint);
+            lastCanvasMovePoint = null;
+        }, "rlbot-click");
+        clicker.setDaemon(true);
+        clicker.start();
         
         logger.debug("[RLBOT_INPUT] END clickAt (completed)");
     }
@@ -722,82 +699,55 @@ public class RLBotInputHandler {
         logger.info("[RLBOT_INPUT] Requesting focus on component: " + component.getClass().getName());
         component.requestFocus();
         
-        try {
-            // Create mouse events
-            logger.info("[RLBOT_INPUT] Creating press event with params: id=MOUSE_PRESSED, when=" + when + 
-                        ", modifiers=" + modifiers + ", point=(" + point.x + "," + point.y + 
-                        "), clickCount=" + clickCount + ", popupTrigger=" + popupTrigger + 
-                        ", button=BUTTON1");
-            
-            MouseEvent pressEvent = new MouseEvent(
-                component,
-                MouseEvent.MOUSE_PRESSED,
-                when,
-                modifiers,
-                point.x,
-                point.y,
-                clickCount,
-                popupTrigger,
-                MouseEvent.BUTTON1
-            );
-            
-            logger.info("[RLBOT_INPUT] Creating release event with params: id=MOUSE_RELEASED, when=" + (when + 50));
-            MouseEvent releaseEvent = new MouseEvent(
-                component,
-                MouseEvent.MOUSE_RELEASED,
-                when + 50,
-                modifiers,
-                point.x,
-                point.y,
-                clickCount,
-                popupTrigger,
-                MouseEvent.BUTTON1
-            );
-            
-            logger.info("[RLBOT_INPUT] Creating click event with params: id=MOUSE_CLICKED, when=" + (when + 51));
-            MouseEvent clickEvent = new MouseEvent(
-                component,
-                MouseEvent.MOUSE_CLICKED,
-                when + 51,
-                modifiers,
-                point.x,
-                point.y,
-                clickCount,
-                popupTrigger,
-                MouseEvent.BUTTON1
-            );
-            
-            // Dispatch events with proper timing using non-blocking calls
-            logger.debug("[RLBOT_INPUT] Dispatching press event via SwingUtilities.invokeLater");
-            SwingUtilities.invokeLater(() -> {
-                component.dispatchEvent(pressEvent);
-                logger.debug("[RLBOT_INPUT] Press event dispatched");
-            });
-            
-            // Small delay between press and release for human-like behavior
+        // Run press/release scheduling on a daemon thread and post events to EDT
+        Thread t = new Thread(() -> {
             try {
-                Thread.sleep(30);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                MouseEvent pressEvent = new MouseEvent(
+                    component,
+                    MouseEvent.MOUSE_PRESSED,
+                    when,
+                    modifiers,
+                    point.x,
+                    point.y,
+                    clickCount,
+                    popupTrigger,
+                    MouseEvent.BUTTON1
+                );
+                MouseEvent releaseEvent = new MouseEvent(
+                    component,
+                    MouseEvent.MOUSE_RELEASED,
+                    when + 50,
+                    modifiers,
+                    point.x,
+                    point.y,
+                    clickCount,
+                    popupTrigger,
+                    MouseEvent.BUTTON1
+                );
+                MouseEvent clickEvent = new MouseEvent(
+                    component,
+                    MouseEvent.MOUSE_CLICKED,
+                    when + 51,
+                    modifiers,
+                    point.x,
+                    point.y,
+                    clickCount,
+                    popupTrigger,
+                    MouseEvent.BUTTON1
+                );
+                SwingUtilities.invokeLater(() -> component.dispatchEvent(pressEvent));
+                try { Thread.sleep(30); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                SwingUtilities.invokeLater(() -> {
+                    component.dispatchEvent(releaseEvent);
+                    component.dispatchEvent(clickEvent);
+                });
+                try { Thread.sleep(50); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+            } catch (Exception e) {
+                logger.error("[RLBOT_INPUT] Error scheduling mouse click events: " + e.getMessage() + ": " + e.toString());
             }
-            
-            logger.debug("[RLBOT_INPUT] Dispatching release and click events via SwingUtilities.invokeLater");
-            SwingUtilities.invokeLater(() -> {
-                component.dispatchEvent(releaseEvent);
-                logger.debug("[RLBOT_INPUT] Release event dispatched");
-                component.dispatchEvent(clickEvent);
-                logger.debug("[RLBOT_INPUT] Click event dispatched");
-            });
-            
-            // Add delay after click for human-like behavior
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        } catch (Exception e) {
-            logger.error("[RLBOT_INPUT] Error dispatching mouse click events: " + e.getMessage() + ": " + e.toString());
-        }
+        }, "rlbot-click-seq");
+        t.setDaemon(true);
+        t.start();
         
         logger.info("[RLBOT_INPUT] END dispatchMouseClickEvent");
     }
@@ -884,24 +834,15 @@ public class RLBotInputHandler {
                 logger.info("[RLBOT_INPUT] Invoking menu action: " + menuAction + " on object " + gameObject.getId() +
                            " at scene(" + sceneX + "," + sceneY + ") with action '" + desired + "'");
 
-                // Move mouse to the object first to ensure proper targeting
+                // Optionally move mouse near object for human-like behavior (no extra clicks)
                 net.runelite.api.Point canvasPoint = net.runelite.api.Perspective.localToCanvas(client, lp, 0);
                 if (canvasPoint != null) {
-                    logger.info("[RLBOT_INPUT] Moving mouse to object at canvas point: (" + canvasPoint.getX() + "," + canvasPoint.getY() + ")");
-                    
-                    // Try to find a better click position by checking multiple points around the object
-                    java.awt.Point bestClickPoint = findBestClickPosition(canvasPoint, gameObject);
-                    logger.info("[RLBOT_INPUT] Using optimized click position: (" + bestClickPoint.x + "," + bestClickPoint.y + ")");
-                    
-                    smoothMouseMove(bestClickPoint);
-                    
-                    // Actually click on the object to open the context menu
-                    logger.info("[RLBOT_INPUT] Clicking on object to open context menu");
-                    clickAt(bestClickPoint);
+                    java.awt.Point hoverPoint = findBestClickPosition(canvasPoint, gameObject);
+                    smoothMouseMove(hoverPoint);
                 }
 
                 // Invoke the menu action with scene coords (this is the primary interaction method)
-                logger.info("[RLBOT_INPUT] About to invoke menu action: sceneX=" + sceneX + ", sceneY=" + sceneY + ", menuAction=" + menuAction + ", objectId=" + gameObject.getId() + ", action='" + desired + "'");
+                logger.info("[RLBOT_INPUT] Invoking menu action: sceneX=" + sceneX + ", sceneY=" + sceneY + ", menuAction=" + menuAction + ", objectId=" + gameObject.getId() + ", action='" + desired + "'");
                 client.menuAction(
                     sceneX,
                     sceneY,
@@ -911,7 +852,6 @@ public class RLBotInputHandler {
                     desired,
                     ""
                 );
-                
                 logger.info("[RLBOT_INPUT] Menu action invoked successfully");
                 
             } catch (Exception e) {
@@ -1411,13 +1351,20 @@ public class RLBotInputHandler {
                 // Get the center of the convex hull
                 Rectangle bounds = convexHull.getBounds();
                 if (bounds != null && bounds.width > 0 && bounds.height > 0) {
-                    java.awt.Point hullCenter = new java.awt.Point(
-                        bounds.x + bounds.width / 2,
-                        bounds.y + bounds.height / 2
-                    );
-                    
-                    logger.info("[RLBOT_INPUT] Using convex hull center: (" + hullCenter.x + "," + hullCenter.y + ") for object " + gameObject.getId());
-                    return hullCenter;
+                    // Sample a few points inside the convex hull to avoid edges: center and midpoints
+                    java.awt.Point[] candidates = new java.awt.Point[] {
+                        new java.awt.Point(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2),
+                        new java.awt.Point(bounds.x + bounds.width / 2, bounds.y + bounds.height / 3),
+                        new java.awt.Point(bounds.x + bounds.width / 3, bounds.y + bounds.height / 2),
+                        new java.awt.Point(bounds.x + (2*bounds.width) / 3, bounds.y + bounds.height / 2)
+                    };
+                    for (java.awt.Point c : candidates) {
+                        if (convexHull.contains(c)) {
+                            return c;
+                        }
+                    }
+                    // Fallback to geometric center if samples fail
+                    return new java.awt.Point(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
                 }
             }
             

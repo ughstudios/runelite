@@ -359,6 +359,7 @@ public class ChopNearestTreeTask implements Task {
                 if (cp != null) {
                     try { 
                         // Move mouse to tree and click with validation in one step
+                        // Move first, then single validated click at the tree
                         boolean clickSuccess = context.input.moveAndClickWithValidation(new java.awt.Point(cp.getX(), cp.getY()), "Chop");
                         if (!clickSuccess) {
                             context.logger.warn("[Task] Click validation failed - target may not have chop action");

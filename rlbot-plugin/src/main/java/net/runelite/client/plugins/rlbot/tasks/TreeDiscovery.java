@@ -77,7 +77,6 @@ public class TreeDiscovery {
                                     if (!RLBotConfigManager.hasTree(treeLocation)) {
                                         RLBotConfigManager.addTree(treeLocation, name);
                                         foundNewTrees = true;
-                                        logger.info("[TreeDiscovery] Found new tree: {} at {}", name, treeLocation);
                                     }
                                     // If it has Chop now, clear any prior depletion mark
                                     RLBotConfigManager.markTreeDepleted(treeLocation, 0); // Clear depletion
@@ -85,19 +84,13 @@ public class TreeDiscovery {
                                     // Tree found but no chop action - likely a stump, mark as depleted
                                     WorldPoint treeLocation = to.getWorldLocation();
                                     markDepleted(treeLocation);
-                                    logger.info("[TreeDiscovery] Found stump (no chop action): {} at {}", name, treeLocation);
                                 }
                             }
                         }
                     }
                 }
             }
-            
-            if (foundNewTrees) {
-                logger.debug("[TreeDiscovery] Found new trees during scan");
-            }
         } catch (Exception e) {
-            logger.warn("[TreeDiscovery] Error scanning for trees: {}", e.getMessage());
         }
     }
     
@@ -154,7 +147,6 @@ public class TreeDiscovery {
         if (location == null) return;
         long until = System.currentTimeMillis() + DEPLETION_COOLDOWN_MS;
         RLBotConfigManager.markTreeDepleted(location, until);
-        logger.info("[TreeDiscovery] Marked depleted: {} until +{}ms", location, DEPLETION_COOLDOWN_MS);
     }
 
     /** Track the last tree the agent attempted to interact with. */
@@ -167,7 +159,6 @@ public class TreeDiscovery {
         if (lastTargetedTree != null) {
             long extended = System.currentTimeMillis() + Math.max(120_000L, DEPLETION_COOLDOWN_MS);
             RLBotConfigManager.markTreeDepleted(lastTargetedTree, extended);
-            logger.warn("[TreeDiscovery] Blacklisted unreachable tree at {} for {}ms", lastTargetedTree, (extended - System.currentTimeMillis()));
         }
     }
 
@@ -201,7 +192,6 @@ public class TreeDiscovery {
     public static void addDiscoveredTree(WorldPoint location, String name) {
         if (location != null && !RLBotConfigManager.hasTree(location)) {
             RLBotConfigManager.addTree(location, name);
-            logger.info("[TreeDiscovery] Manually added tree: {} at {}", name, location);
         }
     }
     

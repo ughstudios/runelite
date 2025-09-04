@@ -65,13 +65,9 @@ public final class ObjectFinder {
                             
                             if (hasAction) {
                                 ctx.logger.info("[ObjectFinder] Found object with '" + requiredAction + "' action: id=" + go.getId() + ", name='" + comp.getName() + "' at " + tile.getWorldLocation());
-                                // Debug: check if this object is actually projectable to canvas
+                                // Prefer objects whose convex hull is on-screen
                                 java.awt.Point proj = projectToCanvas(ctx, go);
-                                if (proj != null) {
-                                    ctx.logger.info("[ObjectFinder] Object is projectable to canvas at " + proj);
-                                } else {
-                                    ctx.logger.info("[ObjectFinder] Object is NOT projectable to canvas");
-                                }
+                                if (proj == null) continue;
                                 int d = tile.getWorldLocation().distanceTo(myWp);
                                 if (d >= 0 && d < bestDist) { 
                                     bestDist = d; 

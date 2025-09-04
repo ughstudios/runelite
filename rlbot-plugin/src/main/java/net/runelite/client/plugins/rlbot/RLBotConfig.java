@@ -50,6 +50,28 @@ public interface RLBotConfig extends Config {
     default boolean debugLogging() {
         return true;
     }
+
+    @ConfigItem(
+        keyName = "quietLogging",
+        name = "Quiet Logging (suppress info)",
+        description = "When enabled, suppress most info-level logs to reduce I/O"
+    )
+    default boolean quietLogging() { return true; }
+
+    @ConfigItem(
+        keyName = "perfLogging",
+        name = "Performance Logging",
+        description = "Log per-task and input timing measurements"
+    )
+    default boolean perfLogging() { return true; }
+
+    @ConfigItem(
+        keyName = "mouseMoveInterpolationPx",
+        name = "Mouse move interpolation (px/step)",
+        description = "Lower = smoother moves; higher = fewer steps"
+    )
+    @Range(min = 5, max = 60)
+    default int mouseMoveInterpolationPx() { return 20; }
     
     /**
      * Whether to show the current action in the overlay.

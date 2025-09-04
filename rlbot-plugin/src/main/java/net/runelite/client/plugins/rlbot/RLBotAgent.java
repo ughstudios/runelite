@@ -119,6 +119,12 @@ public class RLBotAgent {
                 dqn = new DJLDqnPolicy(s.length, tasks.size());
                 logger.info("[RL] Initialized DQN with stateDim=" + s.length + " actions=" + tasks.size());
                 actionCounts = new int[tasks.size()];
+                // Try load model from disk on startup
+                try {
+                    java.nio.file.Path modelDir = java.nio.file.Paths.get(System.getProperty("user.home"), ".rlbot", "models");
+                    boolean loaded = dqn.loadFrom(modelDir);
+                    logger.info("[RL] Model load " + (loaded ? "succeeded" : "not found/failed") + " from " + modelDir);
+                } catch (Exception ignored) {}
             } catch (Exception e) {
                 logger.error("[RL] DQN init failed: " + e.getMessage());
                 return;
@@ -218,7 +224,15 @@ public class RLBotAgent {
             else if (t instanceof BankDepositTask) telemetry.setMode("Banking");
             else if (t instanceof ChopNearestTreeTask) telemetry.setMode("Chop");
             else telemetry.setMode("Act");
-            t.run(taskContext);
+            // Guard: do not initiate new clicks while player is moving
+            if (taskContext.isPlayerWalking() && (t instanceof ChopNearestTreeTask || t instanceof BankDepositTask)) {
+                logger.info("[Agent] Skipping click task while moving");
+            } else {
+                long t0 = System.nanoTime();
+                t.run(taskContext);
+                long t1 = System.nanoTime();
+                logger.perf(t.getClass().getSimpleName() + " took " + ((t1 - t0) / 1_000_000) + " ms");
+            }
             logger.info("[Agent] Completed tick for task=" + t.getClass().getSimpleName());
         } catch (Exception e) {
             logger.error("Task error in " + t.getClass().getSimpleName() + ": " + e.getMessage());

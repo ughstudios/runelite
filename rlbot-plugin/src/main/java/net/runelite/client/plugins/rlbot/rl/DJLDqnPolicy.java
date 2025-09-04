@@ -129,6 +129,36 @@ public final class DJLDqnPolicy implements AutoCloseable {
         } catch (Exception ignored) {}
     }
 
+    /**
+     * Persist the current online network to the given directory with default name.
+     * @return true if saved successfully
+     */
+    public boolean saveTo(java.nio.file.Path dir) {
+        try {
+            java.nio.file.Files.createDirectories(dir);
+            online.save(dir, "rlbot-dqn");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Load parameters into both online and target networks from the given directory if present.
+     * @return true if loaded successfully
+     */
+    public boolean loadFrom(java.nio.file.Path dir) {
+        try {
+            // Attempt to load into online, then mirror to target
+            online.load(dir, "rlbot-dqn");
+            // Also load into target for immediate consistency
+            target.load(dir, "rlbot-dqn");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     @Override
     public void close() {
         trainer.close();
