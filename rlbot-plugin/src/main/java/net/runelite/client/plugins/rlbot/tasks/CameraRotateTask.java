@@ -55,13 +55,13 @@ public class CameraRotateTask implements Task {
 					ctx.logger.info("[CameraRotate] Rotated camera: yaw " + yawTarget + " -> " + newYaw + ", pitch " + pitchTarget + " -> " + newPitch);
 				} catch (Throwable t) {
 					// Fallback: single camera drag if direct setters fail
-					ctx.input.rotateCameraDrag(180, 32); // Single drag right and up
+					ctx.input.rotateCameraSafe(180, 32); // Single drag right and up
 					ctx.logger.info("[CameraRotate] Used fallback camera drag");
 				}
 			});
 		} catch (Exception e) {
 			// Final fallback: single camera drag
-			ctx.input.rotateCameraDrag(180, 32);
+			ctx.input.rotateCameraSafe(180, 32);
 			ctx.logger.info("[CameraRotate] Used final fallback camera drag");
 		}
 		

@@ -44,7 +44,7 @@ final class CameraHelper {
             } catch (Exception ignored) {
                 int dx = ((stepIndex % 2 == 0) ? 36 : -36);
                 int dy = (stepIndex % 3 == 2) ? -12 : 0;
-                ctx.input.rotateCameraDrag(dx, dy);
+                ctx.input.rotateCameraSafe(dx, dy);
             }
 
             ctx.setBusyForMs(140);
@@ -89,7 +89,8 @@ final class CameraHelper {
                 });
             } catch (Exception ignored) {
                 int dx = (stepIndex % 2 == 0) ? 24 : -24;
-                ctx.input.rotateCameraDrag(dx, 0);
+                ctx.input.rotateCameraSafe(dx, 0);
+                ctx.input.rotateCameraSafe(dx, 0);
             }
             ctx.setBusyForMs(80);
         }

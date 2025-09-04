@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.security.SecureRandom;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 import javax.swing.SwingUtilities;
 import net.runelite.api.Client;
@@ -63,6 +64,8 @@ public class RLBotInputHandler {
 
     // Track the last canvas point we moved to, to allow precise clicking
     private volatile Point lastCanvasMovePoint = null;
+    // Guard to avoid camera drags interfering with active click positioning
+    private final AtomicBoolean clickInProgress = new AtomicBoolean(false);
     
     /**
      * Creates a new RLBotInputHandler with dependency injection.
@@ -508,17 +511,28 @@ public class RLBotInputHandler {
      */
     public boolean moveAndClickWithValidation(Point canvasPoint, String expectedAction) {
         logger.debug("[RLBOT_INPUT] BEGIN moveAndClickWithValidation at " + canvasPoint + " for action: " + expectedAction);
-        
+        clickInProgress.set(true);
+        try {
         // First move the mouse to the target (now synchronous)
         smoothMouseMove(canvasPoint);
         
-        // Now validate what's under the mouse cursor
+        // Try to clear UI occlusion first
         if (isOccludedByUI(canvasPoint)) {
-            logger.warn("[RLBOT_INPUT] Target point is occluded by UI at " + canvasPoint + "; aborting click");
-            if (rlAgent != null) {
-                rlAgent.addExternalPenalty(0.2f);
+            if (!revealPointByCameraUI(canvasPoint, 6)) {
+                logger.warn("[RLBOT_INPUT] Target point remains occluded by UI at " + canvasPoint + "; aborting click");
+                if (rlAgent != null) rlAgent.addExternalPenalty(0.2f);
+                return false;
             }
-            return false;
+        }
+
+        // If multiple meshes overlap at this point, prefer the nearest-to-camera
+        net.runelite.api.GameObject targetObj = findObjectAtPointMatchingAction(canvasPoint, expectedAction);
+        if (targetObj != null && isOccludedByGeometry(canvasPoint, targetObj)) {
+            if (!revealPointByCameraGeometry(canvasPoint, targetObj, 6)) {
+                logger.warn("[RLBOT_INPUT] Target point is occluded by geometry at " + canvasPoint + "; aborting click");
+                if (rlAgent != null) rlAgent.addExternalPenalty(0.3f);
+                return false;
+            }
         }
         if (!validateTargetAtPoint(canvasPoint, expectedAction)) {
             logger.warn("[RLBOT_INPUT] Target validation failed for action '" + expectedAction + "' at " + canvasPoint);
@@ -539,6 +553,9 @@ public class RLBotInputHandler {
         long t1 = System.nanoTime();
         logger.perf("Input.moveAndClick validated click took " + ((t1 - t0) / 1_000_000) + " ms");
         return true;
+        } finally {
+            clickInProgress.set(false);
+        }
     }
 
     /**
@@ -550,7 +567,8 @@ public class RLBotInputHandler {
      */
     public boolean clickWithValidation(String expectedAction) {
         logger.debug("[RLBOT_INPUT] BEGIN clickWithValidation for action: " + expectedAction);
-        
+        clickInProgress.set(true);
+        try {
         // Get the current mouse position
         Point clickPoint = lastCanvasMovePoint;
         if (clickPoint == null) {
@@ -558,6 +576,25 @@ public class RLBotInputHandler {
             return false;
         }
         
+        // Try to clear UI occlusion
+        if (isOccludedByUI(clickPoint)) {
+            if (!revealPointByCameraUI(clickPoint, 6)) {
+                logger.warn("[RLBOT_INPUT] Click point remains occluded by UI at " + clickPoint + "; aborting click");
+                if (rlAgent != null) rlAgent.addExternalPenalty(0.2f);
+                return false;
+            }
+        }
+
+        // Check geometry occlusion
+        net.runelite.api.GameObject targetObj2 = findObjectAtPointMatchingAction(clickPoint, expectedAction);
+        if (targetObj2 != null && isOccludedByGeometry(clickPoint, targetObj2)) {
+            if (!revealPointByCameraGeometry(clickPoint, targetObj2, 6)) {
+                logger.warn("[RLBOT_INPUT] Click point is occluded by geometry at " + clickPoint + "; aborting click");
+                if (rlAgent != null) rlAgent.addExternalPenalty(0.3f);
+                return false;
+            }
+        }
+
         // Validate the target before clicking
         if (!validateTargetAtPoint(clickPoint, expectedAction)) {
             logger.warn("[RLBOT_INPUT] Target validation failed for action '" + expectedAction + "' at " + clickPoint);
@@ -578,6 +615,9 @@ public class RLBotInputHandler {
         long t1 = System.nanoTime();
         logger.perf("Input.clickWithValidation took " + ((t1 - t0) / 1_000_000) + " ms");
         return true;
+        } finally {
+            clickInProgress.set(false);
+        }
     }
 
     /**
@@ -590,14 +630,25 @@ public class RLBotInputHandler {
      */
     public boolean clickAtWithValidation(Point canvasPoint, String expectedAction) {
         logger.debug("[RLBOT_INPUT] BEGIN clickAtWithValidation at " + canvasPoint + " for action: " + expectedAction);
-        
-        // Validate the target before clicking
+        clickInProgress.set(true);
+        try {
+        // Try to clear UI occlusion
         if (isOccludedByUI(canvasPoint)) {
-            logger.warn("[RLBOT_INPUT] Click point is occluded by UI at " + canvasPoint + "; aborting click");
-            if (rlAgent != null) {
-                rlAgent.addExternalPenalty(0.2f);
+            if (!revealPointByCameraUI(canvasPoint, 6)) {
+                logger.warn("[RLBOT_INPUT] Click point remains occluded by UI at " + canvasPoint + "; aborting click");
+                if (rlAgent != null) rlAgent.addExternalPenalty(0.2f);
+                return false;
             }
-            return false;
+        }
+
+        // Check geometry occlusion
+        net.runelite.api.GameObject targetObj3 = findObjectAtPointMatchingAction(canvasPoint, expectedAction);
+        if (targetObj3 != null && isOccludedByGeometry(canvasPoint, targetObj3)) {
+            if (!revealPointByCameraGeometry(canvasPoint, targetObj3, 6)) {
+                logger.warn("[RLBOT_INPUT] Click point is occluded by geometry at " + canvasPoint + "; aborting click");
+                if (rlAgent != null) rlAgent.addExternalPenalty(0.3f);
+                return false;
+            }
         }
         if (!validateTargetAtPoint(canvasPoint, expectedAction)) {
             logger.warn("[RLBOT_INPUT] Target validation failed for action '" + expectedAction + "' at " + canvasPoint);
@@ -618,6 +669,9 @@ public class RLBotInputHandler {
         long t1 = System.nanoTime();
         logger.perf("Input.clickAtWithValidation took " + ((t1 - t0) / 1_000_000) + " ms");
         return true;
+        } finally {
+            clickInProgress.set(false);
+        }
     }
 
         /**
@@ -1170,6 +1224,26 @@ public class RLBotInputHandler {
         logger.info("[RLBOT_INPUT] END rotateCameraDrag (clientThread invoked)");
     }
 
+    /**
+     * Rotate camera without interfering with active mouse positioning.
+     * Uses middle-mouse drag when safe; otherwise falls back to arrow/page keys.
+     */
+    public void rotateCameraSafe(int dx, int dy) {
+        if (clickInProgress.get()) {
+            // Key-based rotation doesn't affect mouse position
+            int steps = Math.max(1, Math.min(3, Math.abs(dx) / 60));
+            for (int i = 0; i < steps; i++) {
+                if (dx > 0) rotateCameraRightSmall(); else if (dx < 0) rotateCameraLeftSmall();
+            }
+            if (dy != 0) {
+                int v = Math.max(1, Math.min(2, Math.abs(dy) / 40));
+                for (int i = 0; i < v; i++) { if (dy > 0) tiltCameraDownSmall(); else tiltCameraUpSmall(); }
+            }
+            return;
+        }
+        rotateCameraDrag(dx, dy);
+    }
+
     private void dispatchMiddleDrag(Component component, Point start, Point end) {
         long when = System.currentTimeMillis();
         int button = MouseEvent.BUTTON2;
@@ -1240,6 +1314,152 @@ public class RLBotInputHandler {
     public void rotateCameraRightSmall() { pressKey(KeyEvent.VK_RIGHT); }
     public void tiltCameraUpSmall() { pressKey(KeyEvent.VK_PAGE_UP); }
     public void tiltCameraDownSmall() { pressKey(KeyEvent.VK_PAGE_DOWN); }
+
+    /**
+     * Zoom using mouse wheel events without moving the cursor.
+     */
+    public void zoomInSmall() { dispatchWheel(+1); }
+    public void zoomOutSmall() { dispatchWheel(-1); }
+
+    private void dispatchWheel(int wheelRotation) {
+        clientThread.invoke(() -> {
+            Canvas canvas = getCanvas();
+            if (canvas == null) return;
+            try {
+                long when = System.currentTimeMillis();
+                java.awt.event.MouseWheelEvent wheel = new java.awt.event.MouseWheelEvent(
+                    canvas,
+                    java.awt.event.MouseEvent.MOUSE_WHEEL,
+                    when,
+                    0,
+                    // Use current or center position; wheel does not depend on precise coordinates
+                    Math.max(1, canvas.getWidth() / 2),
+                    Math.max(1, canvas.getHeight() / 2),
+                    0,
+                    false,
+                    java.awt.event.MouseWheelEvent.WHEEL_UNIT_SCROLL,
+                    1,
+                    wheelRotation
+                );
+                SwingUtilities.invokeLater(() -> canvas.dispatchEvent(wheel));
+            } catch (Exception ignored) {}
+        });
+    }
+
+    /** Expose click-in-progress flag for tasks. */
+    public boolean isClickInProgress() { return clickInProgress.get(); }
+    
+    // ===================== Occlusion helpers =====================
+    private boolean revealPointByCameraUI(Point target, int attempts) {
+        int tries = Math.max(1, Math.min(10, attempts));
+        for (int i = 0; i < tries; i++) {
+            if (!isOccludedByUI(target)) return true;
+            try {
+                int vy = client.getViewportYOffset();
+                int vh = client.getViewportHeight();
+                if (vh > 0 && target.y > vy + vh - 24) {
+                    zoomOutSmall();
+                } else {
+                    int dx = (i % 2 == 0) ? 120 : -120;
+                    int dy = (i % 3 == 0) ? -20 : 20;
+                    rotateCameraSafe(dx, dy);
+                }
+            } catch (Exception ignored) {}
+        }
+        return !isOccludedByUI(target);
+    }
+
+    private net.runelite.api.GameObject findObjectAtPointMatchingAction(Point canvasPoint, String expectedAction) {
+        try {
+            final int plane = client.getPlane();
+            net.runelite.api.Scene scene = client.getScene();
+            if (scene == null) return null;
+            net.runelite.api.Tile[][] tiles = scene.getTiles()[plane];
+            if (tiles == null) return null;
+            net.runelite.api.GameObject best = null;
+            double bestDist = Double.MAX_VALUE;
+            for (int x = 0; x < tiles.length; x++) {
+                net.runelite.api.Tile[] col = tiles[x];
+                if (col == null) continue;
+                for (int y = 0; y < col.length; y++) {
+                    net.runelite.api.Tile tile = col[y];
+                    if (tile == null) continue;
+                    for (net.runelite.api.GameObject go : tile.getGameObjects()) {
+                        if (go == null) continue;
+                        java.awt.Shape hull = go.getConvexHull();
+                        if (hull == null || !hull.contains(canvasPoint)) continue;
+                        net.runelite.api.ObjectComposition comp = client.getObjectDefinition(go.getId());
+                        if (comp == null || comp.getActions() == null) continue;
+                        boolean match = false;
+                        for (String a : comp.getActions()) {
+                            if (a != null && a.toLowerCase().contains(expectedAction.toLowerCase())) { match = true; break; }
+                        }
+                        if (!match) continue;
+                        net.runelite.api.coords.LocalPoint lp = go.getLocalLocation();
+                        if (lp == null) continue;
+                        double dx = lp.getX() - client.getCameraX();
+                        double dy = lp.getY() - client.getCameraY();
+                        double dist = Math.hypot(dx, dy);
+                        if (dist < bestDist) { bestDist = dist; best = go; }
+                    }
+                }
+            }
+            return best;
+        } catch (Exception ignored) { return null; }
+    }
+
+    private boolean isOccludedByGeometry(Point canvasPoint, net.runelite.api.GameObject target) {
+        try {
+            if (target == null) return false;
+            net.runelite.api.coords.LocalPoint tlp = target.getLocalLocation();
+            if (tlp == null) return false;
+            double tdx = tlp.getX() - client.getCameraX();
+            double tdy = tlp.getY() - client.getCameraY();
+            double tdist = Math.hypot(tdx, tdy);
+
+            final int plane = client.getPlane();
+            net.runelite.api.Scene scene = client.getScene();
+            if (scene == null) return false;
+            net.runelite.api.Tile[][] tiles = scene.getTiles()[plane];
+            if (tiles == null) return false;
+            for (int x = 0; x < tiles.length; x++) {
+                net.runelite.api.Tile[] col = tiles[x];
+                if (col == null) continue;
+                for (int y = 0; y < col.length; y++) {
+                    net.runelite.api.Tile tile = col[y];
+                    if (tile == null) continue;
+                    for (net.runelite.api.GameObject go : tile.getGameObjects()) {
+                        if (go == null || go == target) continue;
+                        java.awt.Shape hull = go.getConvexHull();
+                        if (hull == null || !hull.contains(canvasPoint)) continue;
+                        net.runelite.api.coords.LocalPoint lp = go.getLocalLocation();
+                        if (lp == null) continue;
+                        double dx = lp.getX() - client.getCameraX();
+                        double dy = lp.getY() - client.getCameraY();
+                        double dist = Math.hypot(dx, dy);
+                        if (dist + 1.0 < tdist) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        } catch (Exception ignored) { return false; }
+    }
+
+    private boolean revealPointByCameraGeometry(Point targetPoint, net.runelite.api.GameObject target, int attempts) {
+        int tries = Math.max(1, Math.min(10, attempts));
+        for (int i = 0; i < tries; i++) {
+            if (!isOccludedByGeometry(targetPoint, target)) return true;
+            try {
+                int dx = (i % 2 == 0) ? 140 : -140;
+                rotateCameraSafe(dx, 0);
+                if (i % 3 == 0) zoomOutSmall(); else zoomInSmall();
+                Thread.sleep(60);
+            } catch (Exception ignored) {}
+        }
+        return !isOccludedByGeometry(targetPoint, target);
+    }
     
     /**
      * Dispatches a key event for a character.

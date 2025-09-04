@@ -41,7 +41,7 @@ public class CameraRotateStepTask implements Task {
 			} catch (Throwable t) {
 				int dx = (direction == Direction.LEFT ? -48 : direction == Direction.RIGHT ? 48 : 0);
 				int dy = (direction == Direction.UP ? -12 : direction == Direction.DOWN ? 12 : 0);
-				ctx.input.rotateCameraDrag(dx, dy);
+				ctx.input.rotateCameraSafe(dx, dy);
 			}
 		});
 		ctx.setBusyForMs(100);

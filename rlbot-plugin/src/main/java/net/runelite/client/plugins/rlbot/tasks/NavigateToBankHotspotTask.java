@@ -14,7 +14,8 @@ public class NavigateToBankHotspotTask extends NavigateToHotspotTask {
         
         List<WorldPoint> discovered = BankDiscovery.getDiscoveredBanks();
         if (!discovered.isEmpty()) {
-            // Filter out unreachable bank positions
+            // Filter out unreachable bank positions (visible/in-scene), but if none are reachable,
+            // still pursue the nearest discovered bank instead of aimless exploration.
             List<WorldPoint> reachableBanks = new ArrayList<>();
             for (WorldPoint bankPos : discovered) {
                 if (isBankReachable(ctx, bankPos)) {
@@ -23,11 +24,26 @@ public class NavigateToBankHotspotTask extends NavigateToHotspotTask {
                     ctx.logger.info("[BankNav] Filtering out unreachable bank at " + bankPos);
                 }
             }
-            
+
             if (!reachableBanks.isEmpty()) {
                 return reachableBanks;
             } else {
-                ctx.logger.warn("[BankNav] All discovered banks are unreachable, will explore to find new ones");
+                // Choose the nearest discovered bank (non-blacklisted) and head toward it
+                WorldPoint me = ctx.client.getLocalPlayer() != null ? ctx.client.getLocalPlayer().getWorldLocation() : null;
+                if (me != null) {
+                    WorldPoint nearest = null;
+                    int best = Integer.MAX_VALUE;
+                    for (WorldPoint wp : discovered) {
+                        if (BankDiscovery.isBlacklisted(wp)) continue;
+                        int d = me.distanceTo(wp);
+                        if (d >= 0 && d < best) { best = d; nearest = wp; }
+                    }
+                    if (nearest != null) {
+                        ctx.logger.warn("[BankNav] No on-screen banks; navigating toward nearest discovered bank at " + nearest);
+                        return java.util.Arrays.asList(nearest);
+                    }
+                }
+                ctx.logger.warn("[BankNav] All discovered banks are unreachable and none selected; will explore to find new ones");
             }
         }
         

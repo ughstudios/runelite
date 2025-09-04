@@ -40,8 +40,13 @@ public abstract class NavigateToHotspotTask implements Task {
             return;
         }
         
-        WorldPoint rawTarget = chooseNearest(myWp, availableHotspots);
-        WorldPoint target = pickViewportReachableNear(ctx, rawTarget);
+        final WorldPoint rawTarget = chooseNearest(myWp, availableHotspots);
+        // Validate pathability using collision before committing
+        WorldPoint target = ensurePathable(ctx, rawTarget);
+        if (target == null) {
+            ctx.logger.warn("[Nav] Raw target not pathable via collision; attempting nearby offsets");
+            target = pickViewportReachableNear(ctx, rawTarget);
+        }
         if (target == null) {
             ctx.logger.warn("[Nav] No reachable hotspots found");
             return;
@@ -69,9 +74,10 @@ public abstract class NavigateToHotspotTask implements Task {
         }
 
         // Rotate/tilt camera periodically to seek target
+        final WorldPoint sweepTarget = target;
         CameraHelper.sweepUntilVisible(ctx, () -> {
             // consider visible if a world step toward target would be accepted
-            return WorldPathing.clickStepToward(ctx, target, 0);
+            return WorldPathing.clickStepToward(ctx, sweepTarget, 0);
         }, 4);
         // Turn run on when moving between hotspots
         RunHelper.ensureRunOn(ctx);
@@ -162,6 +168,36 @@ public abstract class NavigateToHotspotTask implements Task {
             }
         }
         return target;
+    }
+
+    static WorldPoint ensurePathable(TaskContext ctx, WorldPoint target) {
+        try {
+            if (target == null || ctx.client.getLocalPlayer() == null) return null;
+            net.runelite.api.WorldView wv = ctx.client.getTopLevelWorldView();
+            if (wv == null) return target; // fallback
+            net.runelite.api.coords.WorldPoint me = ctx.client.getLocalPlayer().getWorldLocation();
+            net.runelite.api.coords.WorldArea from = new net.runelite.api.coords.WorldArea(me, 1, 1);
+            net.runelite.api.coords.WorldArea to = new net.runelite.api.coords.WorldArea(target, 1, 1);
+            // Simple AABB direction step heuristic: if at least one step toward target is possible, accept
+            int dx = Integer.signum(target.getX() - me.getX());
+            int dy = Integer.signum(target.getY() - me.getY());
+            if (from.canTravelInDirection(wv, dx, dy) || from.canTravelInDirection(wv, dx, 0) || from.canTravelInDirection(wv, 0, dy)) {
+                return target;
+            }
+            // Try small offsets around the target to find a tile we can approach
+            int[][] offsets = new int[][] { {0,0}, {1,0}, {-1,0}, {0,1}, {0,-1}, {2,0}, {-2,0}, {0,2}, {0,-2} };
+            for (int[] off : offsets) {
+                net.runelite.api.coords.WorldPoint cand = new net.runelite.api.coords.WorldPoint(target.getX()+off[0], target.getY()+off[1], target.getPlane());
+                dx = Integer.signum(cand.getX() - me.getX());
+                dy = Integer.signum(cand.getY() - me.getY());
+                if (from.canTravelInDirection(wv, dx, dy) || from.canTravelInDirection(wv, dx, 0) || from.canTravelInDirection(wv, 0, dy)) {
+                    return cand;
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            return target; // be permissive on error
+        }
     }
 
     private static void exploreRandomly(TaskContext ctx, WorldPoint myWp) {

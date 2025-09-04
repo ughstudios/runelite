@@ -54,7 +54,13 @@ public class ExploreTask implements Task {
 		int exploreRadius = 12;
 		int offsetX = -exploreRadius; // deterministic westward step
 		int offsetY = 0;
-		WorldPoint exploreTarget = new WorldPoint(myWp.getX() + offsetX, myWp.getY() + offsetY, myWp.getPlane());
+		WorldPoint rawTarget = new WorldPoint(myWp.getX() + offsetX, myWp.getY() + offsetY, myWp.getPlane());
+		WorldPoint exploreTarget = NavigateToHotspotTask.ensurePathable(ctx, rawTarget);
+		if (exploreTarget == null) {
+			ctx.logger.warn("[Explore] Raw explore target not pathable; skipping step");
+			ctx.setBusyForMs(300);
+			return;
+		}
 		ctx.logger.info("[Explore] Stepping toward (" + exploreTarget.getX() + "," + exploreTarget.getY() + ")");
 		RunHelper.ensureRunOn(ctx);
 		boolean worldClicked = WorldPathing.clickStepToward(ctx, exploreTarget, 6);

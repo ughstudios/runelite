@@ -250,11 +250,9 @@ public class BankDepositTask implements Task {
         if (best != null) {
             context.logger.info("[BankDeposit] Found bank object: " + best.getId() + " at " + best.getWorldLocation());
             
-            // Enforce exact Bank action; if absent, blacklist and skip
+            // Enforce exact Bank action; if absent, just skip (only chat drives blacklisting)
             if (!hasExactBankAction(context, best)) {
-                BankDiscovery.setLastTargetedBank(best.getWorldLocation());
-                BankDiscovery.blacklistLastTargetedBank();
-                context.logger.warn("[BankDeposit] Blacklisting non-bankable object: " + best.getId() + " at " + best.getWorldLocation());
+                context.logger.warn("[BankDeposit] Skipping non-bankable object: " + best.getId() + " at " + best.getWorldLocation());
                 return;
             }
             // Skip if persistently blacklisted
@@ -296,9 +294,8 @@ public class BankDepositTask implements Task {
                 }
 
                 if (!isBankOpen(context)) {
-                    // Could still be unreachable (counter/wall). Blacklist and back off
-                    context.logger.warn("[BankDeposit] Bank still not open; blacklisting and backing off");
-                    BankDiscovery.blacklistLastTargetedBank();
+                    // Could still be unreachable (counter/wall). Back off; chat handler will blacklist on "I can't reach that!"
+                    context.logger.warn("[BankDeposit] Bank still not open; backing off (no blacklist unless chat says can't reach)");
                     context.setBusyForMs(300);
                     return;
                 }
