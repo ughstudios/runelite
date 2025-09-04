@@ -12,6 +12,11 @@ public class ExploreTask implements Task {
 			ctx.logger.info("[Explore] shouldRun=false: busy and not timed out");
 			return false;
 		}
+		// Do not explore if inventory is full; banking must take priority
+		if (ctx.isInventoryFull()) {
+			ctx.logger.info("[Explore] shouldRun=false: inventory full");
+			return false;
+		}
 		
 		// Don't explore if we can see trees to chop (unless inventory is full)
 		if (!ctx.isInventoryFull()) {
@@ -23,15 +28,7 @@ public class ExploreTask implements Task {
 			}
 		}
 		
-		// Don't explore if we can see a bank and inventory is full
-		if (ctx.isInventoryFull()) {
-			net.runelite.api.GameObject bank = ObjectFinder.findNearestByNames(ctx, 
-				new String[]{"bank booth", "bank chest"}, "Bank");
-			if (bank != null && ObjectFinder.projectToCanvas(ctx, bank) != null) {
-				ctx.logger.info("[Explore] shouldRun=false: bank visible and inventory full");
-				return false; // Bank is visible, no need to explore
-			}
-		}
+		// (Removed redundant bank-visible check for full inventory; handled above)
 		
 		// Explore if player hasn't moved recently (stuck) OR if inventory is full and no bank visible
 		boolean playerMovingRecent = ctx.isPlayerMovingRecent(2000);

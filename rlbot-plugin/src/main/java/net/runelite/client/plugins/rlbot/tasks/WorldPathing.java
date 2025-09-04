@@ -62,38 +62,28 @@ final class WorldPathing {
                     int sceneX = lp.getSceneX();
                     int sceneY = lp.getSceneY();
                     ctx.logger.info("[WorldPath] WALK to scene (" + sceneX + "," + sceneY + ") for world (" + step.getX() + "," + step.getY() + ") canvas(" + p.getX() + "," + p.getY() + ")");
-                    
-                    // Move mouse first, then click with validation of menu action
+
+                    // Move mouse first for human-like behavior
                     try {
                         long t0 = System.nanoTime();
                         ctx.input.smoothMouseMove(new java.awt.Point(p.getX(), p.getY()));
-                        ctx.logger.info("[WorldPath] Mouse moved to canvas point, now executing walk click");
-                        
-                        // Set busy for mouse movement delay
                         ctx.setBusyForMs(50);
-                        
-                        // Perform the actual click only if WALK would be under cursor
-                        // Validation: ensure point is inside viewport (already checked) and not in UI
-                        // We simulate walk via left click here; menuAction fallback below
-                        ctx.input.click();
                         long t1 = System.nanoTime();
-                        ctx.logger.perf("WorldPath.walk-click took " + ((t1 - t0) / 1_000_000) + " ms");
-                        ctx.logger.info("[WorldPath] Click executed at canvas point (" + p.getX() + "," + p.getY() + ")");
-                        
+                        ctx.logger.perf("WorldPath.move-to-walk took " + ((t1 - t0) / 1_000_000) + " ms");
                     } catch (Exception e) {
-                        ctx.logger.error("[WorldPath] Mouse move/click failed: " + e.getMessage());
-                        
-                        // Fallback to menuAction if direct click fails
-                        ctx.clientThread.invoke(() -> {
-                            try {
-                                client.menuAction(sceneX, sceneY, MenuAction.WALK, 0, 0, "Walk here", "");
-                                ctx.logger.info("[WorldPath] Fallback WALK menuAction executed");
-                            } catch (Exception e2) {
-                                ctx.logger.error("[WorldPath] Fallback WALK menuAction error: " + e2.getMessage());
-                            }
-                        });
+                        ctx.logger.error("[WorldPath] Mouse move failed: " + e.getMessage());
                     }
-                    
+
+                    // Always issue menuAction WALK to guarantee movement
+                    ctx.clientThread.invoke(() -> {
+                        try {
+                            client.menuAction(sceneX, sceneY, MenuAction.WALK, 0, 0, "Walk here", "");
+                            ctx.logger.info("[WorldPath] WALK menuAction executed");
+                        } catch (Exception e2) {
+                            ctx.logger.error("[WorldPath] WALK menuAction error: " + e2.getMessage());
+                        }
+                    });
+
                     ctx.markMenuWalkClick();
                     ctx.setBusyForMs(800); // Increased timeout
                     return true;

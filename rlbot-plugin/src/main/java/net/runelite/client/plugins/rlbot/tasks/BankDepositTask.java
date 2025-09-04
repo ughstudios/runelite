@@ -16,22 +16,22 @@ public class BankDepositTask implements Task {
     public boolean shouldRun(TaskContext context) {
         // If a bank/deposit UI is open, run if inventory is full OR if we need to close the bank
         if (isBankOpen(context) || isDepositBoxOpen(context)) {
-            boolean inventoryFull = context.isInventoryNearFull();
-            // Run if inventory is full (to deposit) OR if inventory is empty (to close bank)
+            boolean inventoryFull = context.isInventoryFull();
             if (inventoryFull || context.getInventoryFreeSlots() == 28) {
                 context.logger.info("[BankDeposit] Bank UI open, inventoryFull=" + inventoryFull + ", freeSlots=" + context.getInventoryFreeSlots());
             }
             return inventoryFull || context.getInventoryFreeSlots() == 28; // Close bank if empty
         }
-        if (!context.isInventoryNearFull()) {
-            // Only log when inventory is getting full but not quite there
+        if (!context.isInventoryFull()) {
             if (context.getInventoryFreeSlots() <= 5) {
                 context.logger.info("[BankDeposit] shouldRun() = false (inventory not near full, free slots: " + context.getInventoryFreeSlots() + ")");
             }
             return false;
         }
-        // Only when a bank object is visible on screen, not blacklisted, and has exact "Bank" action
-        net.runelite.api.GameObject cand = ObjectFinder.findNearestByNames(context, new String[]{"bank booth", "bank chest"}, null);
+        // Actively discover banks like Chop task does for trees
+        BankDiscovery.scanAndDiscoverBanks(context);
+        // Prefer objects with exact Bank action and not blacklisted
+        net.runelite.api.GameObject cand = ObjectFinder.findNearestByAction(context, "Bank");
         boolean canSeeBank = false;
         if (cand != null) {
             java.awt.Point proj = ObjectFinder.projectToCanvas(context, (net.runelite.api.GameObject) cand);
@@ -39,27 +39,21 @@ public class BankDepositTask implements Task {
                 net.runelite.api.coords.WorldPoint wp = cand.getWorldLocation();
                 boolean blacklisted = BankDiscovery.isBlacklisted(wp);
                 boolean hasBankAction = hasExactBankAction(context, cand);
-                canSeeBank = !blacklisted && hasBankAction && context.isInventoryNearFull() && proj != null;
-                // Only log when we actually find a usable bank
+                canSeeBank = !blacklisted && hasBankAction && context.isInventoryFull();
                 if (canSeeBank) {
-                    context.logger.info("[BankDeposit] Found usable bank: blacklisted=" + blacklisted + ", hasBankAction=" + hasBankAction + ", inventoryFull=" + context.isInventoryNearFull());
+                    context.logger.info("[BankDeposit] Found usable bank: blacklisted=" + blacklisted + ", hasBankAction=" + hasBankAction + ", inventoryFull=" + context.isInventoryFull());
                 }
-            } else {
-                context.logger.info("[BankDeposit] Bank object found but not projectable to canvas");
             }
         } else {
-            // Only log when inventory is full and we can't find a bank
-            if (context.isInventoryNearFull()) {
-                context.logger.info("[BankDeposit] No bank objects found in scene");
-            }
+            context.logger.info("[BankDeposit] No bank objects found in scene");
         }
-        
-        // If we found a bank, add it to our discovered banks
-        if (canSeeBank) {
-            BankDiscovery.scanAndDiscoverBanks(context);
+        if (!canSeeBank) {
+            // Allow run if we have discovered banks so navigation can proceed
+            boolean hasDiscovered = !BankDiscovery.getDiscoveredBanks().isEmpty();
+            context.logger.info("[BankDeposit] shouldRun() - hasDiscoveredBanks: " + hasDiscovered + " (count=" + BankDiscovery.getDiscoveredBanks().size() + ")");
+            return hasDiscovered;
         }
-        
-        return canSeeBank;
+        return true;
     }
 
     private static boolean hasExactBankAction(TaskContext context, net.runelite.api.GameObject obj) {
@@ -125,8 +119,6 @@ public class BankDepositTask implements Task {
                 return;
             }
             
-            // Also check for the "Deposit" button (which might be a different widget)
-            // Try comprehensive widget scanning first
             Widget depositButton = findDepositButton(context);
             if (depositButton != null) {
                 context.logger.info("[BankDeposit] Found deposit button via scanning, clicking it");
@@ -141,41 +133,8 @@ public class BankDepositTask implements Task {
                 return;
             }
             
-            // If no deposit button found, dump all visible widgets for debugging
-            context.logger.info("[BankDeposit] No deposit button found, dumping all visible widgets for debugging");
-            dumpAllVisibleWidgets(context);
-            
-            // Fallback: try common widget IDs for deposit buttons
-            Widget[] depositWidgets = {
-                client.getWidget(12, 9),  // Common bank deposit button location
-                client.getWidget(12, 10), // Alternative location
-                client.getWidget(12, 11), // Another possible location
-                client.getWidget(12, 12)  // Yet another possible location
-            };
-            
-            for (Widget depositWidget : depositWidgets) {
-                if (depositWidget != null && !depositWidget.isHidden() && 
-                    depositWidget.getBounds() != null && depositWidget.getBounds().width > 0) {
-                    
-                    String widgetText = depositWidget.getText();
-                    if (widgetText != null && (widgetText.contains("Deposit") || widgetText.contains("deposit"))) {
-                        context.logger.info("[BankDeposit] Found 'Deposit' button with text: '" + widgetText + "', clicking it");
-                        int widgetId = depositWidget.getId();
-                        context.clientThread.invoke(() -> {
-                            try {
-                                client.menuAction(-1, widgetId, MenuAction.CC_OP, 1, -1, "Deposit", "");
-                            } catch (Exception ignored) {}
-                        });
-                        context.setBusyForMs(500);
-                        if (context.telemetry != null) context.telemetry.addReward(10);
-                        return;
-                    }
-                }
-            }
-            
-            // If no deposit button found, try clicking on the deposit area directly
+            // Fallback: try clicking deposit area
             context.logger.info("[BankDeposit] No deposit button found, trying to click deposit area");
-            // Try clicking in the general deposit area (right side of bank interface)
             java.awt.Point depositArea = new java.awt.Point(400, 300); // Approximate location
             context.input.smoothMouseMove(depositArea);
             context.setBusyForMs(200);
@@ -185,9 +144,8 @@ public class BankDepositTask implements Task {
             return;
         }
         
-        // If deposit box widget is open, use its Deposit inventory button (gid=192, child=29)
-        if (isDepositBoxOpen(context) && !context.isInventoryNearFull()) {
-            // Close deposit box if nothing to deposit
+        // Deposit box handling (unchanged)
+        if (isDepositBoxOpen(context) && !context.isInventoryFull()) {
             if (!UiHelper.clickCloseIfVisible(context)) {
                 context.input.pressKey(KeyEvent.VK_ESCAPE);
                 context.setBusyForMs(200);
@@ -205,7 +163,6 @@ public class BankDepositTask implements Task {
             });
             context.setBusyForMs(500);
             if (context.telemetry != null) context.telemetry.addReward(10);
-            // Close deposit box: try close button scan else ESC
             if (!UiHelper.clickCloseIfVisible(context)) {
                 context.input.pressKey(KeyEvent.VK_ESCAPE);
                 context.setBusyForMs(250);
@@ -213,57 +170,27 @@ public class BankDepositTask implements Task {
             return;
         }
 
-        // If bank widget is open, click deposit inventory (only if inventory is full)
-        if (isBankOpen(context) && !context.isInventoryNearFull()) {
-            if (!UiHelper.clickCloseIfVisible(context)) {
-                context.input.pressKey(KeyEvent.VK_ESCAPE);
-                context.setBusyForMs(200);
-            }
-            return;
-        }
-        Widget depositInv = client.getWidget(WidgetInfo.BANK_DEPOSIT_INVENTORY);
-        if (depositInv != null && !depositInv.isHidden()) {
-            context.logger.info("[BankDeposit] Found bank deposit widget, clicking it");
-            int widgetId = depositInv.getId();
-            context.clientThread.invoke(() -> {
-                try {
-                    client.menuAction(-1, widgetId, MenuAction.CC_OP, 1, -1, "Deposit inventory", "");
-                } catch (Exception ignored) {}
-            });
-            context.setBusyForMs(500);
-            if (context.telemetry != null) context.telemetry.addReward(10);
-            // Close bank: try close button scan else ESC
-            if (!UiHelper.clickCloseIfVisible(context)) {
-                context.input.pressKey(KeyEvent.VK_ESCAPE);
-                context.setBusyForMs(250);
-            }
-            return;
-        }
-        
         // Otherwise, find a nearby bank object and click it if on-screen
         Player me = context.client.getLocalPlayer();
         if (me == null) return;
         
-        // Search for objects with "Bank" action specifically - only real bank booths
+        // Search for objects with "Bank" action specifically
         final net.runelite.api.GameObject best = ObjectFinder.findNearestByAction(context, "Bank");
 
         if (best != null) {
             context.logger.info("[BankDeposit] Found bank object: " + best.getId() + " at " + best.getWorldLocation());
             
-            // Enforce exact Bank action; if absent, just skip (only chat drives blacklisting)
             if (!hasExactBankAction(context, best)) {
                 context.logger.warn("[BankDeposit] Skipping non-bankable object: " + best.getId() + " at " + best.getWorldLocation());
                 return;
             }
-            // Skip if persistently blacklisted
             if (BankDiscovery.isBlacklisted(best.getWorldLocation())) {
                 context.logger.warn("[BankDeposit] Skipping blacklisted bank at " + best.getWorldLocation());
                 return;
             }
-            // Ensure unobstructed; rotate camera if needed
+            // Project bank to canvas and perform validated click like Chop task
             java.awt.Point proj = ObjectFinder.projectToCanvas(context, best);
             if (proj == null) {
-                // Off-screen: sweep camera then try a world step toward bank
                 boolean visible = CameraHelper.sweepUntilVisible(context, () -> ObjectFinder.projectToCanvas(context, (net.runelite.api.GameObject) best) != null, 6);
                 if (!visible) {
                     WorldPathing.clickStepToward(context, best.getWorldLocation(), 6);
@@ -271,40 +198,63 @@ public class BankDepositTask implements Task {
                 }
                 return;
             }
-            
-            // Prefer explicit menu action to avoid left-click defaulting to Talk-to Banker through walls
-            BankDiscovery.setLastTargetedBank(best.getWorldLocation());
-            context.logger.info("[BankDeposit] Interacting with bank object via menuAction at " + best.getWorldLocation());
-
-            try {
+            // Move and click with validation on the bank action
+            boolean clicked = context.input.moveAndClickWithValidation(new java.awt.Point(proj.x, proj.y), "Bank");
+            if (!clicked) {
+                context.logger.warn("[BankDeposit] Click validation failed on bank; stepping closer");
+                WorldPathing.clickStepToward(context, best.getWorldLocation(), 4);
+                context.setBusyForMs(400);
+                return;
+            }
+            context.setBusyForMs(250);
+            // If widget not open after interaction, retry via menuAction fallback
+            if (!isBankOpen(context)) {
+                context.logger.info("[BankDeposit] Bank not open after validated click; invoking menu action");
                 context.input.interactWithGameObject(best, "Bank");
-                context.setBusyForMs(250);
-
-                // If widget not open after interaction, attempt a small step toward the bank and retry once
-                if (!isBankOpen(context)) {
-                    context.logger.info("[BankDeposit] Bank not open after interact; stepping toward and retrying");
-                    WorldPathing.clickStepToward(context, best.getWorldLocation(), 4);
-                    context.setBusyForMs(600);
-
-                    if (!isBankOpen(context)) {
-                        // Retry interaction once more
-                        context.input.interactWithGameObject(best, "Bank");
-                        context.setBusyForMs(300);
+                context.setBusyForMs(300);
+            }
+            if (!isBankOpen(context)) {
+                context.logger.warn("[BankDeposit] Bank still not open; backing off (chat handler may blacklist)");
+                context.setBusyForMs(300);
+            }
+            return;
+        }
+        
+        // No bank in scene: navigate toward nearest discovered bank or explore
+        java.util.List<net.runelite.api.coords.WorldPoint> discovered = BankDiscovery.getDiscoveredBanks();
+        if (!discovered.isEmpty()) {
+            net.runelite.api.coords.WorldPoint meWp = me.getWorldLocation();
+            net.runelite.api.coords.WorldPoint nearest = null;
+            int bestDist = Integer.MAX_VALUE;
+            for (net.runelite.api.coords.WorldPoint wp : discovered) {
+                if (BankDiscovery.isBlacklisted(wp)) continue;
+                int d = meWp.distanceTo(wp);
+                if (d >= 0 && d < bestDist) { bestDist = d; nearest = wp; }
+            }
+            if (nearest != null) {
+                context.logger.info("[BankDeposit] Navigating toward nearest discovered bank at " + nearest);
+                boolean worldClicked = WorldPathing.clickStepToward(context, nearest, 6);
+                if (!worldClicked) {
+                    boolean visible = WorldPathing.clickStepToward(context, nearest, 0);
+                    if (!visible) {
+                        MinimapPathing.stepTowards(context, nearest, 0.0);
                     }
                 }
-
-                if (!isBankOpen(context)) {
-                    // Could still be unreachable (counter/wall). Back off; chat handler will blacklist on "I can't reach that!"
-                    context.logger.warn("[BankDeposit] Bank still not open; backing off (no blacklist unless chat says can't reach)");
-                    context.setBusyForMs(300);
-                    return;
-                }
-
-            } catch (Exception e) {
-                context.logger.warn("[BankDeposit] Failed to interact with bank: " + e.getMessage());
+                context.setBusyForMs(600);
+                return;
             }
-        } else {
-            // No bank in scene: let NavigateToBankHotspotTask handle navigation
+        }
+        // If nothing discovered, trigger bank discovery exploration via NavigateToBankHotspotTask hotspots logic
+        context.logger.info("[BankDeposit] No discovered banks to navigate to; exploring to find bank");
+        NavigateToBankHotspotTask nav = new NavigateToBankHotspotTask();
+        java.util.List<net.runelite.api.coords.WorldPoint> hs = nav.hotspots(context);
+        if (!hs.isEmpty()) {
+            net.runelite.api.coords.WorldPoint target = hs.get(0);
+            boolean worldClicked = WorldPathing.clickStepToward(context, target, 6);
+            if (!worldClicked) {
+                MinimapPathing.stepTowards(context, target, 0.0);
+            }
+            context.setBusyForMs(600);
         }
     }
 

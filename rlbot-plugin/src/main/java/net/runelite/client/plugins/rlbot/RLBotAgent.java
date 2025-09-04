@@ -284,6 +284,14 @@ public class RLBotAgent {
                 if (!(ti instanceof IdleTask) && taskContext.isWoodcuttingAnim()) {
                     allowed = false;
                 }
+                // Never rotate or explore when inventory is full; must bank
+                if (inventoryFull && (ti instanceof CameraRotateTask || ti instanceof ExploreTask)) {
+                    allowed = false;
+                }
+                // Also, if inventoryFull and bank is visible or bank is open, prefer banking tasks over rotation
+                if (inventoryFull && (ti instanceof CameraRotateTask) && (bankVisible || curBankOpen())) {
+                    allowed = false;
+                }
                 mask[i] = allowed && ti.shouldRun(taskContext);
                 if (mask[i]) eligibleCount++;
             } catch (Exception e) {
@@ -294,6 +302,13 @@ public class RLBotAgent {
             // Recovery: if nothing eligible, try exploration or camera rotate
             for (int i = 0; i < tasks.size(); i++) {
                 Task ti = tasks.get(i);
+                // If inventory is full, don't recover with rotate/explore; force NavigateToBank
+                if (inventoryFull) {
+                    if (ti instanceof NavigateToBankHotspotTask || ti instanceof BankDepositTask) {
+                        return i;
+                    }
+                    continue;
+                }
                 if (ti instanceof ExploreTask || ti instanceof CameraRotateTask) {
                     return i;
                 }

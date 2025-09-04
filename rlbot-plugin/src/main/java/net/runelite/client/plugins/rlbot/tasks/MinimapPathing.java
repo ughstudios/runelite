@@ -59,16 +59,35 @@ final class MinimapPathing {
             boolean clicked = WorldPathing.clickStepToward(ctx, stepTargetFinal, Math.max(3, Math.min(stepLen, 12)));
             lastStepWp = stepTargetFinal;
             if (!clicked) {
-                // If world click fails (projection/obstruction), nudge camera and retry a shorter step
-                CameraHelper.sweepUntilVisible(ctx, () -> WorldPathing.clickStepToward(ctx, stepTargetFinal, 0), 3);
-                WorldPathing.clickStepToward(ctx, new WorldPoint(me.getX() + stepDx / 2, me.getY() + stepDy / 2, me.getPlane()), Math.max(3, stepLen / 2));
+                // If world click fails (projection/obstruction), attempt real minimap click toward the original target
+                clickMinimapTowards(ctx, target);
             }
         } catch (Exception e) {
             ctx.logger.error("[Pathing] Error in stepTowards: " + e.getMessage());
         }
     }
 
-    // Removed unused minimap widget probing helper
+    private static void clickMinimapTowards(TaskContext ctx, WorldPoint target) {
+        try {
+            Client client = ctx.client;
+            if (client.getLocalPlayer() == null || target == null) return;
+            net.runelite.api.coords.LocalPoint lp = net.runelite.api.coords.LocalPoint.fromWorld(client, target);
+            if (lp == null) return;
+            net.runelite.api.Point mini = net.runelite.api.Perspective.localToMinimap(client, lp);
+            if (mini == null) {
+                ctx.logger.info("[Minimap] localToMinimap returned null for target " + target);
+                return;
+            }
+            java.awt.Point screenPoint = new java.awt.Point(mini.getX(), mini.getY());
+            ctx.logger.info("[Minimap] Clicking minimap at (" + screenPoint.x + "," + screenPoint.y + ") toward target (" + target.getX() + "," + target.getY() + ")");
+            // Move and click using input handler; do not validate against world actions for minimap
+            ctx.input.smoothMouseMove(screenPoint);
+            ctx.input.clickAt(screenPoint);
+            ctx.setBusyForMs(600);
+        } catch (Exception e) {
+            ctx.logger.error("[Minimap] Error clicking minimap: " + e.getMessage());
+        }
+    }
 }
 
 

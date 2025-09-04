@@ -84,11 +84,14 @@ public abstract class NavigateToHotspotTask implements Task {
 
         // Compute jitter and step
         double jitter = Math.toRadians(ThreadLocalRandom.current().nextDouble(-12.0, 12.0));
-        // Door handling removed with DoorHelper cleanup
         // Try a mid-distance world step before minimap
         boolean worldClicked = WorldPathing.clickStepToward(ctx, target, 6);
         if (!worldClicked) {
-            MinimapPathing.stepTowards(ctx, target, jitter);
+            // Only minimap if target (or a near offset) is not currently visible in viewport
+            boolean visible = WorldPathing.clickStepToward(ctx, target, 0);
+            if (!visible) {
+                MinimapPathing.stepTowards(ctx, target, jitter);
+            }
         }
 
         int busyMs = ThreadLocalRandom.current().nextInt(

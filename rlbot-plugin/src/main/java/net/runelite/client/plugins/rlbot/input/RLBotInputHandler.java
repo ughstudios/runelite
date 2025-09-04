@@ -11,6 +11,8 @@ import java.awt.event.MouseEvent;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.swing.SwingUtilities;
 import net.runelite.api.Client;
@@ -208,14 +210,74 @@ public class RLBotInputHandler {
         }
 
         try {
-            // Search scene for a projected point near the requested canvasPoint
             final int plane = client.getPlane();
             net.runelite.api.Scene scene = client.getScene();
             if (scene == null) return false;
             net.runelite.api.Tile[][] tiles = scene.getTiles()[plane];
             if (tiles == null) return false;
 
-            // Check game objects by projecting to canvas and comparing proximity
+            // 1) Prefer convex hull containment for game objects at the exact click location
+            for (int x = 0; x < tiles.length; x++) {
+                net.runelite.api.Tile[] col = tiles[x];
+                if (col == null) continue;
+                for (int y = 0; y < col.length; y++) {
+                    net.runelite.api.Tile tile = col[y];
+                    if (tile == null) continue;
+                    for (net.runelite.api.GameObject gameObject : tile.getGameObjects()) {
+                        if (gameObject == null) continue;
+                        java.awt.Shape hull = gameObject.getConvexHull();
+                        if (hull == null || !hull.contains(canvasPoint)) continue;
+                        net.runelite.api.ObjectComposition composition = client.getObjectDefinition(gameObject.getId());
+                        if (composition == null) continue;
+                        String[] actions = composition.getActions();
+                        if (actions == null) continue;
+                        for (String action : actions) {
+                            if (action != null && action.toLowerCase().contains(expectedAction.toLowerCase())) {
+                                logger.debug("[RLBOT_INPUT] ConvexHull match at " + canvasPoint + ": " + composition.getName() + " with action '" + action + "'");
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 2) NPC convex/projection check near the click location
+            for (net.runelite.api.NPC npc : client.getNpcs()) {
+                if (npc == null) continue;
+                java.awt.Shape npcHull = npc.getConvexHull();
+                if (npcHull != null && npcHull.contains(canvasPoint)) {
+                    net.runelite.api.NPCComposition npcComposition = npc.getTransformedComposition();
+                    if (npcComposition != null) {
+                        String[] actions = npcComposition.getActions();
+                        if (actions != null) {
+                            for (String action : actions) {
+                                if (action != null && action.toLowerCase().contains(expectedAction.toLowerCase())) {
+                                    logger.debug("[RLBOT_INPUT] NPC hull match at " + canvasPoint + ": " + npcComposition.getName() + " action '" + action + "'");
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Fallback: proximity to projected point
+                    net.runelite.api.Point npcCanvasPoint = net.runelite.api.Perspective.localToCanvas(client, npc.getLocalLocation(), client.getPlane(), npc.getLogicalHeight());
+                    if (npcCanvasPoint == null) continue;
+                    if (Math.abs(npcCanvasPoint.getX() - canvasPoint.x) <= 10 && Math.abs(npcCanvasPoint.getY() - canvasPoint.y) <= 10) {
+                        net.runelite.api.NPCComposition npcComposition = npc.getTransformedComposition();
+                        if (npcComposition == null) continue;
+                        String[] actions = npcComposition.getActions();
+                        if (actions == null) continue;
+                        for (String action : actions) {
+                            if (action != null && action.toLowerCase().contains(expectedAction.toLowerCase())) {
+                                logger.debug("[RLBOT_INPUT] NPC proximity match at " + canvasPoint + ": " + npcComposition.getName() + " action '" + action + "'");
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 3) Fallback proximity check for game objects using projected center
             for (int x = 0; x < tiles.length; x++) {
                 net.runelite.api.Tile[] col = tiles[x];
                 if (col == null) continue;
@@ -228,14 +290,14 @@ public class RLBotInputHandler {
                         if (lp == null) continue;
                         net.runelite.api.Point proj = net.runelite.api.Perspective.localToCanvas(client, lp, plane);
                         if (proj == null) continue;
-                        if (Math.abs(proj.getX() - canvasPoint.x) <= 10 && Math.abs(proj.getY() - canvasPoint.y) <= 10) {
+                        if (Math.abs(proj.getX() - canvasPoint.x) <= 12 && Math.abs(proj.getY() - canvasPoint.y) <= 12) {
                             net.runelite.api.ObjectComposition composition = client.getObjectDefinition(gameObject.getId());
                             if (composition == null) continue;
                             String[] actions = composition.getActions();
                             if (actions == null) continue;
                             for (String action : actions) {
                                 if (action != null && action.toLowerCase().contains(expectedAction.toLowerCase())) {
-                                    logger.debug("[RLBOT_INPUT] Found valid target at " + canvasPoint + ": " + composition.getName() + " with action '" + action + "'");
+                                    logger.debug("[RLBOT_INPUT] Proximity match at " + canvasPoint + ": " + composition.getName() + " action '" + action + "'");
                                     return true;
                                 }
                             }
@@ -243,34 +305,6 @@ public class RLBotInputHandler {
                     }
                 }
             }
-
-            // Check NPCs on the tile
-            for (net.runelite.api.NPC npc : client.getNpcs()) {
-                if (npc == null) continue;
-                
-                net.runelite.api.Point npcCanvasPoint = net.runelite.api.Perspective.localToCanvas(client, npc.getLocalLocation(), client.getPlane(), npc.getLogicalHeight());
-                if (npcCanvasPoint == null) continue;
-                
-                // Check if NPC is close to our target point (within 10 pixels)
-                if (Math.abs(npcCanvasPoint.getX() - canvasPoint.x) <= 10 && 
-                    Math.abs(npcCanvasPoint.getY() - canvasPoint.y) <= 10) {
-                    
-                    net.runelite.api.NPCComposition npcComposition = npc.getTransformedComposition();
-                    if (npcComposition == null) continue;
-                    
-                    String[] actions = npcComposition.getActions();
-                    if (actions == null) continue;
-                    
-                    for (String action : actions) {
-                        if (action != null && action.toLowerCase().contains(expectedAction.toLowerCase())) {
-                            logger.debug("[RLBOT_INPUT] Found valid NPC at " + canvasPoint + ": " + npcComposition.getName() + " with action '" + action + "'");
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            // Ground item validation omitted for compatibility
 
             logger.debug("[RLBOT_INPUT] No valid target with action '" + expectedAction + "' found at " + canvasPoint);
             return false;
@@ -392,10 +426,12 @@ public class RLBotInputHandler {
         logger.debug("[RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: " + canvasPoint.x + "," + canvasPoint.y);
         
         // Run interpolation on a background daemon thread and post events to EDT
+        final CountDownLatch finished = new CountDownLatch(1);
         Thread mover = new Thread(() -> {
             Canvas canvas = getCanvas();
             if (canvas == null) {
                 logger.error("[RLBOT_INPUT] Canvas is null, cannot move mouse");
+                finished.countDown();
                 return;
             }
             Point start;
@@ -417,13 +453,24 @@ public class RLBotInputHandler {
                 int x = start.x + (int)Math.round(dx * i / steps);
                 int y = start.y + (int)Math.round(dy * i / steps);
                 Point stepPoint = new Point(x, y);
-                SwingUtilities.invokeLater(() -> dispatchMouseMoveEvent(canvas, stepPoint));
-                try { Thread.sleep(8); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                // Dispatch from this background thread; dispatchMouseMoveEvent will ensure EDT dispatching
+                dispatchMouseMoveEvent(canvas, stepPoint);
             }
             lastCanvasMovePoint = new Point(canvasPoint);
+            finished.countDown();
         }, "rlbot-mouse-move");
         mover.setDaemon(true);
         mover.start();
+        // Wait briefly for movement to complete so subsequent click uses the correct point
+        try {
+            finished.await(500, TimeUnit.MILLISECONDS);
+            // Ensure queued move events are processed before returning
+            if (!SwingUtilities.isEventDispatchThread()) {
+                try {
+                    SwingUtilities.invokeAndWait(() -> { /* flush */ });
+                } catch (Exception ignored) {}
+            }
+        } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
         
         logger.debug("[RLBOT_INPUT] END smoothMouseMove (completed)");
     }
@@ -436,18 +483,11 @@ public class RLBotInputHandler {
      */
     private void dispatchMouseMoveEvent(Component component, Point point) {
         logger.info("[RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: " + point.x + "," + point.y);
-        
         long when = System.currentTimeMillis();
         int modifiers = 0;
         int clickCount = 0;
         boolean popupTrigger = false;
-        
-        // Check if point is within canvas bounds
-        boolean isInBounds = point.x >= 0 && point.y >= 0 && 
-                           point.x < component.getWidth() && 
-                           point.y < component.getHeight();
-        
-        // If moving out of bounds, dispatch a mouse exit event
+        boolean isInBounds = point.x >= 0 && point.y >= 0 && point.x < component.getWidth() && point.y < component.getHeight();
         if (!isInBounds) {
             MouseEvent exitEvent = new MouseEvent(
                 component,
@@ -459,27 +499,9 @@ public class RLBotInputHandler {
                 clickCount,
                 popupTrigger
             );
-            component.dispatchEvent(exitEvent);
+            SwingUtilities.invokeLater(() -> component.dispatchEvent(exitEvent));
             return;
         }
-        
-        // If we were previously out of bounds, dispatch a mouse enter event
-        MouseEvent enterEvent = new MouseEvent(
-            component,
-            MouseEvent.MOUSE_ENTERED,
-            when,
-            modifiers,
-            point.x,
-            point.y,
-            clickCount,
-            popupTrigger
-        );
-        component.dispatchEvent(enterEvent);
-        
-        logger.info("[RLBOT_INPUT] Creating MouseEvent with params: id=MOUSE_MOVED, when=" + when + 
-                    ", modifiers=" + modifiers + ", point=(" + point.x + "," + point.y + 
-                    "), clickCount=" + clickCount + ", popupTrigger=" + popupTrigger);
-        
         MouseEvent event = new MouseEvent(
             component,
             MouseEvent.MOUSE_MOVED,
@@ -490,14 +512,7 @@ public class RLBotInputHandler {
             clickCount,
             popupTrigger
         );
-        
-        // First make sure component has focus
-        logger.info("[RLBOT_INPUT] Requesting focus on component: " + component.getClass().getName());
-        component.requestFocus();
-        
-        // Post to EDT; no sleeps here
         SwingUtilities.invokeLater(() -> component.dispatchEvent(event));
-        
         logger.info("[RLBOT_INPUT] END dispatchMouseMoveEvent");
     }
     
@@ -513,26 +528,20 @@ public class RLBotInputHandler {
         logger.debug("[RLBOT_INPUT] BEGIN moveAndClickWithValidation at " + canvasPoint + " for action: " + expectedAction);
         clickInProgress.set(true);
         try {
+        if (isWoodcutting() || isWalking()) return false;
         // First move the mouse to the target (now synchronous)
         smoothMouseMove(canvasPoint);
+        if (isWoodcutting() || isWalking()) return false;
         
         // Try to clear UI occlusion first
         if (isOccludedByUI(canvasPoint)) {
-            if (!revealPointByCameraUI(canvasPoint, 6)) {
-                logger.warn("[RLBOT_INPUT] Target point remains occluded by UI at " + canvasPoint + "; aborting click");
-                if (rlAgent != null) rlAgent.addExternalPenalty(0.2f);
-                return false;
-            }
+            revealPointByCameraUI(canvasPoint, 6);
         }
 
         // If multiple meshes overlap at this point, prefer the nearest-to-camera
         net.runelite.api.GameObject targetObj = findObjectAtPointMatchingAction(canvasPoint, expectedAction);
         if (targetObj != null && isOccludedByGeometry(canvasPoint, targetObj)) {
-            if (!revealPointByCameraGeometry(canvasPoint, targetObj, 6)) {
-                logger.warn("[RLBOT_INPUT] Target point is occluded by geometry at " + canvasPoint + "; aborting click");
-                if (rlAgent != null) rlAgent.addExternalPenalty(0.3f);
-                return false;
-            }
+            revealPointByCameraGeometry(canvasPoint, targetObj, 6);
         }
         if (!validateTargetAtPoint(canvasPoint, expectedAction)) {
             logger.warn("[RLBOT_INPUT] Target validation failed for action '" + expectedAction + "' at " + canvasPoint);
@@ -569,6 +578,7 @@ public class RLBotInputHandler {
         logger.debug("[RLBOT_INPUT] BEGIN clickWithValidation for action: " + expectedAction);
         clickInProgress.set(true);
         try {
+        if (isWoodcutting() || isWalking()) return false;
         // Get the current mouse position
         Point clickPoint = lastCanvasMovePoint;
         if (clickPoint == null) {
@@ -576,23 +586,16 @@ public class RLBotInputHandler {
             return false;
         }
         
+        if (isWoodcutting() || isWalking()) return false;
         // Try to clear UI occlusion
         if (isOccludedByUI(clickPoint)) {
-            if (!revealPointByCameraUI(clickPoint, 6)) {
-                logger.warn("[RLBOT_INPUT] Click point remains occluded by UI at " + clickPoint + "; aborting click");
-                if (rlAgent != null) rlAgent.addExternalPenalty(0.2f);
-                return false;
-            }
+            revealPointByCameraUI(clickPoint, 6);
         }
 
         // Check geometry occlusion
         net.runelite.api.GameObject targetObj2 = findObjectAtPointMatchingAction(clickPoint, expectedAction);
         if (targetObj2 != null && isOccludedByGeometry(clickPoint, targetObj2)) {
-            if (!revealPointByCameraGeometry(clickPoint, targetObj2, 6)) {
-                logger.warn("[RLBOT_INPUT] Click point is occluded by geometry at " + clickPoint + "; aborting click");
-                if (rlAgent != null) rlAgent.addExternalPenalty(0.3f);
-                return false;
-            }
+            revealPointByCameraGeometry(clickPoint, targetObj2, 6);
         }
 
         // Validate the target before clicking
@@ -632,23 +635,16 @@ public class RLBotInputHandler {
         logger.debug("[RLBOT_INPUT] BEGIN clickAtWithValidation at " + canvasPoint + " for action: " + expectedAction);
         clickInProgress.set(true);
         try {
+        if (isWoodcutting() || isWalking()) return false;
         // Try to clear UI occlusion
         if (isOccludedByUI(canvasPoint)) {
-            if (!revealPointByCameraUI(canvasPoint, 6)) {
-                logger.warn("[RLBOT_INPUT] Click point remains occluded by UI at " + canvasPoint + "; aborting click");
-                if (rlAgent != null) rlAgent.addExternalPenalty(0.2f);
-                return false;
-            }
+            revealPointByCameraUI(canvasPoint, 6);
         }
 
         // Check geometry occlusion
         net.runelite.api.GameObject targetObj3 = findObjectAtPointMatchingAction(canvasPoint, expectedAction);
         if (targetObj3 != null && isOccludedByGeometry(canvasPoint, targetObj3)) {
-            if (!revealPointByCameraGeometry(canvasPoint, targetObj3, 6)) {
-                logger.warn("[RLBOT_INPUT] Click point is occluded by geometry at " + canvasPoint + "; aborting click");
-                if (rlAgent != null) rlAgent.addExternalPenalty(0.3f);
-                return false;
-            }
+            revealPointByCameraGeometry(canvasPoint, targetObj3, 6);
         }
         if (!validateTargetAtPoint(canvasPoint, expectedAction)) {
             logger.warn("[RLBOT_INPUT] Target validation failed for action '" + expectedAction + "' at " + canvasPoint);
@@ -682,6 +678,7 @@ public class RLBotInputHandler {
         
         // Run click on background thread and post events to EDT
         Thread clicker = new Thread(() -> {
+            if (isWoodcutting() || isWalking()) return;
             Canvas canvas = getCanvas();
             if (canvas == null) {
                 logger.error("[RLBOT_INPUT] Canvas is null, cannot click");
@@ -697,7 +694,15 @@ public class RLBotInputHandler {
             if (clickPoint == null) {
                 clickPoint = new Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
             }
-            dispatchMouseClickEvent(canvas, clickPoint);
+            // Send a final move to the click point and flush EDT to ensure ordering
+            final Point finalClickPoint = clickPoint;
+            dispatchMouseMoveEvent(canvas, finalClickPoint);
+            if (!SwingUtilities.isEventDispatchThread()) {
+                try {
+                    SwingUtilities.invokeAndWait(() -> { /* flush */ });
+                } catch (Exception ignored) {}
+            }
+            dispatchMouseClickEvent(canvas, finalClickPoint);
             lastCanvasMovePoint = null;
         }, "rlbot-click");
         clicker.setDaemon(true);
@@ -721,10 +726,18 @@ public class RLBotInputHandler {
         logger.debug("[RLBOT_INPUT] BEGIN clickAt point: " + canvasPoint.x + "," + canvasPoint.y);
         
         Thread clicker = new Thread(() -> {
+            if (isWoodcutting() || isWalking()) return;
             Canvas canvas = getCanvas();
             if (canvas == null) {
                 logger.error("[RLBOT_INPUT] Canvas is null, cannot clickAt");
                 return;
+            }
+            // Send a final move to the click point and flush EDT to ensure ordering
+            dispatchMouseMoveEvent(canvas, canvasPoint);
+            if (!SwingUtilities.isEventDispatchThread()) {
+                try {
+                    SwingUtilities.invokeAndWait(() -> { /* flush */ });
+                } catch (Exception ignored) {}
             }
             dispatchMouseClickEvent(canvas, canvasPoint);
             lastCanvasMovePoint = null;
@@ -743,66 +756,50 @@ public class RLBotInputHandler {
      */
     private void dispatchMouseClickEvent(Component component, Point point) {
         logger.info("[RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: " + point.x + "," + point.y);
-        
         long when = System.currentTimeMillis();
         int modifiers = InputEvent.BUTTON1_DOWN_MASK;
         int clickCount = 1;
         boolean popupTrigger = false;
-        
-        // First make sure component has focus
-        logger.info("[RLBOT_INPUT] Requesting focus on component: " + component.getClass().getName());
-        component.requestFocus();
-        
-        // Run press/release scheduling on a daemon thread and post events to EDT
-        Thread t = new Thread(() -> {
-            try {
-                MouseEvent pressEvent = new MouseEvent(
-                    component,
-                    MouseEvent.MOUSE_PRESSED,
-                    when,
-                    modifiers,
-                    point.x,
-                    point.y,
-                    clickCount,
-                    popupTrigger,
-                    MouseEvent.BUTTON1
-                );
-                MouseEvent releaseEvent = new MouseEvent(
-                    component,
-                    MouseEvent.MOUSE_RELEASED,
-                    when + 50,
-                    modifiers,
-                    point.x,
-                    point.y,
-                    clickCount,
-                    popupTrigger,
-                    MouseEvent.BUTTON1
-                );
-                MouseEvent clickEvent = new MouseEvent(
-                    component,
-                    MouseEvent.MOUSE_CLICKED,
-                    when + 51,
-                    modifiers,
-                    point.x,
-                    point.y,
-                    clickCount,
-                    popupTrigger,
-                    MouseEvent.BUTTON1
-                );
-                SwingUtilities.invokeLater(() -> component.dispatchEvent(pressEvent));
-                try { Thread.sleep(30); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
-                SwingUtilities.invokeLater(() -> {
-                    component.dispatchEvent(releaseEvent);
-                    component.dispatchEvent(clickEvent);
-                });
-                try { Thread.sleep(50); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
-            } catch (Exception e) {
-                logger.error("[RLBOT_INPUT] Error scheduling mouse click events: " + e.getMessage() + ": " + e.toString());
-            }
-        }, "rlbot-click-seq");
-        t.setDaemon(true);
-        t.start();
-        
+        try {
+            MouseEvent pressEvent = new MouseEvent(
+                component,
+                MouseEvent.MOUSE_PRESSED,
+                when,
+                modifiers,
+                point.x,
+                point.y,
+                clickCount,
+                popupTrigger,
+                MouseEvent.BUTTON1
+            );
+            MouseEvent releaseEvent = new MouseEvent(
+                component,
+                MouseEvent.MOUSE_RELEASED,
+                when + 50,
+                modifiers,
+                point.x,
+                point.y,
+                clickCount,
+                popupTrigger,
+                MouseEvent.BUTTON1
+            );
+            MouseEvent clickEvent = new MouseEvent(
+                component,
+                MouseEvent.MOUSE_CLICKED,
+                when + 51,
+                modifiers,
+                point.x,
+                point.y,
+                clickCount,
+                popupTrigger,
+                MouseEvent.BUTTON1
+            );
+            SwingUtilities.invokeLater(() -> component.dispatchEvent(pressEvent));
+            SwingUtilities.invokeLater(() -> component.dispatchEvent(releaseEvent));
+            SwingUtilities.invokeLater(() -> component.dispatchEvent(clickEvent));
+        } catch (Exception e) {
+            logger.error("[RLBOT_INPUT] Error scheduling mouse click events: " + e.getMessage() + ": " + e.toString());
+        }
         logger.info("[RLBOT_INPUT] END dispatchMouseClickEvent");
     }
     
@@ -923,6 +920,7 @@ public class RLBotInputHandler {
         logger.info("Right-clicking at current mouse position");
         
         clientThread.invoke(() -> {
+            if (isWoodcutting() || isWalking()) return;
             Canvas canvas = getCanvas();
             if (canvas == null) {
                 logger.error("Canvas is null, cannot right-click");
@@ -943,8 +941,13 @@ public class RLBotInputHandler {
                 logger.error("Error getting mouse position: " + e.getMessage() + ": " + e.toString());
                 canvasPosition = new Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
             }
-            
-            // Dispatch mouse events
+            // Final move and flush before right-click to ensure overlay and client mouse are in sync
+            dispatchMouseMoveEvent(canvas, canvasPosition);
+            if (!SwingUtilities.isEventDispatchThread()) {
+                try {
+                    SwingUtilities.invokeAndWait(() -> { /* flush */ });
+                } catch (Exception ignored) {}
+            }
             dispatchMouseRightClickEvent(canvas, canvasPosition);
             logger.info("Right-click event dispatched at: " + canvasPosition.x + "," + canvasPosition.y);
         });
@@ -961,12 +964,7 @@ public class RLBotInputHandler {
         int modifiers = InputEvent.BUTTON3_DOWN_MASK;
         int clickCount = 1;
         boolean popupTrigger = true;
-        
-        // First make sure component has focus
-        component.requestFocus();
-        
         try {
-            // Create mouse events
             MouseEvent pressEvent = new MouseEvent(
                 component,
                 MouseEvent.MOUSE_PRESSED,
@@ -978,7 +976,6 @@ public class RLBotInputHandler {
                 popupTrigger,
                 MouseEvent.BUTTON3
             );
-            
             MouseEvent releaseEvent = new MouseEvent(
                 component,
                 MouseEvent.MOUSE_RELEASED,
@@ -990,7 +987,6 @@ public class RLBotInputHandler {
                 popupTrigger,
                 MouseEvent.BUTTON3
             );
-            
             MouseEvent clickEvent = new MouseEvent(
                 component,
                 MouseEvent.MOUSE_CLICKED,
@@ -1002,17 +998,9 @@ public class RLBotInputHandler {
                 popupTrigger,
                 MouseEvent.BUTTON3
             );
-            
-            // Dispatch events with proper timing
-            SwingUtilities.invokeAndWait(() -> {
-                component.dispatchEvent(pressEvent);
-            });
-            
-            SwingUtilities.invokeAndWait(() -> {
-                component.dispatchEvent(releaseEvent);
-                component.dispatchEvent(clickEvent);
-            });
-            
+            SwingUtilities.invokeLater(() -> component.dispatchEvent(pressEvent));
+            SwingUtilities.invokeLater(() -> component.dispatchEvent(releaseEvent));
+            SwingUtilities.invokeLater(() -> component.dispatchEvent(clickEvent));
         } catch (Exception e) {
             logger.error("Error dispatching mouse right-click events: " + e.getMessage() + ": " + e.toString());
         }
@@ -1029,12 +1017,10 @@ public class RLBotInputHandler {
         clientThread.invoke(() -> {
             Canvas canvas = getCanvas();
             logger.info("[RLBOT_INPUT] Canvas retrieved: " + (canvas != null ? "success" : "null"));
-            
             if (canvas == null) {
                 logger.error("[RLBOT_INPUT] Canvas is null, cannot press key");
                 return;
             }
-            
             try {
                 logger.info("[RLBOT_INPUT] About to dispatch key event for key code: " + keyCode);
                 dispatchKeyEvent(canvas, keyCode);
@@ -1059,15 +1045,7 @@ public class RLBotInputHandler {
         long when = System.currentTimeMillis();
         int modifiers = 0;
         
-        // First make sure component has focus
-        logger.info("[RLBOT_INPUT] Requesting focus on component: " + component.getClass().getName());
-        component.requestFocus();
-        
         try {
-            // Create key events
-            logger.info("[RLBOT_INPUT] Creating press event with params: id=KEY_PRESSED, when=" + when + 
-                        ", modifiers=" + modifiers + ", keyCode=" + keyCode);
-            
             KeyEvent pressEvent = new KeyEvent(
                 component,
                 KeyEvent.KEY_PRESSED,
@@ -1076,32 +1054,20 @@ public class RLBotInputHandler {
                 keyCode,
                 KeyEvent.CHAR_UNDEFINED
             );
-            
-            // Determine if we need to send a KEY_TYPED event
             char keyChar = KeyEvent.CHAR_UNDEFINED;
             boolean sendTyped = false;
-            
             if (keyCode >= KeyEvent.VK_0 && keyCode <= KeyEvent.VK_9) {
                 keyChar = (char)('0' + (keyCode - KeyEvent.VK_0));
                 sendTyped = true;
-                logger.info("[RLBOT_INPUT] Will send KEY_TYPED event for number character: " + keyChar);
             } else if (keyCode >= KeyEvent.VK_A && keyCode <= KeyEvent.VK_Z) {
                 keyChar = (char)('a' + (keyCode - KeyEvent.VK_A));
                 sendTyped = true;
-                logger.info("[RLBOT_INPUT] Will send KEY_TYPED event for letter character: " + keyChar);
             } else if (keyCode == KeyEvent.VK_SPACE) {
                 keyChar = ' ';
                 sendTyped = true;
-                logger.info("[RLBOT_INPUT] Will send KEY_TYPED event for space character");
-            } else {
-                logger.info("[RLBOT_INPUT] No KEY_TYPED event needed for key: " + KeyEvent.getKeyText(keyCode));
             }
-            
             KeyEvent typedEvent = null;
             if (sendTyped) {
-                logger.info("[RLBOT_INPUT] Creating typed event with params: id=KEY_TYPED, when=" + (when + 10) + 
-                            ", keyChar=" + keyChar);
-                
                 typedEvent = new KeyEvent(
                     component,
                     KeyEvent.KEY_TYPED,
@@ -1111,8 +1077,6 @@ public class RLBotInputHandler {
                     keyChar
                 );
             }
-            
-            logger.info("[RLBOT_INPUT] Creating release event with params: id=KEY_RELEASED, when=" + (when + 50));
             KeyEvent releaseEvent = new KeyEvent(
                 component,
                 KeyEvent.KEY_RELEASED,
@@ -1121,35 +1085,14 @@ public class RLBotInputHandler {
                 keyCode,
                 KeyEvent.CHAR_UNDEFINED
             );
-            
-            // Dispatch events with proper timing
-            final KeyEvent finalTypedEvent = typedEvent;
-            logger.info("[RLBOT_INPUT] About to dispatch press and potentially typed events via SwingUtilities.invokeAndWait");
-            SwingUtilities.invokeAndWait(() -> {
-                logger.info("[RLBOT_INPUT] Inside invokeAndWait, about to dispatch press event");
-                component.dispatchEvent(pressEvent);
-                logger.info("[RLBOT_INPUT] Press event dispatched");
-                
-                if (finalTypedEvent != null) {
-                    logger.info("[RLBOT_INPUT] About to dispatch typed event");
-                    component.dispatchEvent(finalTypedEvent);
-                    logger.info("[RLBOT_INPUT] Typed event dispatched");
-                }
-            });
-            // Removed blocking sleeps between key events
-            // Thread.sleep(50);
-            logger.info("[RLBOT_INPUT] About to dispatch release event via SwingUtilities.invokeAndWait");
-            SwingUtilities.invokeAndWait(() -> {
-                logger.info("[RLBOT_INPUT] Inside invokeAndWait, about to dispatch release event");
-                component.dispatchEvent(releaseEvent);
-                logger.info("[RLBOT_INPUT] Release event dispatched");
-            });
-            // Removed final sleep
-            // Thread.sleep(50);
+            keyManager.processKeyPressed(pressEvent);
+            if (typedEvent != null) {
+                keyManager.processKeyTyped(typedEvent);
+            }
+            keyManager.processKeyReleased(releaseEvent);
         } catch (Exception e) {
             logger.error("[RLBOT_INPUT] Error dispatching key events: " + e.getMessage() + ": " + e.toString());
         }
-        
         logger.info("[RLBOT_INPUT] END dispatchKeyEvent");
     }
     
@@ -1171,24 +1114,13 @@ public class RLBotInputHandler {
             for (char c : text.toCharArray()) {
                 int keyCode = KeyEvent.getExtendedKeyCodeForChar(c);
                 boolean isUpperCase = Character.isUpperCase(c);
-                
                 if (isUpperCase) {
-                    // Press shift first
                     dispatchModifierKeyEvent(canvas, KeyEvent.VK_SHIFT, true);
-                    // Removed sleep
-                    // Thread.sleep(20);
                 }
-                
-                // Type the character
                 dispatchCharKeyEvent(canvas, keyCode, c);
-                
                 if (isUpperCase) {
-                    // Release shift
                     dispatchModifierKeyEvent(canvas, KeyEvent.VK_SHIFT, false);
                 }
-                
-                // Removed per-character sleep
-                // Thread.sleep(50);
             }
             
             logger.info("Text typing completed: " + text);
@@ -1265,7 +1197,7 @@ public class RLBotInputHandler {
             false,
             button
         );
-        SwingUtilities.invokeLater(() -> component.dispatchEvent(press));
+        mouseManager.processMousePressed(press);
         // sleepQuiet(20);
 
         // Drag in small steps
@@ -1284,7 +1216,7 @@ public class RLBotInputHandler {
                 false,
                 button
             );
-            SwingUtilities.invokeLater(() -> component.dispatchEvent(drag));
+            mouseManager.processMouseDragged(drag);
             // sleepQuiet(10);
         }
 
@@ -1300,7 +1232,7 @@ public class RLBotInputHandler {
             false,
             button
         );
-        SwingUtilities.invokeLater(() -> component.dispatchEvent(release));
+        mouseManager.processMouseReleased(release);
         // sleepQuiet(20);
     }
 
@@ -1332,7 +1264,6 @@ public class RLBotInputHandler {
                     java.awt.event.MouseEvent.MOUSE_WHEEL,
                     when,
                     0,
-                    // Use current or center position; wheel does not depend on precise coordinates
                     Math.max(1, canvas.getWidth() / 2),
                     Math.max(1, canvas.getHeight() / 2),
                     0,
@@ -1351,22 +1282,20 @@ public class RLBotInputHandler {
     
     // ===================== Occlusion helpers =====================
     private boolean revealPointByCameraUI(Point target, int attempts) {
-        int tries = Math.max(1, Math.min(10, attempts));
-        for (int i = 0; i < tries; i++) {
-            if (!isOccludedByUI(target)) return true;
-            try {
-                int vy = client.getViewportYOffset();
-                int vh = client.getViewportHeight();
-                if (vh > 0 && target.y > vy + vh - 24) {
-                    zoomOutSmall();
-                } else {
-                    int dx = (i % 2 == 0) ? 120 : -120;
-                    int dy = (i % 3 == 0) ? -20 : 20;
-                    rotateCameraSafe(dx, dy);
-                }
-            } catch (Exception ignored) {}
-        }
-        return !isOccludedByUI(target);
+        // Single-step non-blocking UI de-occlusion attempt
+        if (!isOccludedByUI(target)) return true;
+        try {
+            int vy = client.getViewportYOffset();
+            int vh = client.getViewportHeight();
+            if (vh > 0 && target.y > vy + vh - 24) {
+                zoomOutSmall();
+            } else {
+                int dx = 140; // strong horizontal sweep
+                int dy = (target.y < vy + vh / 2) ? -20 : 20;
+                rotateCameraSafe(dx, dy);
+            }
+        } catch (Exception ignored) {}
+        return false;
     }
 
     private net.runelite.api.GameObject findObjectAtPointMatchingAction(Point canvasPoint, String expectedAction) {
@@ -1448,17 +1377,15 @@ public class RLBotInputHandler {
     }
 
     private boolean revealPointByCameraGeometry(Point targetPoint, net.runelite.api.GameObject target, int attempts) {
-        int tries = Math.max(1, Math.min(10, attempts));
-        for (int i = 0; i < tries; i++) {
-            if (!isOccludedByGeometry(targetPoint, target)) return true;
-            try {
-                int dx = (i % 2 == 0) ? 140 : -140;
-                rotateCameraSafe(dx, 0);
-                if (i % 3 == 0) zoomOutSmall(); else zoomInSmall();
-                Thread.sleep(60);
-            } catch (Exception ignored) {}
-        }
-        return !isOccludedByGeometry(targetPoint, target);
+        // Single-step non-blocking geometry de-occlusion attempt
+        if (!isOccludedByGeometry(targetPoint, target)) return true;
+        try {
+            int dx = 180; // larger sweep for occluders
+            rotateCameraSafe(dx, 0);
+            // Nudge zoom to vary perspective
+            zoomOutSmall();
+        } catch (Exception ignored) {}
+        return false;
     }
     
     /**
@@ -1473,7 +1400,6 @@ public class RLBotInputHandler {
         int modifiers = Character.isUpperCase(keyChar) ? KeyEvent.SHIFT_DOWN_MASK : 0;
         
         try {
-            // Create key events
             KeyEvent pressEvent = new KeyEvent(
                 component,
                 KeyEvent.KEY_PRESSED,
@@ -1482,7 +1408,6 @@ public class RLBotInputHandler {
                 keyCode,
                 KeyEvent.CHAR_UNDEFINED
             );
-            
             KeyEvent typedEvent = new KeyEvent(
                 component,
                 KeyEvent.KEY_TYPED,
@@ -1491,7 +1416,6 @@ public class RLBotInputHandler {
                 KeyEvent.VK_UNDEFINED,
                 keyChar
             );
-            
             KeyEvent releaseEvent = new KeyEvent(
                 component,
                 KeyEvent.KEY_RELEASED,
@@ -1500,17 +1424,9 @@ public class RLBotInputHandler {
                 keyCode,
                 KeyEvent.CHAR_UNDEFINED
             );
-            
-            // Dispatch events with proper timing
-            SwingUtilities.invokeAndWait(() -> {
-                component.dispatchEvent(pressEvent);
-                component.dispatchEvent(typedEvent);
-            });
-            // Removed small delay between press and release
-            // Thread.sleep(20);
-            SwingUtilities.invokeAndWait(() -> {
-                component.dispatchEvent(releaseEvent);
-            });
+            keyManager.processKeyPressed(pressEvent);
+            keyManager.processKeyTyped(typedEvent);
+            keyManager.processKeyReleased(releaseEvent);
         } catch (Exception e) {
             logger.error("Error dispatching character key events: " + e.getMessage() + ": " + e.toString());
         }
@@ -1536,7 +1452,6 @@ public class RLBotInputHandler {
         }
         
         try {
-            // Create key event
             KeyEvent event = new KeyEvent(
                 component,
                 press ? KeyEvent.KEY_PRESSED : KeyEvent.KEY_RELEASED,
@@ -1545,11 +1460,11 @@ public class RLBotInputHandler {
                 keyCode,
                 KeyEvent.CHAR_UNDEFINED
             );
-            
-            // Dispatch event
-            SwingUtilities.invokeAndWait(() -> {
-                component.dispatchEvent(event);
-            });
+            if (press) {
+                keyManager.processKeyPressed(event);
+            } else {
+                keyManager.processKeyReleased(event);
+            }
         } catch (Exception e) {
             logger.error("Error dispatching modifier key event: " + e.getMessage() + ": " + e.toString());
         }
@@ -1597,5 +1512,21 @@ public class RLBotInputHandler {
             // Fallback to the provided center point
             return new java.awt.Point(centerPoint.getX(), centerPoint.getY());
         }
+    }
+
+    private boolean isWoodcutting() {
+        try {
+            net.runelite.api.Player lp = client.getLocalPlayer();
+            return lp != null && lp.getAnimation() == 877;
+        } catch (Exception ignored) { return false; }
+    }
+
+    private boolean isWalking() {
+        try {
+            net.runelite.api.Player lp = client.getLocalPlayer();
+            if (lp == null) return false;
+            int pose = lp.getPoseAnimation();
+            return pose == 819 || pose == 824 || pose == 822 || pose == 820;
+        } catch (Exception ignored) { return false; }
     }
 } 

@@ -355,19 +355,19 @@ public class ChopNearestTreeTask implements Task {
                 } catch (Exception ignored) {}
                 
                 // Move cursor overlay to the object's canvas projection so overlay matches action point
-                net.runelite.api.Point cp = Perspective.localToCanvas(client, best.getLocalLocation(), 0);
-                if (cp != null) {
+                java.awt.Point projPoint = ObjectFinder.projectToCanvas(context, best);
+                if (projPoint != null) {
                     try { 
                         // Move mouse to tree and click with validation in one step
                         // Move first, then single validated click at the tree
-                        boolean clickSuccess = context.input.moveAndClickWithValidation(new java.awt.Point(cp.getX(), cp.getY()), "Chop");
+                        boolean clickSuccess = context.input.moveAndClickWithValidation(new java.awt.Point(projPoint.x, projPoint.y), "Chop");
                         if (!clickSuccess) {
                             context.logger.warn("[Task] Click validation failed - target may not have chop action");
                             TreeDiscovery.markDepleted(best.getWorldLocation());
                             context.setBusyForMs(100);
                             return;
                         }
-                        context.logger.info("[Task] Successfully clicked on tree at canvas point: (" + cp.getX() + "," + cp.getY() + ") with validation");
+                        context.logger.info("[Task] Successfully clicked on tree at canvas point: (" + projPoint.x + "," + projPoint.y + ") with validation");
                         
                         // Set busy immediately to prevent overlapping actions
                         context.setBusyForMs(200); // Reduced from 500ms

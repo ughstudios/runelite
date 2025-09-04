@@ -105,7 +105,7 @@ public class NavigateToBankHotspotTask extends NavigateToHotspotTask {
 
     @Override
     protected boolean shouldBeActive(TaskContext ctx) {
-        boolean inventoryFull = ctx.isInventoryNearFull();
+        boolean inventoryFull = ctx.isInventoryFull();
         boolean bankOpen = isBankOpen(ctx);
         int freeSlots = ctx.getInventoryFreeSlots();
         

@@ -3,6 +3,7 @@
 set -e
 
 echo "🔨 Building RLBot plugin JAR (standalone)..."
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Ensure Java 17 (RuneLite requires JDK17 toolchain)
 JAVA_17_PATH=$( /usr/libexec/java_home -v 17 2>/dev/null || true )
@@ -15,7 +16,7 @@ export PATH="$JAVA_HOME/bin:$PATH"
 echo "Using JAVA_HOME=$JAVA_HOME"
 
 # Ensure local RuneLite shaded client JAR is installed to Maven local for compilation
-RL_ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+RL_ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 RL_CLIENT_SHADED="$RL_ROOT_DIR/runelite/runelite-client/target/client-1.11.16-SNAPSHOT-shaded.jar"
 if [ -f "$RL_CLIENT_SHADED" ]; then
   echo "Installing local RuneLite shaded client to Maven repo: $RL_CLIENT_SHADED"
@@ -30,13 +31,16 @@ else
   fi
 fi
 
-# Build the rlbot-plugin with Maven
-mvn -q -DskipTests clean package
+# Build the rlbot-plugin with Maven (ensure correct working directory)
+(
+  cd "$SCRIPT_DIR"
+  mvn -q -DskipTests clean package
+)
 
 # Copy to RuneLite sideloaded plugins directory
-mkdir -p ../runelite/sideloaded-plugins
-cp target/rlbot-plugin-1.0.0.jar ../runelite/sideloaded-plugins/
+mkdir -p "$RL_ROOT_DIR/runelite/sideloaded-plugins"
+cp "$SCRIPT_DIR/target/rlbot-plugin-1.0.0.jar" "$RL_ROOT_DIR/runelite/sideloaded-plugins/"
 
-echo "✅ RLBot plugin JAR created: target/rlbot-plugin-1.0.0.jar"
-echo "📦 Plugin copied to: ../runelite/sideloaded-plugins/"
+echo "✅ RLBot plugin JAR created: $SCRIPT_DIR/target/rlbot-plugin-1.0.0.jar"
+echo "📦 Plugin copied to: $RL_ROOT_DIR/runelite/sideloaded-plugins/"
 echo "💡 Restart RuneLite to load the plugin"
