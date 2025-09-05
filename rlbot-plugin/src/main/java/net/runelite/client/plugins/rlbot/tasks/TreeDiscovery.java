@@ -6,6 +6,7 @@ import net.runelite.api.Tile;
 import net.runelite.api.TileObject;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.rlbot.config.RLBotConfigManager;
+import net.runelite.client.plugins.rlbot.rewards.LogQualityRewards;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,6 +126,90 @@ public class TreeDiscovery {
         }
         
         return out;
+    }
+
+    /**
+     * Get only currently available trees whose discovered name matches any of the provided substrings.
+     * Name matching is case-insensitive and uses substring containment (e.g., "oak" matches "Oak tree").
+     */
+    public static List<WorldPoint> getAvailableTreesOfTypes(String[] nameSubstrings) {
+        List<WorldPoint> out = new ArrayList<>();
+        if (nameSubstrings == null || nameSubstrings.length == 0) return out;
+        List<RLBotConfigManager.TreeLocation> trees = RLBotConfigManager.getTrees();
+        for (RLBotConfigManager.TreeLocation tree : trees) {
+            if (tree == null || tree.name == null) continue;
+            String lower = tree.name.toLowerCase();
+            boolean match = false;
+            for (String s : nameSubstrings) {
+                if (s == null) continue;
+                if (lower.contains(s.toLowerCase())) { match = true; break; }
+            }
+            if (!match) continue;
+            WorldPoint wp = tree.toWorldPoint();
+            if (!RLBotConfigManager.isTreeDepleted(wp)) {
+                out.add(wp);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Among all discovered available trees, pick the highest-quality tree tier allowed by current level
+     * and return all locations for that tier. If none of the higher tiers are discovered yet, returns empty.
+     */
+    public static List<WorldPoint> getBestAvailableTreesForLevel(int woodcuttingLevel) {
+        List<RLBotConfigManager.TreeLocation> trees = RLBotConfigManager.getTrees();
+        if (trees.isEmpty()) return new ArrayList<>();
+        String[] allowed = allowedTreeNamesForLevel(woodcuttingLevel);
+        // Determine highest tier among allowed that we have discovered and available
+        int bestTier = 0;
+        for (RLBotConfigManager.TreeLocation tree : trees) {
+            if (tree == null || tree.name == null) continue;
+            String lower = tree.name.toLowerCase();
+            boolean allowedName = false;
+            for (String a : allowed) { if (lower.contains(a)) { allowedName = true; break; } }
+            if (!allowedName) continue;
+            WorldPoint wp = tree.toWorldPoint();
+            if (RLBotConfigManager.isTreeDepleted(wp)) continue;
+            int tier = inferLogQualityTierFromTreeName(tree.name);
+            if (tier > bestTier) bestTier = tier;
+        }
+        if (bestTier <= 0) return new ArrayList<>();
+        // Collect all available trees matching the best tier
+        List<WorldPoint> out = new ArrayList<>();
+        for (RLBotConfigManager.TreeLocation tree : trees) {
+            if (tree == null || tree.name == null) continue;
+            WorldPoint wp = tree.toWorldPoint();
+            if (RLBotConfigManager.isTreeDepleted(wp)) continue;
+            int tier = inferLogQualityTierFromTreeName(tree.name);
+            if (tier == bestTier) {
+                out.add(wp);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Infer log quality tier from a tree name by mapping to a likely log name (e.g., "yew" -> "yew logs").
+     */
+    private static int inferLogQualityTierFromTreeName(String treeName) {
+        if (treeName == null) return 0;
+        String n = treeName.toLowerCase();
+        String logName;
+        if (n.contains("redwood")) logName = "redwood logs";
+        else if (n.contains("magic")) logName = "magic logs";
+        else if (n.contains("yew")) logName = "yew logs";
+        else if (n.contains("mahogany")) logName = "mahogany logs";
+        else if (n.contains("maple")) logName = "maple logs";
+        else if (n.contains("teak")) logName = "teak logs";
+        else if (n.contains("willow")) logName = "willow logs";
+        else if (n.contains("oak")) logName = "oak logs";
+        else logName = "logs";
+        try {
+            return LogQualityRewards.getLogQualityTier(logName);
+        } catch (Exception ignored) {
+            return 0;
+        }
     }
     
     /**

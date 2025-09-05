@@ -41,6 +41,14 @@ public class ChopNearestTreeTask implements Task {
         TreeDiscovery.scanAndDiscoverTrees(context);
         context.logger.warn("[ChopTask] *** DEBUG: After tree discovery scan ***");
         
+        // Get player's woodcutting level and allowed trees
+        int wcLevel = 1;
+        try {
+            wcLevel = context.client.getRealSkillLevel(net.runelite.api.Skill.WOODCUTTING);
+        } catch (Exception ignored) {}
+        String[] allowedTrees = TreeDiscovery.allowedTreeNamesForLevel(wcLevel);
+        context.logger.warn("[ChopTask] *** DEBUG: Player WC level: " + wcLevel + ", allowed trees: " + java.util.Arrays.toString(allowedTrees) + " ***");
+        
         // Try multiple action names for trees - some might be "Chop", "Cut", "Chop down", etc.
         net.runelite.api.GameObject candidate = null;
         String[] actionNames = {"Chop down", "Chop", "Cut", "Cut down"};
@@ -48,7 +56,7 @@ public class ChopNearestTreeTask implements Task {
         
         for (String actionName : actionNames) {
             context.logger.warn("[ChopTask] *** DEBUG: Searching for trees with action: " + actionName + " ***");
-            candidate = ObjectFinder.findNearestByNames(context, new String[]{"tree", "oak", "willow", "yew", "maple"}, actionName);
+            candidate = ObjectFinder.findNearestByNames(context, allowedTrees, actionName);
             context.logger.warn("[ChopTask] *** DEBUG: Found candidate for action " + actionName + ": " + (candidate != null) + " ***");
             if (candidate != null) {
                 context.logger.warn("[ChopTask] *** DEBUG: Found candidate, checking if stump ***");

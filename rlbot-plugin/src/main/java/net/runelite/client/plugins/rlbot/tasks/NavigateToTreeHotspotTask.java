@@ -9,6 +9,14 @@ public class NavigateToTreeHotspotTask extends NavigateToHotspotTask {
         // Scan for trees on every call to keep discovering new ones
         TreeDiscovery.scanAndDiscoverTrees(ctx);
         
+        // Prefer best-tier trees for current WC level when navigating long distances
+        int wc = 1; try { wc = ctx.client.getRealSkillLevel(net.runelite.api.Skill.WOODCUTTING); } catch (Exception ignored) {}
+        List<WorldPoint> bestTier = TreeDiscovery.getBestAvailableTreesForLevel(wc);
+        if (bestTier != null && !bestTier.isEmpty()) {
+            return bestTier;
+        }
+        
+        // Fallback: any available trees
         List<WorldPoint> discovered = TreeDiscovery.getAvailableTrees();
         if (!discovered.isEmpty()) {
             // Double-check that none of the trees are actually depleted

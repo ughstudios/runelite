@@ -20,6 +20,7 @@ import net.runelite.client.plugins.rlbot.rl.Transition;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.Player;
+import net.runelite.client.plugins.rlbot.rewards.LogQualityRewards;
 
 @Singleton
 public class RLBotAgent {
@@ -300,6 +301,29 @@ public class RLBotAgent {
                 if (inventoryFull && (ti instanceof CameraRotateTask || ti instanceof RandomCameraMovementTask) && (bankVisible || curBankOpen())) {
                     allowed = false;
                 }
+                
+                // AGGRESSIVE EXPLORATION: Prefer exploration when stuck on low-tier trees
+                if (ti instanceof ExploreTask && !inventoryFull) {
+                    int wc = 1; try { wc = client.getRealSkillLevel(net.runelite.api.Skill.WOODCUTTING); } catch (Exception ignored) {}
+                    java.util.List<WorldPoint> availableTrees = TreeDiscovery.getAvailableTrees();
+                    int bestAvailableTier = 0;
+                    for (WorldPoint tree : availableTrees) {
+                        java.util.List<net.runelite.client.plugins.rlbot.config.RLBotConfigManager.TreeLocation> trees = net.runelite.client.plugins.rlbot.config.RLBotConfigManager.getTrees();
+                        for (net.runelite.client.plugins.rlbot.config.RLBotConfigManager.TreeLocation t : trees) {
+                            if (t.toWorldPoint().equals(tree)) {
+                                int tier = LogQualityRewards.getLogQualityTier(t.name);
+                                if (tier > bestAvailableTier) bestAvailableTier = tier;
+                                break;
+                            }
+                        }
+                    }
+                    int maxPossibleTier = wc >= 75 ? 8 : wc >= 60 ? 7 : wc >= 45 ? 5 : wc >= 30 ? 3 : wc >= 15 ? 2 : 1;
+                    boolean shouldExploreForHigherTier = bestAvailableTier > 0 && bestAvailableTier < maxPossibleTier;
+                    if (shouldExploreForHigherTier) {
+                        allowed = true; // Force exploration when we have low-tier trees but could find higher-tier
+                        logger.info("[RL] AGGRESSIVE EXPLORATION: Allowing ExploreTask - bestAvailableTier=" + bestAvailableTier + ", maxPossibleTier=" + maxPossibleTier);
+                    }
+                }
                 mask[i] = allowed && ti.shouldRun(taskContext);
                 if (mask[i]) eligibleCount++;
             } catch (Exception e) {
@@ -323,6 +347,37 @@ public class RLBotAgent {
             if (inventoryFull && ((bankVisible && bDist >= 0 && bDist <= 6) || (bDist >= 0 && bDist <= 6)) && bankIdx >= 0 && mask[bankIdx]) {
                 return bankIdx; // Prefer banking when close and visible
             }
+            // If a higher-tier tree is available for our level, prefer navigating toward it over chopping low-tier nearby
+            try {
+                int wc = 1; try { wc = client.getRealSkillLevel(net.runelite.api.Skill.WOODCUTTING); } catch (Exception ignored) {}
+                // Determine current nearest visible tree's tier
+                int currentTier = 0;
+                GameObject cur = ObjectFinder.findNearestByNames(taskContext, net.runelite.client.plugins.rlbot.tasks.TreeDiscovery.allowedTreeNamesForLevel(wc), "Chop down");
+                if (cur != null) {
+                    try {
+                        net.runelite.api.ObjectComposition comp = client.getObjectDefinition(cur.getId());
+                        if (comp != null) {
+                            String name = comp.getName();
+                            currentTier = LogQualityRewards.getLogQualityTier(name);
+                        }
+                    } catch (Exception ignored) {}
+                }
+                // Determine best available discovered tier for our level
+                java.util.List<WorldPoint> best = net.runelite.client.plugins.rlbot.tasks.TreeDiscovery.getBestAvailableTreesForLevel(wc);
+                int bestTier = 0;
+                if (best != null && !best.isEmpty()) {
+                    // Infer tier from any best entry by name lookup via RLBotConfigManager through TreeDiscovery helper
+                    // We approximate bestTier as at least willow tier when wc>=30 even if not discovered
+                    bestTier = Math.max(currentTier, wc >= 75 ? 8 : wc >= 60 ? 7 : wc >= 45 ? 5 : wc >= 30 ? 3 : wc >= 15 ? 2 : 1);
+                } else {
+                    // No discovered higher-tier trees yet; if level allows higher than currentTier, bias to navigate to find them
+                    bestTier = Math.max(currentTier, wc >= 75 ? 8 : wc >= 60 ? 7 : wc >= 45 ? 5 : wc >= 30 ? 3 : wc >= 15 ? 2 : 1);
+                }
+                boolean higherTierExistsOrAllowed = bestTier > currentTier;
+                if (!inventoryFull && higherTierExistsOrAllowed && navTreeIdx >= 0 && mask[navTreeIdx]) {
+                    return navTreeIdx; // Prefer long-distance navigation to better trees
+                }
+            } catch (Exception ignored) {}
         } catch (Exception ignored) {}
         if (eligibleCount == 0) {
             // Recovery: if nothing eligible, try exploration or camera rotate
@@ -802,6 +857,47 @@ public class RLBotAgent {
                     r += 0.2f; // Reward for successful exploration movement
                 } else {
                     r -= 0.2f; // Penalty for failed exploration
+                }
+            }
+        }
+        
+        // === AGGRESSIVE EXPLORATION REWARDS ===
+        
+        // Major reward for discovering new higher-tier trees during exploration
+        if (lastActionIndex != null) {
+            int exploreIndex = 7; // ExploreTask index
+            if (lastActionIndex == exploreIndex) {
+                // Check if we discovered any new trees since last exploration
+                int wc = 1; try { wc = client.getRealSkillLevel(net.runelite.api.Skill.WOODCUTTING); } catch (Exception ignored) {}
+                java.util.List<WorldPoint> currentTrees = TreeDiscovery.getAvailableTrees();
+                
+                // Calculate best tier of currently available trees
+                int bestCurrentTier = 0;
+                for (WorldPoint tree : currentTrees) {
+                    java.util.List<net.runelite.client.plugins.rlbot.config.RLBotConfigManager.TreeLocation> trees = net.runelite.client.plugins.rlbot.config.RLBotConfigManager.getTrees();
+                    for (net.runelite.client.plugins.rlbot.config.RLBotConfigManager.TreeLocation t : trees) {
+                        if (t.toWorldPoint().equals(tree)) {
+                            int tier = LogQualityRewards.getLogQualityTier(t.name);
+                            if (tier > bestCurrentTier) bestCurrentTier = tier;
+                            break;
+                        }
+                    }
+                }
+                
+                // Reward based on tier improvement
+                if (bestCurrentTier >= 3) { // Willow or better
+                    r += 2.0f; // Major reward for finding willow+ trees
+                    logger.info("[RL] Exploration reward: Found tier " + bestCurrentTier + " trees (+2.0 reward)");
+                } else if (bestCurrentTier >= 2) { // Oak
+                    r += 0.5f; // Moderate reward for oak trees
+                }
+                
+                // Additional reward if we're exploring when we could be chopping low-tier trees
+                boolean hasLowTierTrees = bestCurrentTier > 0 && bestCurrentTier < 3; // Oak or regular trees
+                int maxPossibleTier = wc >= 75 ? 8 : wc >= 60 ? 7 : wc >= 45 ? 5 : wc >= 30 ? 3 : wc >= 15 ? 2 : 1;
+                if (hasLowTierTrees && maxPossibleTier > bestCurrentTier) {
+                    r += 1.0f; // Bonus reward for exploring when higher-tier trees are possible
+                    logger.info("[RL] Exploration bonus: Seeking tier " + maxPossibleTier + " trees when only tier " + bestCurrentTier + " available (+1.0 reward)");
                 }
             }
         }
