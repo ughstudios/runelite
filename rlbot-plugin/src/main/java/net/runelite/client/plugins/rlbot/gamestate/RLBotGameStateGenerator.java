@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import lombok.RequiredArgsConstructor;
+// import lombok.RequiredArgsConstructor; // Removed for Java 17 compatibility
 import net.runelite.api.*;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.widgets.Widget;
@@ -13,12 +13,17 @@ import net.runelite.api.TileItem;
 import net.runelite.client.plugins.rlbot.RLBotLogger;
 import net.runelite.client.plugins.rlbot.RLBotScreenshotUtil;
 
-@RequiredArgsConstructor
 public class RLBotGameStateGenerator {
 
     private final Client client;
     private final RLBotLogger logger;
     private final RLBotScreenshotUtil screenshotUtil;
+
+    public RLBotGameStateGenerator(Client client, RLBotLogger logger, RLBotScreenshotUtil screenshotUtil) {
+        this.client = client;
+        this.logger = logger;
+        this.screenshotUtil = screenshotUtil;
+    }
 
     /**
      * Asynchronously generates the game state as a Gson JsonObject.

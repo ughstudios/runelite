@@ -10,14 +10,13 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import javax.imageio.ImageIO;
-import lombok.RequiredArgsConstructor;
+// import lombok.RequiredArgsConstructor; // Removed for Java 17 compatibility
 import net.runelite.client.ui.DrawManager;
 
 /**
  * Utility class for handling screenshots for the RLBot plugin.
  * Provides methods for capturing, processing, and encoding screenshots.
  */
-@RequiredArgsConstructor
 public class RLBotScreenshotUtil {
     
     /**
@@ -34,6 +33,12 @@ public class RLBotScreenshotUtil {
      * The plugin configuration.
      */
     private final RLBotConfig config;
+
+    public RLBotScreenshotUtil(DrawManager drawManager, RLBotLogger logger, RLBotConfig config) {
+        this.drawManager = drawManager;
+        this.logger = logger;
+        this.config = config;
+    }
     
     // Image format constants
     private static final String IMAGE_FORMAT = "png";

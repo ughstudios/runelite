@@ -21,7 +21,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.JProgressBar;
 import java.awt.Component;
-import lombok.extern.slf4j.Slf4j;
+// import lombok.extern.slf4j.Slf4j; // Removed for Java 17 compatibility
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -57,10 +57,10 @@ import java.awt.event.KeyAdapter;
 import java.io.File;
 import net.runelite.client.RuneLite;
 
-@Slf4j
 @Singleton
 public class RLBotStateViewer extends PluginPanel
 {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RLBotStateViewer.class);
     private final JTree tree;
     private final DefaultTreeModel treeModel;
     private final DefaultMutableTreeNode rootNode;

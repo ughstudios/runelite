@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
-import lombok.Setter;
+// import lombok.Setter; // Removed for Java 17 compatibility
 import net.runelite.client.plugins.rlbot.RLBotTelemetry;
 import net.runelite.client.plugins.rlbot.RLBotConfig;
 import net.runelite.client.plugins.rlbot.RLBotAgent;
@@ -52,8 +52,14 @@ public class RLBotOverlay extends OverlayPanel {
     /**
      * The current action being performed.
      */
-    @Setter
     private String currentAction;
+    
+    /**
+     * Sets the current action being performed.
+     */
+    public void setCurrentAction(String currentAction) {
+        this.currentAction = currentAction;
+    }
     
     // REST/WebSocket removed; always show in-process status
     
