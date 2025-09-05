@@ -1,9 +1,11 @@
 net/runelite/client/plugins/rlbot/tasks/ChopNearestTreeTask.class
 net/runelite/client/plugins/rlbot/tasks/CrossWildernessDitchTask.class
 net/runelite/client/plugins/rlbot/tasks/ExploreStepTask.class
+net/runelite/client/plugins/rlbot/input/ChatboxCollisionHandler$1.class
 net/runelite/client/plugins/rlbot/tasks/ObjectFinder.class
 net/runelite/client/plugins/rlbot/RLBotCursorOverlay$TrailPoint.class
 net/runelite/client/plugins/rlbot/config/RLBotConfigManager$RLBotConfig.class
+net/runelite/client/plugins/rlbot/tasks/CameraAdjustmentTask.class
 net/runelite/client/plugins/rlbot/config/RLBotConfigManager$BankLocation.class
 net/runelite/client/plugins/rlbot/RLBotControlWindow$1.class
 net/runelite/client/plugins/rlbot/tasks/UiHelper$RulesFile.class
@@ -20,6 +22,7 @@ net/runelite/client/plugins/rlbot/tasks/BankDiscovery.class
 net/runelite/client/plugins/rlbot/tasks/UiHelper.class
 net/runelite/client/plugins/rlbot/RLBotPlugin$1.class
 net/runelite/client/plugins/rlbot/gamestate/RLBotGameStateGenerator.class
+net/runelite/client/plugins/rlbot/tasks/CameraAdjustmentTask$AdjustmentType.class
 net/runelite/client/plugins/rlbot/RLBotPlugin.class
 net/runelite/client/plugins/rlbot/tasks/NavigateToHotspotTask.class
 net/runelite/client/plugins/rlbot/RLBotStateViewer$3.class
@@ -28,7 +31,10 @@ net/runelite/client/plugins/rlbot/tasks/TreeDiscovery.class
 net/runelite/client/plugins/rlbot/tasks/UiHelper$2.class
 net/runelite/client/plugins/rlbot/tasks/BankDepositTask.class
 net/runelite/client/plugins/rlbot/tasks/CrossWildernessDitchOutTask.class
+net/runelite/client/plugins/rlbot/tasks/ObjectClicker.class
 net/runelite/client/plugins/rlbot/tasks/CameraHelper.class
+net/runelite/client/plugins/rlbot/input/ChatboxCollisionHandler.class
+net/runelite/client/plugins/rlbot/rewards/LogQualityRewards.class
 net/runelite/client/plugins/rlbot/RLBotStateViewer.class
 net/runelite/client/plugins/rlbot/RLBotLogger.class
 net/runelite/client/plugins/rlbot/RLBotConstants.class
@@ -39,6 +45,9 @@ net/runelite/client/plugins/rlbot/tasks/CameraRotateStepTask.class
 net/runelite/client/plugins/rlbot/tasks/RunHelper.class
 net/runelite/client/plugins/rlbot/RLBotScreenshotUtil.class
 net/runelite/client/plugins/rlbot/tasks/CameraRotateStepTask$Direction.class
+net/runelite/client/plugins/rlbot/tasks/CameraRotateTask$CameraAction.class
+net/runelite/client/plugins/rlbot/tasks/CameraRotateTask$1.class
+net/runelite/client/plugins/rlbot/input/ChatboxCollisionHandler$AdjustmentStrategy.class
 net/runelite/client/plugins/rlbot/RLBotStateViewer$1.class
 net/runelite/client/plugins/rlbot/tasks/CameraRotateStepTask$1.class
 net/runelite/client/plugins/rlbot/tasks/IdleTask.class
@@ -49,6 +58,7 @@ net/runelite/client/plugins/rlbot/RLBotStateViewer$5.class
 net/runelite/client/plugins/rlbot/ui/RLBotOverlay$ActionHistoryEntry.class
 net/runelite/client/plugins/rlbot/RLBotConfig.class
 net/runelite/client/plugins/rlbot/tasks/NavigateToTreeHotspotTask.class
+net/runelite/client/plugins/rlbot/tasks/CameraAdjustmentTask$1.class
 net/runelite/client/plugins/rlbot/tasks/ExploreTask.class
 net/runelite/client/plugins/rlbot/tasks/TaskContext$WidgetInfo.class
 net/runelite/client/plugins/rlbot/RLBotCursorOverlay.class
@@ -62,4 +72,5 @@ net/runelite/client/plugins/rlbot/rl/ReplayBuffer.class
 net/runelite/client/plugins/rlbot/tasks/CameraRotateTask.class
 net/runelite/client/plugins/rlbot/RLBotScreenshotUtil$ScreenshotHandler.class
 net/runelite/client/plugins/rlbot/tasks/MinimapPathing.class
+net/runelite/client/plugins/rlbot/tasks/ObjectClicker$ObjectType.class
 net/runelite/client/plugins/rlbot/rl/DJLDqnPolicy.class

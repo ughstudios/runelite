@@ -945,6 +945,35 @@ public class RLBotAgent {
     }
 
     // Training loop (experience replay) will be added to update DJL network weights.
+    
+    // Getter methods for overlay access
+    public long getSteps() { return steps; }
+    public double getEpisodeReturn() { return episodeReturn; }
+    public int getLastEpsilonPct() { return lastEpsilonPct; }
+    public Float getLastTrainLoss() { return lastTrainLoss; }
+    public long getEpisodeStartMs() { return episodeStartMs; }
+    public int[] getActionCounts() { return actionCounts; }
+    public java.util.LinkedList<Integer> getRecentActions() { return recentActions; }
+    public int getTotalActions() {
+        if (actionCounts == null) return 0;
+        int total = 0;
+        for (int count : actionCounts) {
+            total += count;
+        }
+        return total;
+    }
+    public double getStepsPerSecond() {
+        long episodeDurationMs = System.currentTimeMillis() - episodeStartMs;
+        return episodeDurationMs > 0 ? (steps * 1000.0) / episodeDurationMs : 0.0;
+    }
+    public double getEfficiency() {
+        return steps > 0 ? episodeReturn / steps : 0.0;
+    }
+    public float getActionDiversity() {
+        if (recentActions == null || recentActions.size() < 3) return 0f;
+        java.util.Set<Integer> uniqueActions = new java.util.HashSet<>(recentActions);
+        return (float) uniqueActions.size() / recentActions.size();
+    }
 }
 
 

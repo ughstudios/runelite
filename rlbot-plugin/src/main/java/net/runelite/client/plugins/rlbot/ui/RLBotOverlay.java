@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import lombok.Setter;
 import net.runelite.client.plugins.rlbot.RLBotTelemetry;
 import net.runelite.client.plugins.rlbot.RLBotConfig;
+import net.runelite.client.plugins.rlbot.RLBotAgent;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayPriority;
@@ -23,6 +24,7 @@ import net.runelite.api.Client;
 import net.runelite.api.GameObject;
 import net.runelite.api.Player;
 import net.runelite.api.AnimationID;
+import net.runelite.api.Skill;
 
 /**
  * Overlay for the RLBot plugin.
@@ -45,6 +47,7 @@ public class RLBotOverlay extends OverlayPanel {
      */
     private final RLBotConfig config;
     private final RLBotTelemetry telemetry;
+    private final RLBotAgent agent;
     
     /**
      * The current action being performed.
@@ -76,10 +79,11 @@ public class RLBotOverlay extends OverlayPanel {
     private TaskContext taskContext;
 
     @Inject
-    public RLBotOverlay(RLBotConfig config, RLBotTelemetry telemetry) {
+    public RLBotOverlay(RLBotConfig config, RLBotTelemetry telemetry, RLBotAgent agent) {
         super();
         this.config = config;
         this.telemetry = telemetry;
+        this.agent = agent;
         setPosition(OverlayPosition.TOP_LEFT);
         setPriority(OverlayPriority.LOW);
     }
@@ -150,6 +154,202 @@ public class RLBotOverlay extends OverlayPanel {
                     .right(Long.toString(telemetry.getBusyRemainingMs()))
                     .build());
             }
+        }
+        
+        // Agent State Information
+        if (agent != null && config.enableRLAgent()) {
+            panelComponent.getChildren().add(TitleComponent.builder()
+                .text("Agent State")
+                .color(Color.CYAN)
+                .build());
+            
+            // RL Training Metrics
+            long steps = agent.getSteps();
+            double episodeReturn = agent.getEpisodeReturn();
+            int epsilonPct = agent.getLastEpsilonPct();
+            Float trainLoss = agent.getLastTrainLoss();
+            int totalActions = agent.getTotalActions();
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Steps:")
+                .right(Long.toString(steps))
+                .build());
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Episode Return:")
+                .right(String.format("%.2f", episodeReturn))
+                .rightColor(episodeReturn > 0 ? Color.GREEN : Color.RED)
+                .build());
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Epsilon:")
+                .right(epsilonPct + "%")
+                .rightColor(epsilonPct > 50 ? Color.YELLOW : Color.GREEN)
+                .build());
+            
+            if (trainLoss != null) {
+                panelComponent.getChildren().add(LineComponent.builder()
+                    .left("Train Loss:")
+                    .right(String.format("%.4f", trainLoss))
+                    .build());
+            }
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Total Actions:")
+                .right(Integer.toString(totalActions))
+                .build());
+        }
+        
+        // Inventory Status
+        if (taskContext != null) {
+            panelComponent.getChildren().add(TitleComponent.builder()
+                .text("Inventory")
+                .color(Color.ORANGE)
+                .build());
+            
+            int freeSlots = taskContext.getInventoryFreeSlots();
+            boolean nearFull = taskContext.isInventoryNearFull();
+            boolean full = taskContext.isInventoryFull();
+            
+            Color inventoryColor = full ? Color.RED : (nearFull ? Color.YELLOW : Color.GREEN);
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Free Slots:")
+                .right(Integer.toString(freeSlots))
+                .rightColor(inventoryColor)
+                .build());
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Status:")
+                .right(full ? "FULL" : (nearFull ? "NEAR FULL" : "OK"))
+                .rightColor(inventoryColor)
+                .build());
+        }
+        
+        // Navigation & Movement Status
+        if (taskContext != null) {
+            panelComponent.getChildren().add(TitleComponent.builder()
+                .text("Navigation")
+                .color(Color.MAGENTA)
+                .build());
+            
+            boolean isWalking = taskContext.isPlayerWalking();
+            boolean isStuck = !taskContext.isPlayerMovingRecent(3000);
+            int navNoProgress = taskContext.getNavNoProgressCount();
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Walking:")
+                .right(isWalking ? "YES" : "NO")
+                .rightColor(isWalking ? Color.GREEN : Color.RED)
+                .build());
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Stuck:")
+                .right(isStuck ? "YES" : "NO")
+                .rightColor(isStuck ? Color.RED : Color.GREEN)
+                .build());
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Nav Failures:")
+                .right(Integer.toString(navNoProgress))
+                .rightColor(navNoProgress > 3 ? Color.RED : Color.GREEN)
+                .build());
+            
+            // Run energy
+            float runEnergy = taskContext.getRunEnergy01();
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Run Energy:")
+                .right(String.format("%.0f%%", runEnergy * 100))
+                .rightColor(runEnergy > 0.5f ? Color.GREEN : Color.YELLOW)
+                .build());
+        }
+        
+        // Goal State Information
+        if (client != null && taskContext != null) {
+            panelComponent.getChildren().add(TitleComponent.builder()
+                .text("Goal State")
+                .color(Color.PINK)
+                .build());
+            
+            try {
+                Player player = client.getLocalPlayer();
+                if (player != null) {
+                    boolean inWilderness = player.getWorldLocation().getY() > 3523;
+                    panelComponent.getChildren().add(LineComponent.builder()
+                        .left("Wilderness:")
+                        .right(inWilderness ? "YES" : "NO")
+                        .rightColor(inWilderness ? Color.RED : Color.GREEN)
+                        .build());
+                }
+                
+                // Current goal based on inventory and location
+                String currentGoal = "Find Trees";
+                if (taskContext.isInventoryNearFull()) {
+                    currentGoal = "Bank Items";
+                } else if (player != null && player.getWorldLocation().getY() <= 3523) {
+                    currentGoal = "Cross Wilderness";
+                }
+                
+                panelComponent.getChildren().add(LineComponent.builder()
+                    .left("Current Goal:")
+                    .right(currentGoal)
+                    .build());
+                
+                // Woodcutting XP
+                try {
+                    int woodcuttingXp = client.getSkillExperience(Skill.WOODCUTTING);
+                    panelComponent.getChildren().add(LineComponent.builder()
+                        .left("WC XP:")
+                        .right(Integer.toString(woodcuttingXp))
+                        .build());
+                } catch (Exception ignored) {}
+                
+            } catch (Exception ignored) {}
+        }
+        
+        // Performance Metrics
+        if (agent != null && config.enableRLAgent()) {
+            panelComponent.getChildren().add(TitleComponent.builder()
+                .text("Performance")
+                .color(Color.BLUE)
+                .build());
+            
+            // Performance metrics using getter methods
+            double stepsPerSecond = agent.getStepsPerSecond();
+            long episodeStartMs = agent.getEpisodeStartMs();
+            long episodeDurationMs = System.currentTimeMillis() - episodeStartMs;
+            float actionDiversity = agent.getActionDiversity();
+            double efficiency = agent.getEfficiency();
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Steps/sec:")
+                .right(String.format("%.2f", stepsPerSecond))
+                .rightColor(stepsPerSecond > 1.0 ? Color.GREEN : Color.YELLOW)
+                .build());
+            
+            // Episode duration
+            long episodeMinutes = episodeDurationMs / 60000;
+            long episodeSeconds = (episodeDurationMs % 60000) / 1000;
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Episode Time:")
+                .right(String.format("%02d:%02d", episodeMinutes, episodeSeconds))
+                .build());
+            
+            // Action diversity
+            if (actionDiversity > 0) {
+                panelComponent.getChildren().add(LineComponent.builder()
+                    .left("Action Diversity:")
+                    .right(String.format("%.2f", actionDiversity))
+                    .rightColor(actionDiversity > 0.5f ? Color.GREEN : Color.YELLOW)
+                    .build());
+            }
+            
+            // Efficiency metrics
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Efficiency:")
+                .right(String.format("%.4f", efficiency))
+                .rightColor(efficiency > 0 ? Color.GREEN : Color.RED)
+                .build());
         }
         
         // Add animation ID display

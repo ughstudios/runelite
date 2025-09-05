@@ -45,8 +45,8 @@ public final class ObjectClicker {
     
     public static final ObjectType BANK = new ObjectType(
         new String[]{"bank booth", "bank chest", "bank", "deposit box", "bank deposit box"},
-        new String[]{"Deposit", "Bank", "Open", "Use"}, // Prioritize "Deposit" first based on logs
-        new String[]{"Deposit", "Bank"},
+        new String[]{"Bank", "Deposit"}, // Only actual RuneScape bank actions
+        new String[]{"Bank", "Deposit"}, // Same as preferred - no fake fallbacks
         true, // Use convex hull
         -8    // Click slightly above center to avoid NPCs
     );
@@ -75,9 +75,18 @@ public final class ObjectClicker {
             // Find the best action for this object
             String bestAction = findBestAction(comp, objectType);
             if (bestAction == null) {
+                StringBuilder actionLog = new StringBuilder();
+                String[] actions = comp.getActions();
+                if (actions != null) {
+                    for (int i = 0; i < actions.length; i++) {
+                        if (actions[i] != null) {
+                            if (i > 0) actionLog.append(", ");
+                            actionLog.append(actions[i]);
+                        }
+                    }
+                }
                 context.logger.warn("[ObjectClicker] No suitable action found for object: " + comp.getName() + 
-                                  " (ID: " + gameObject.getId() + "). Available actions: " + 
-                                  java.util.Arrays.toString(comp.getActions()));
+                                  " (ID: " + gameObject.getId() + "). Available actions: [" + actionLog.toString() + "]");
                 return false;
             }
             
@@ -148,7 +157,16 @@ public final class ObjectClicker {
             return null;
         }
         
-        // First try preferred actions (exact match)
+        // Log available actions for debugging
+        StringBuilder actionLog = new StringBuilder();
+        for (int i = 0; i < actions.length; i++) {
+            if (actions[i] != null) {
+                if (i > 0) actionLog.append(", ");
+                actionLog.append(actions[i]);
+            }
+        }
+        
+        // Try preferred actions (exact match)
         for (String preferredAction : objectType.preferredActions) {
             for (String action : actions) {
                 if (action != null && action.equals(preferredAction)) {
@@ -157,10 +175,29 @@ public final class ObjectClicker {
             }
         }
         
-        // Then try fallback actions (exact match)
+        // Try fallback actions (exact match) - only if different from preferred
         for (String fallbackAction : objectType.fallbackActions) {
+            // Skip if already tried in preferred actions
+            boolean alreadyTried = false;
+            for (String preferredAction : objectType.preferredActions) {
+                if (preferredAction.equals(fallbackAction)) {
+                    alreadyTried = true;
+                    break;
+                }
+            }
+            if (!alreadyTried) {
+                for (String action : actions) {
+                    if (action != null && action.equals(fallbackAction)) {
+                        return action;
+                    }
+                }
+            }
+        }
+        
+        // Try case-insensitive exact matches
+        for (String preferredAction : objectType.preferredActions) {
             for (String action : actions) {
-                if (action != null && action.equals(fallbackAction)) {
+                if (action != null && action.equalsIgnoreCase(preferredAction)) {
                     return action;
                 }
             }
@@ -170,6 +207,15 @@ public final class ObjectClicker {
         for (String preferredAction : objectType.preferredActions) {
             for (String action : actions) {
                 if (action != null && action.toLowerCase().contains(preferredAction.toLowerCase())) {
+                    return action;
+                }
+            }
+        }
+        
+        // For banks, try any non-null action as last resort
+        if (objectType == BANK) {
+            for (String action : actions) {
+                if (action != null && !action.trim().isEmpty()) {
                     return action;
                 }
             }

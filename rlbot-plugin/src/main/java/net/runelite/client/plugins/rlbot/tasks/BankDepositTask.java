@@ -158,6 +158,7 @@ public class BankDepositTask implements Task {
         if (me == null) return;
         
         // Try using ObjectClicker first - this should fix the action name issue
+        context.logger.info("[BankDeposit] Attempting to click bank using ObjectClicker");
         if (ObjectClicker.clickNearestObject(context, ObjectClicker.BANK)) {
             context.logger.info("[BankDeposit] Successfully clicked bank using ObjectClicker");
             
@@ -166,8 +167,12 @@ public class BankDepositTask implements Task {
             if (isBankOpen(context)) {
                 context.logger.info("[BankDeposit] Bank opened successfully!");
                 if (context.telemetry != null) context.telemetry.addReward(15);
+            } else {
+                context.logger.warn("[BankDeposit] Bank click succeeded but bank did not open - may need different action or timing");
             }
             return;
+        } else {
+            context.logger.warn("[BankDeposit] ObjectClicker.clickNearestObject failed - no bank objects found or click failed");
         }
         
         // Fallback: try to find a specific bank object and use ObjectClicker on it
@@ -184,6 +189,7 @@ public class BankDepositTask implements Task {
             BankDiscovery.setLastTargetedBank(best.getWorldLocation());
             
             // Try using ObjectClicker with the specific object
+            context.logger.info("[BankDeposit] Attempting to click specific bank object using ObjectClicker");
             if (ObjectClicker.clickObject(context, best, ObjectClicker.BANK)) {
                 context.logger.info("[BankDeposit] Successfully clicked specific bank using ObjectClicker");
                 
@@ -192,12 +198,14 @@ public class BankDepositTask implements Task {
                 if (isBankOpen(context)) {
                     context.logger.info("[BankDeposit] Bank opened successfully!");
                     if (context.telemetry != null) context.telemetry.addReward(15);
+                } else {
+                    context.logger.warn("[BankDeposit] Specific bank click succeeded but bank did not open");
                 }
                 return;
             }
             
             // If ObjectClicker fails, fall back to navigation or camera adjustment
-            context.logger.warn("[BankDeposit] ObjectClicker failed, trying camera adjustment or navigation");
+            context.logger.warn("[BankDeposit] ObjectClicker.clickObject failed for specific bank - trying camera adjustment or navigation");
             
             // Project bank to canvas 
             java.awt.Point proj = ObjectFinder.projectToClickablePoint(context, best);
