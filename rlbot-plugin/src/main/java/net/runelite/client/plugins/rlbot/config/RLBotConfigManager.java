@@ -33,6 +33,7 @@ public class RLBotConfigManager {
     private static final Map<WorldPoint, Long> depletedTrees = new ConcurrentHashMap<>();
     private static final Map<WorldPoint, BankLocation> discoveredBanks = new ConcurrentHashMap<>();
     private static final Set<WorldPoint> blacklistedBanks = ConcurrentHashMap.newKeySet();
+    private static final Set<Integer> bannedObjects = ConcurrentHashMap.newKeySet();
     
     private static long lastSaveTime = 0;
     private static final long SAVE_COOLDOWN_MS = 5000; // Save every 5 seconds max
@@ -87,6 +88,7 @@ public class RLBotConfigManager {
         public List<Map<String, Object>> depletedTrees = new ArrayList<>();
         public List<BankLocation> banks = new ArrayList<>();
         public List<Map<String, Object>> blacklistedBanks = new ArrayList<>();
+        public List<Map<String, Object>> bannedObjects = new ArrayList<>();
     }
     
     static {
@@ -152,8 +154,17 @@ public class RLBotConfigManager {
                     }
                 }
                 
-                logger.info("Loaded RLBot config: {} trees, {} depleted trees, {} banks, {} blacklisted banks", 
-                    discoveredTrees.size(), depletedTrees.size(), discoveredBanks.size(), blacklistedBanks.size());
+                // Load banned objects
+                bannedObjects.clear();
+                if (config.bannedObjects != null) {
+                    for (Map<String, Object> banned : config.bannedObjects) {
+                        int id = ((Number) banned.get("id")).intValue();
+                        bannedObjects.add(id);
+                    }
+                }
+                
+                logger.info("Loaded RLBot config: {} trees, {} depleted trees, {} banks, {} blacklisted banks, {} banned objects", 
+                    discoveredTrees.size(), depletedTrees.size(), discoveredBanks.size(), blacklistedBanks.size(), bannedObjects.size());
             }
         } catch (Exception e) {
             logger.error("Error loading RLBot config", e);
@@ -201,12 +212,20 @@ public class RLBotConfigManager {
                 config.blacklistedBanks.add(blacklisted);
             }
             
+            // Save banned objects
+            config.bannedObjects = new ArrayList<>();
+            for (Integer id : bannedObjects) {
+                Map<String, Object> banned = new ConcurrentHashMap<>();
+                banned.put("id", id);
+                config.bannedObjects.add(banned);
+            }
+            
             try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
                 gson.toJson(config, writer);
             }
             
-            logger.debug("Saved RLBot config: {} trees, {} depleted trees, {} banks, {} blacklisted banks", 
-                discoveredTrees.size(), depletedTrees.size(), discoveredBanks.size(), blacklistedBanks.size());
+            logger.debug("Saved RLBot config: {} trees, {} depleted trees, {} banks, {} blacklisted banks, {} banned objects", 
+                discoveredTrees.size(), depletedTrees.size(), discoveredBanks.size(), blacklistedBanks.size(), bannedObjects.size());
         } catch (Exception e) {
             logger.error("Error saving RLBot config", e);
         }
@@ -271,6 +290,21 @@ public class RLBotConfigManager {
     
     public static void removeBankFromBlacklist(WorldPoint wp) {
         blacklistedBanks.remove(wp);
+        saveConfig();
+    }
+    
+    // Banned object management methods
+    public static void banObject(int objectId) {
+        bannedObjects.add(objectId);
+        saveConfig();
+    }
+    
+    public static boolean isObjectBanned(int objectId) {
+        return bannedObjects.contains(objectId);
+    }
+    
+    public static void removeObjectFromBan(int objectId) {
+        bannedObjects.remove(objectId);
         saveConfig();
     }
 }

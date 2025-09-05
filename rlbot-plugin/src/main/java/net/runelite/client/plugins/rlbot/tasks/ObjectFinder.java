@@ -46,6 +46,13 @@ public final class ObjectFinder {
                                 ctx.logger.info("[ObjectFinder] Skipping bank table: id=" + go.getId() + ", name='" + comp.getName() + "'");
                                 continue;
                             }
+                            
+                            // Check if this object is banned
+                            if (net.runelite.client.plugins.rlbot.config.RLBotConfigManager.isObjectBanned(go.getId())) {
+                                ctx.logger.info("[ObjectFinder] Skipping banned object: id=" + go.getId() + ", name='" + comp.getName() + "'");
+                                continue;
+                            }
+                            
                             // If we're looking for a bank action, skip blacklisted bank world points entirely
                             if (requiredAction != null && requiredAction.equalsIgnoreCase("Bank")) {
                                 WorldPoint wp = go.getWorldLocation();
@@ -112,6 +119,12 @@ public final class ObjectFinder {
                             }
                         }
                         if (!nameOk) continue;
+                        
+                        // Check if this object is banned
+                        if (net.runelite.client.plugins.rlbot.config.RLBotConfigManager.isObjectBanned(go.getId())) {
+                            ctx.logger.info("[ObjectFinder] Skipping banned object: id=" + go.getId() + ", name='" + comp.getName() + "'");
+                            continue;
+                        }
                         
                         // Check if this tree is depleted (stump)
                         if (TreeDiscovery.isDepleted(tile.getWorldLocation())) {
