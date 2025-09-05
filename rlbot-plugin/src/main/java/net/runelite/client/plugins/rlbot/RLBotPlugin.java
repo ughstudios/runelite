@@ -193,6 +193,7 @@ public class RLBotPlugin extends Plugin implements KeyListener {
         gameStateGenerator = new RLBotGameStateGenerator(client, logger, new RLBotScreenshotUtil(drawManager, logger, config));
 
         inputHandler = new RLBotInputHandler(logger, client, clientThread, keyManager, mouseManager);
+        inputHandler.setPlugin(this);
         inputHandler.initialize();
         // Connect the input handler to the RL agent for penalty application
         inputHandler.setRLAgent(javaAgent);
@@ -566,6 +567,11 @@ public class RLBotPlugin extends Plugin implements KeyListener {
     public Point getLastMouseLocation()
     {
         return lastMouseLocation;
+    }
+    
+    public void updateLastMouseLocation(Point location)
+    {
+        lastMouseLocation = location;
     }
 
     private void onClientTickInternal() {

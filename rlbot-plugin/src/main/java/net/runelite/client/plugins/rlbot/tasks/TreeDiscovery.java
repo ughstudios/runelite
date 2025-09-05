@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class for dynamically discovering and persisting tree locations.
@@ -23,6 +24,9 @@ public class TreeDiscovery {
     
     private static final long DEPLETION_COOLDOWN_MS = 5_000L; // 5s respawn window - short but not permanent
     private static volatile WorldPoint lastTargetedTree = null;
+    
+    // Camera adjustment tracking
+    private static final ConcurrentHashMap<WorldPoint, Integer> cameraAdjustmentAttempts = new ConcurrentHashMap<>();
     
     /**
      * Scan the current scene for choppable tree objects and add any new discoveries
@@ -200,5 +204,29 @@ public class TreeDiscovery {
      */
     public static void cleanupExpiredDepletedTrees() {
         RLBotConfigManager.cleanupExpiredDepletedTrees();
+    }
+    
+    /**
+     * Get the number of camera adjustment attempts for a tree location
+     */
+    public static int getCameraAdjustmentAttempts(WorldPoint location) {
+        if (location == null) return 0;
+        return cameraAdjustmentAttempts.getOrDefault(location, 0);
+    }
+    
+    /**
+     * Increment the camera adjustment attempts for a tree location
+     */
+    public static void incrementCameraAdjustmentAttempts(WorldPoint location) {
+        if (location == null) return;
+        cameraAdjustmentAttempts.merge(location, 1, Integer::sum);
+    }
+    
+    /**
+     * Reset camera adjustment attempts for a tree location
+     */
+    public static void resetCameraAdjustmentAttempts(WorldPoint location) {
+        if (location == null) return;
+        cameraAdjustmentAttempts.remove(location);
     }
 }

@@ -23,6 +23,9 @@ public class ChopNearestTreeTask implements Task {
     private static int lastTargetObjectId = -1;
     @Override
     public boolean shouldRun(TaskContext context) {
+        context.logger.warn("[ChopTask] *** DEBUG: shouldRun() called *** - inventory full: " + context.isInventoryFull() + 
+                          ", woodcutting: " + context.isWoodcuttingAnim());
+        
         if (context.isInventoryFull()) {
             context.logger.info("[ChopTask] shouldRun() = false (inventory full)");
             return false;
@@ -36,28 +39,35 @@ public class ChopNearestTreeTask implements Task {
         
         // CRITICAL FIX: Scan and mark depleted trees BEFORE searching for trees
         TreeDiscovery.scanAndDiscoverTrees(context);
+        context.logger.warn("[ChopTask] *** DEBUG: After tree discovery scan ***");
         
         // Try multiple action names for trees - some might be "Chop", "Cut", "Chop down", etc.
         net.runelite.api.GameObject candidate = null;
         String[] actionNames = {"Chop down", "Chop", "Cut", "Cut down"};
+        context.logger.warn("[ChopTask] *** DEBUG: About to search for trees with actions: " + java.util.Arrays.toString(actionNames) + " ***");
         
         for (String actionName : actionNames) {
+            context.logger.warn("[ChopTask] *** DEBUG: Searching for trees with action: " + actionName + " ***");
             candidate = ObjectFinder.findNearestByNames(context, new String[]{"tree", "oak", "willow", "yew", "maple"}, actionName);
+            context.logger.warn("[ChopTask] *** DEBUG: Found candidate for action " + actionName + ": " + (candidate != null) + " ***");
             if (candidate != null) {
+                context.logger.warn("[ChopTask] *** DEBUG: Found candidate, checking if stump ***");
                 // Double-check this isn't a stump
                 try {
                     net.runelite.api.ObjectComposition comp = context.client.getObjectDefinition(candidate.getId());
+                    context.logger.warn("[ChopTask] *** DEBUG: Got object composition: " + (comp != null) + " ***");
                     if (comp != null) {
                         String name = comp.getName();
+                        context.logger.warn("[ChopTask] *** DEBUG: Object name: " + name + " ***");
                         if (name != null && name.toLowerCase().contains("stump")) {
-                            context.logger.info("[ChopTask] Found stump, skipping: " + name);
+                            context.logger.warn("[ChopTask] *** DEBUG: Found stump, skipping: " + name + " ***");
                             TreeDiscovery.markDepleted(candidate.getWorldLocation());
                             candidate = null;
                             continue;
                         }
                     }
                 } catch (Exception e) {
-                    context.logger.warn("[ChopTask] Error checking if tree is stump: " + e.getMessage());
+                    context.logger.warn("[ChopTask] *** DEBUG: Error checking stump: " + e.getMessage() + " ***");
                 }
                 
                 if (candidate != null) {
@@ -68,7 +78,7 @@ public class ChopNearestTreeTask implements Task {
         }
         
         if (candidate == null) {
-            context.logger.info("[ChopTask] shouldRun() - No trees found with any chop actions");
+            context.logger.warn("[ChopTask] *** DEBUG: No trees found with any chop actions ***");
             // Let's also log what trees we can see and their actions for debugging
             try {
                 net.runelite.api.Scene scene = context.client.getScene();
@@ -115,31 +125,37 @@ public class ChopNearestTreeTask implements Task {
             // Double-check that this tree actually has a chop action
             try {
                 net.runelite.api.ObjectComposition comp = context.client.getObjectDefinition(candidate.getId());
+                context.logger.warn("[ChopTask] *** DEBUG: Verifying chop actions for tree ***");
                 if (comp != null && comp.getActions() != null) {
+                    context.logger.warn("[ChopTask] *** DEBUG: Tree actions: " + java.util.Arrays.toString(comp.getActions()) + " ***");
                     boolean hasChopAction = false;
                     for (String action : comp.getActions()) {
                         if (action != null && (action.toLowerCase().contains("chop") || action.toLowerCase().contains("cut"))) {
                             hasChopAction = true;
+                            context.logger.warn("[ChopTask] *** DEBUG: Found chop action: " + action + " ***");
                             break;
                         }
                     }
                     if (!hasChopAction) {
-                        context.logger.info("[ChopTask] Tree at " + candidate.getWorldLocation() + " has no chop action, marking as depleted");
+                        context.logger.warn("[ChopTask] *** DEBUG: Tree has no chop action, returning false ***");
                         TreeDiscovery.markDepleted(candidate.getWorldLocation());
                         return false;
                     }
+                } else {
+                    context.logger.warn("[ChopTask] *** DEBUG: No actions found for tree ***");
                 }
             } catch (Exception e) {
-                context.logger.warn("[ChopTask] Error checking tree actions in shouldRun: " + e.getMessage());
+                context.logger.warn("[ChopTask] *** DEBUG: Error checking tree actions: " + e.getMessage() + " ***");
                 TreeDiscovery.markDepleted(candidate.getWorldLocation());
                 return false;
             }
         }
         
         boolean canSeeTree = candidate != null && ObjectFinder.projectToCanvas(context, candidate) != null;
-        context.logger.info("[ChopTask] shouldRun() - canSeeTree: " + canSeeTree);
+        context.logger.warn("[ChopTask] *** DEBUG: Canvas projection check - canSeeTree: " + canSeeTree + " ***");
         
         if (canSeeTree) {
+            context.logger.warn("[ChopTask] *** DEBUG: Tree can be seen, checking wilderness ***");
             // Check if the tree is in wilderness and we're not
             net.runelite.api.coords.WorldPoint treePos = candidate.getWorldLocation();
             net.runelite.api.coords.WorldPoint playerPos = context.client.getLocalPlayer() != null ? 
@@ -149,16 +165,16 @@ public class ChopNearestTreeTask implements Task {
                 boolean treeInWilderness = treePos.getY() > 3523;
                 boolean playerInWilderness = playerPos.getY() > 3523;
                 
-                context.logger.info("[ChopTask] Tree at " + treePos + " (wilderness: " + treeInWilderness + "), Player at " + playerPos + " (wilderness: " + playerInWilderness + ")");
+                context.logger.warn("[ChopTask] *** DEBUG: Tree at " + treePos + " (wilderness: " + treeInWilderness + "), Player at " + playerPos + " (wilderness: " + playerInWilderness + ") ***");
                 
                 if (treeInWilderness && !playerInWilderness) {
-                    context.logger.info("[ChopTask] Tree is in wilderness but player is not. Need to cross wilderness ditch first.");
+                    context.logger.warn("[ChopTask] *** DEBUG: Tree in wilderness but player not, returning false ***");
                     return false; // Let CrossWildernessDitchTask handle this
                 }
             }
             
             TreeDiscovery.scanAndDiscoverTrees(context);
-            context.logger.info("[ChopTask] shouldRun() = true (can see tree and no wilderness issues)");
+            context.logger.warn("[ChopTask] *** DEBUG: Returning true - tree can be seen and no wilderness issues ***");
             return true;
         }
         // If no visible tree, still allow run so the task can trigger navigation fallback
@@ -170,18 +186,28 @@ public class ChopNearestTreeTask implements Task {
             hasDiscovered = !TreeDiscovery.getDiscoveredTrees().isEmpty();
         }
         context.logger.info("[ChopTask] shouldRun() - hasDiscovered: " + hasDiscovered + " (discovered trees: " + TreeDiscovery.getDiscoveredTrees().size() + ")");
+        context.logger.info("[ChopTask] shouldRun() FINAL DECISION: " + hasDiscovered);
         return hasDiscovered;
     }
 
     @Override
     public void run(TaskContext context) {
+        context.logger.warn("[ChopTask] *** DEBUG: run() method called ***");
         UiHelper.closeObstructions(context);
+        context.logger.warn("[ChopTask] *** DEBUG: isBusy: " + context.isBusy() + ", timedOutSince(4000): " + context.timedOutSince(4000) + " ***");
         if (context.isBusy() && !context.timedOutSince(4000)) {
+            context.logger.warn("[ChopTask] *** DEBUG: Context is busy, exiting run() method ***");
             return;
         }
+        context.logger.warn("[ChopTask] *** DEBUG: Past busy check, continuing with run() ***");
         Client client = context.client;
         Player me = client.getLocalPlayer();
-        if (me == null) return;
+        context.logger.warn("[ChopTask] *** DEBUG: getLocalPlayer() returned: " + (me != null ? "Player object" : "null") + " ***");
+        if (me == null) {
+            context.logger.warn("[ChopTask] *** DEBUG: getLocalPlayer() is null, exiting run() method ***");
+            return;
+        }
+        context.logger.warn("[ChopTask] *** DEBUG: Player found, continuing with run() ***");
 
         // Restrict target trees based on player's woodcutting level
         int wcLevel = 1;
@@ -198,8 +224,15 @@ public class ChopNearestTreeTask implements Task {
         String[] actionNames = {"Chop down", "Chop", "Cut", "Cut down"};
         
         for (int attempts = 0; attempts < 3; attempts++) {
+            context.logger.warn("[ChopTask] *** DEBUG: Tree finding attempt " + (attempts + 1) + "/3 ***");
             for (String actionName : actionNames) {
+                context.logger.warn("[ChopTask] *** DEBUG: Searching for trees with action: " + actionName + " ***");
                 found = ObjectFinder.findNearestByNames(context, allowed, actionName);
+                context.logger.warn("[ChopTask] *** DEBUG: Found tree: " + (found != null) + " ***");
+                if (found != null) {
+                    context.logger.warn("[ChopTask] *** DEBUG: Tree location: " + found.getWorldLocation() + " ***");
+                    context.logger.warn("[ChopTask] *** DEBUG: Tree is depleted: " + TreeDiscovery.isDepleted(found.getWorldLocation()) + " ***");
+                }
                 if (found != null && !TreeDiscovery.isDepleted(found.getWorldLocation())) {
                     context.logger.info("[ChopTask] Found tree with action '" + actionName + "' at " + found.getWorldLocation());
                     // Double-check that this tree actually has a chop action
@@ -241,7 +274,14 @@ public class ChopNearestTreeTask implements Task {
             if (found != null) break; // Found a valid tree, exit the attempts loop
         }
         
+        context.logger.warn("[ChopTask] *** DEBUG: After tree finding loop - found: " + (found != null) + " ***");
+        if (found != null) {
+            context.logger.warn("[ChopTask] *** DEBUG: Found tree location: " + found.getWorldLocation() + " ***");
+            context.logger.warn("[ChopTask] *** DEBUG: Found tree is depleted: " + TreeDiscovery.isDepleted(found.getWorldLocation()) + " ***");
+        }
+        
         if (found == null || TreeDiscovery.isDepleted(found.getWorldLocation())) {
+            context.logger.warn("[ChopTask] *** DEBUG: No available trees, exploring to find new ones ***");
             context.logger.info("[Task] No available trees nearby, exploring to find new ones");
             // Navigate to find more trees
             net.runelite.api.coords.WorldPoint myWp0 = context.client.getLocalPlayer() != null ? context.client.getLocalPlayer().getWorldLocation() : null;
@@ -269,6 +309,8 @@ public class ChopNearestTreeTask implements Task {
             }
             return;
         }
+        
+        context.logger.warn("[ChopTask] *** DEBUG: Found tree, proceeding to click logic ***");
 
         if (found != null) {
             final GameObject best = found;
@@ -342,17 +384,8 @@ public class ChopNearestTreeTask implements Task {
             }
 
             if (chopIdx >= 0) {
-                // Avoid dead/sapling trees by name (but allow evergreen trees)
-                try {
-                    net.runelite.api.ObjectComposition comp = client.getObjectDefinition(best.getId());
-                    String nm = comp != null ? comp.getName() : null;
-                    String ln = nm != null ? nm.toLowerCase() : "";
-                    if (ln.contains("dead") || ln.contains("burnt") || ln.contains("sapling")) {
-                        context.logger.info("[Task] Skipping invalid tree type: " + nm);
-                        TreeDiscovery.markDepleted(best.getWorldLocation());
-                        return;
-                    }
-                } catch (Exception ignored) {}
+                // Only skip trees that don't have chop actions (already verified above)
+                context.logger.info("[Task] Found valid chop action: " + chopLabel + " at index " + chopIdx);
                 
                 // Move cursor overlay to the object's canvas projection so overlay matches action point
                 java.awt.Point projPoint = ObjectFinder.projectToCanvas(context, best);
@@ -439,9 +472,43 @@ public class ChopNearestTreeTask implements Task {
                         context.setBusyForMs(100); // Reduced from 500ms
                     }
                 } else {
-                    context.logger.warn("[Task] Could not project tree to canvas");
-                    TreeDiscovery.markDepleted(best.getWorldLocation());
-                    context.setBusyForMs(50); // Reduced from 200ms
+                    context.logger.warn("[Task] Could not project tree to canvas - attempting camera adjustment");
+                    
+                    // Simple camera adjustment strategy
+                    int adjustmentAttempts = TreeDiscovery.getCameraAdjustmentAttempts(best.getWorldLocation());
+                    if (adjustmentAttempts < 5) {
+                        TreeDiscovery.incrementCameraAdjustmentAttempts(best.getWorldLocation());
+                        context.logger.info("[Task] Camera adjustment attempt " + (adjustmentAttempts + 1) + "/5");
+                        
+                        switch (adjustmentAttempts) {
+                            case 0:
+                                context.logger.info("[Task] Attempt 1: Rotating camera right");
+                                context.input.rotateCameraRightSmall();
+                                break;
+                            case 1:
+                                context.logger.info("[Task] Attempt 2: Rotating camera left");
+                                context.input.rotateCameraLeftSmall();
+                                break;
+                            case 2:
+                                context.logger.info("[Task] Attempt 3: Tilting camera up");
+                                context.input.tiltCameraUpSmall();
+                                break;
+                            case 3:
+                                context.logger.info("[Task] Attempt 4: Tilting camera down");
+                                context.input.tiltCameraDownSmall();
+                                break;
+                            default:
+                                context.logger.info("[Task] Attempt 5: Zooming out");
+                                context.input.zoomOutSmall();
+                                break;
+                        }
+                        
+                        context.setBusyForMs(500); // Give time for camera to settle
+                    } else {
+                        context.logger.warn("[Task] Too many camera adjustment attempts, marking tree as depleted");
+                        TreeDiscovery.markDepleted(best.getWorldLocation());
+                        context.setBusyForMs(50);
+                    }
                 }
                 return;
             } else {

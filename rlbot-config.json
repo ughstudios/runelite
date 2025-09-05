@@ -1,18 +1,18 @@
 {
   "trees": [
     {
-      "x": 3233,
-      "y": 3407,
+      "x": 3251,
+      "y": 3369,
       "plane": 0,
-      "name": "Dying tree",
-      "discoveredAt": 1757021458524
+      "name": "Oak tree",
+      "discoveredAt": 1757093549386
     },
     {
-      "x": 3210,
-      "y": 3445,
+      "x": 3195,
+      "y": 3549,
       "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458523
+      "name": "Dead tree",
+      "discoveredAt": 1757089489516
     },
     {
       "x": 3089,
@@ -22,18 +22,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3094,
-      "y": 3381,
+      "x": 3318,
+      "y": 3408,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3133,
-      "y": 3371,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757093549388
     },
     {
       "x": 3127,
@@ -50,13 +43,6 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3141,
-      "y": 3420,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725070
-    },
-    {
       "x": 3116,
       "y": 3385,
       "plane": 0,
@@ -64,18 +50,18 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3168,
-      "y": 3389,
+      "x": 3299,
+      "y": 3418,
       "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757091076467
     },
     {
-      "x": 3110,
-      "y": 3444,
+      "x": 3130,
+      "y": 3531,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
+      "name": "Tree",
+      "discoveredAt": 1757089489514
     },
     {
       "x": 3094,
@@ -85,22 +71,29 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3124,
-      "y": 3381,
+      "x": 3309,
+      "y": 3383,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3317,
+      "y": 3397,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3254,
+      "y": 3365,
+      "plane": 0,
+      "name": "Yew tree",
+      "discoveredAt": 1757093549386
     },
     {
       "x": 3159,
       "y": 3416,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725071
-    },
-    {
-      "x": 3155,
-      "y": 3461,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757023725071
@@ -120,27 +113,6 @@
       "discoveredAt": 1757021458522
     },
     {
-      "x": 3101,
-      "y": 3384,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3105,
-      "y": 3391,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3091,
-      "y": 3384,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3100,
       "y": 3391,
       "plane": 0,
@@ -148,11 +120,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3107,
-      "y": 3447,
+      "x": 3295,
+      "y": 3376,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757029682981
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3277,
@@ -169,25 +141,11 @@
       "discoveredAt": 1757029682987
     },
     {
-      "x": 3186,
-      "y": 3368,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3112,
       "y": 3447,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3100,
-      "y": 3374,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
     },
     {
       "x": 3113,
@@ -197,10 +155,17 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3165,
-      "y": 3392,
+      "x": 3300,
+      "y": 3393,
       "plane": 0,
       "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3119,
+      "y": 3381,
+      "plane": 0,
+      "name": "Dead tree",
       "discoveredAt": 1757030156240
     },
     {
@@ -211,18 +176,25 @@
       "discoveredAt": 1757023725071
     },
     {
-      "x": 3119,
-      "y": 3381,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3115,
       "y": 3374,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3310,
+      "y": 3428,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3082,
+      "y": 3516,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757096654415
     },
     {
       "x": 3146,
@@ -232,32 +204,25 @@
       "discoveredAt": 1757023725071
     },
     {
-      "x": 3137,
-      "y": 3414,
-      "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757024637153
-    },
-    {
-      "x": 3142,
-      "y": 3362,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3102,
-      "y": 3431,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757030032969
-    },
-    {
       "x": 3115,
       "y": 3445,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3276,
+      "y": 3353,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093961158
+    },
+    {
+      "x": 3241,
+      "y": 3509,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757089583829
     },
     {
       "x": 3121,
@@ -267,25 +232,11 @@
       "discoveredAt": 1757029682987
     },
     {
-      "x": 3276,
-      "y": 3440,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757022295386
-    },
-    {
       "x": 3225,
       "y": 3377,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757030285594
-    },
-    {
-      "x": 3127,
-      "y": 3379,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
     },
     {
       "x": 3092,
@@ -295,11 +246,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3200,
-      "y": 3411,
+      "x": 3309,
+      "y": 3419,
       "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458523
+      "name": "Oak tree",
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3131,
@@ -307,6 +258,13 @@
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3257,
+      "y": 3363,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
     },
     {
       "x": 3094,
@@ -323,11 +281,11 @@
       "discoveredAt": 1757022295385
     },
     {
-      "x": 3092,
-      "y": 3431,
+      "x": 3271,
+      "y": 3509,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757030032969
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3132,
@@ -337,18 +295,11 @@
       "discoveredAt": 1757024637153
     },
     {
-      "x": 3236,
-      "y": 3439,
+      "x": 3307,
+      "y": 3398,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458524
-    },
-    {
-      "x": 3133,
-      "y": 3441,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757024637153
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3121,
@@ -358,11 +309,25 @@
       "discoveredAt": 1757030156240
     },
     {
+      "x": 3145,
+      "y": 3514,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489515
+    },
+    {
       "x": 3162,
       "y": 3414,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3301,
+      "y": 3474,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3134,
@@ -379,13 +344,6 @@
       "discoveredAt": 1757021458523
     },
     {
-      "x": 3138,
-      "y": 3424,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725070
-    },
-    {
       "x": 3109,
       "y": 3382,
       "plane": 0,
@@ -393,32 +351,32 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3100,
-      "y": 3375,
+      "x": 3305,
+      "y": 3377,
       "plane": 0,
       "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757093549387
     },
     {
-      "x": 3098,
-      "y": 3386,
+      "x": 3133,
+      "y": 3528,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757089489514
     },
     {
-      "x": 3102,
-      "y": 3393,
+      "x": 3204,
+      "y": 3363,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030032969
+      "name": "Oak tree",
+      "discoveredAt": 1757093961156
     },
     {
-      "x": 3139,
-      "y": 3362,
+      "x": 3297,
+      "y": 3430,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3095,
@@ -426,6 +384,13 @@
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3271,
+      "y": 3506,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3276,
@@ -449,11 +414,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3229,
-      "y": 3467,
+      "x": 3298,
+      "y": 3440,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458524
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3271,
@@ -463,11 +428,18 @@
       "discoveredAt": 1757022295385
     },
     {
-      "x": 3102,
-      "y": 3428,
+      "x": 3238,
+      "y": 3370,
+      "plane": 0,
+      "name": "Dying tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3258,
+      "y": 3509,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757030032969
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3116,
@@ -477,32 +449,18 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3143,
-      "y": 3404,
-      "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757023725070
-    },
-    {
-      "x": 3111,
-      "y": 3487,
-      "plane": 0,
-      "name": "Willow tree",
-      "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3152,
-      "y": 3463,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725071
-    },
-    {
       "x": 3095,
       "y": 3407,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757030032969
+    },
+    {
+      "x": 3093,
+      "y": 3525,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757096654416
     },
     {
       "x": 3144,
@@ -512,11 +470,11 @@
       "discoveredAt": 1757023725071
     },
     {
-      "x": 3105,
-      "y": 3389,
+      "x": 3301,
+      "y": 3471,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3133,
@@ -524,13 +482,6 @@
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757024637153
-    },
-    {
-      "x": 3097,
-      "y": 3375,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
     },
     {
       "x": 3110,
@@ -554,13 +505,6 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3117,
-      "y": 3410,
-      "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757029682987
-    },
-    {
       "x": 3092,
       "y": 3375,
       "plane": 0,
@@ -568,11 +512,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3107,
-      "y": 3375,
+      "x": 3304,
+      "y": 3433,
       "plane": 0,
       "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3102,
@@ -582,18 +526,18 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3118,
-      "y": 3455,
+      "x": 3279,
+      "y": 3450,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
-      "x": 3111,
-      "y": 3382,
+      "x": 3282,
+      "y": 3516,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3119,
@@ -624,18 +568,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3168,
-      "y": 3421,
+      "x": 3255,
+      "y": 3512,
       "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757021458522
-    },
-    {
-      "x": 3120,
-      "y": 3372,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3089,
@@ -645,20 +582,6 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3277,
-      "y": 3448,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757022295386
-    },
-    {
-      "x": 3148,
-      "y": 3457,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725071
-    },
-    {
       "x": 3187,
       "y": 3499,
       "plane": 0,
@@ -666,32 +589,11 @@
       "discoveredAt": 1757024637157
     },
     {
-      "x": 3111,
-      "y": 3453,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3214,
-      "y": 3451,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458523
-    },
-    {
       "x": 3148,
       "y": 3509,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757024637154
-    },
-    {
-      "x": 3154,
-      "y": 3450,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725071
     },
     {
       "x": 3138,
@@ -708,25 +610,18 @@
       "discoveredAt": 1757024637153
     },
     {
-      "x": 3162,
-      "y": 3395,
+      "x": 3288,
+      "y": 3441,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458522
+      "discoveredAt": 1757090377619
     },
     {
-      "x": 3107,
-      "y": 3377,
+      "x": 3291,
+      "y": 3507,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3132,
-      "y": 3360,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757090377619
     },
     {
       "x": 3223,
@@ -736,11 +631,18 @@
       "discoveredAt": 1757021458523
     },
     {
-      "x": 3118,
-      "y": 3457,
+      "x": 3273,
+      "y": 3354,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757029682987
+      "discoveredAt": 1757093961158
+    },
+    {
+      "x": 3285,
+      "y": 3514,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3091,
@@ -750,6 +652,13 @@
       "discoveredAt": 1757030032968
     },
     {
+      "x": 3214,
+      "y": 3364,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093961156
+    },
+    {
       "x": 3190,
       "y": 3461,
       "plane": 0,
@@ -757,18 +666,18 @@
       "discoveredAt": 1757021458523
     },
     {
-      "x": 3091,
-      "y": 3383,
+      "x": 3270,
+      "y": 3496,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
-      "x": 3132,
-      "y": 3359,
+      "x": 3311,
+      "y": 3368,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3122,
@@ -778,6 +687,27 @@
       "discoveredAt": 1757029682987
     },
     {
+      "x": 3268,
+      "y": 3510,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3301,
+      "y": 3368,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3313,
+      "y": 3389,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
       "x": 3279,
       "y": 3416,
       "plane": 0,
@@ -785,18 +715,18 @@
       "discoveredAt": 1757022295386
     },
     {
-      "x": 3121,
-      "y": 3453,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
-    },
-    {
       "x": 3166,
       "y": 3384,
       "plane": 0,
       "name": "Oak tree",
       "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3235,
+      "y": 3374,
+      "plane": 0,
+      "name": "Dying tree",
+      "discoveredAt": 1757093549386
     },
     {
       "x": 3268,
@@ -813,13 +743,6 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3097,
-      "y": 3411,
-      "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757030032969
-    },
-    {
       "x": 3227,
       "y": 3505,
       "plane": 0,
@@ -827,18 +750,11 @@
       "discoveredAt": 1757024637159
     },
     {
-      "x": 3130,
-      "y": 3379,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3160,
-      "y": 3414,
+      "x": 3196,
+      "y": 3529,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757023725071
+      "discoveredAt": 1757089489516
     },
     {
       "x": 3092,
@@ -853,6 +769,13 @@
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3250,
+      "y": 3363,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093549386
     },
     {
       "x": 3133,
@@ -876,22 +799,8 @@
       "discoveredAt": 1757023725071
     },
     {
-      "x": 3132,
-      "y": 3365,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3094,
       "y": 3368,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3107,
-      "y": 3382,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
@@ -904,18 +813,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3223,
-      "y": 3411,
+      "x": 3237,
+      "y": 3366,
       "plane": 0,
-      "name": "Dying tree",
-      "discoveredAt": 1757021458523
-    },
-    {
-      "x": 3131,
-      "y": 3355,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757093549386
     },
     {
       "x": 3209,
@@ -923,13 +825,6 @@
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757021458523
-    },
-    {
-      "x": 3178,
-      "y": 3463,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458522
     },
     {
       "x": 3094,
@@ -946,6 +841,13 @@
       "discoveredAt": 1757022295384
     },
     {
+      "x": 3312,
+      "y": 3419,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
       "x": 3193,
       "y": 3463,
       "plane": 0,
@@ -954,59 +856,17 @@
     },
     {
       "x": 3120,
-      "y": 3379,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3129,
-      "y": 3368,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3192,
-      "y": 3504,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757024637157
-    },
-    {
-      "x": 3145,
-      "y": 3500,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757024637154
-    },
-    {
-      "x": 3120,
       "y": 3361,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3125,
-      "y": 3361,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3172,
-      "y": 3469,
+      "x": 3113,
+      "y": 3531,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458522
-    },
-    {
-      "x": 3092,
-      "y": 3364,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757097503189
     },
     {
       "x": 3105,
@@ -1016,46 +876,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3165,
-      "y": 3396,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458522
-    },
-    {
-      "x": 3114,
-      "y": 3385,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3107,
-      "y": 3451,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757029682987
-    },
-    {
       "x": 3143,
       "y": 3427,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757023725071
-    },
-    {
-      "x": 3167,
-      "y": 3452,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458522
-    },
-    {
-      "x": 3113,
-      "y": 3375,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
     },
     {
       "x": 3277,
@@ -1086,6 +911,13 @@
       "discoveredAt": 1757030156240
     },
     {
+      "x": 3304,
+      "y": 3441,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
       "x": 3147,
       "y": 3401,
       "plane": 0,
@@ -1093,25 +925,25 @@
       "discoveredAt": 1757023725071
     },
     {
-      "x": 3101,
-      "y": 3390,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3151,
-      "y": 3460,
+      "x": 3291,
+      "y": 3479,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757023725071
+      "discoveredAt": 1757090377619
     },
     {
-      "x": 3097,
-      "y": 3383,
+      "x": 3246,
+      "y": 3496,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757089583829
+    },
+    {
+      "x": 3282,
+      "y": 3420,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3121,
@@ -1121,11 +953,11 @@
       "discoveredAt": 1757029682987
     },
     {
-      "x": 3277,
-      "y": 3437,
+      "x": 3134,
+      "y": 3370,
       "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757022295386
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
     },
     {
       "x": 3133,
@@ -1135,32 +967,53 @@
       "discoveredAt": 1757024637153
     },
     {
-      "x": 3134,
-      "y": 3370,
+      "x": 3277,
+      "y": 3437,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Oak tree",
+      "discoveredAt": 1757022295386
     },
     {
-      "x": 3164,
-      "y": 3457,
+      "x": 3308,
+      "y": 3413,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458522
+      "discoveredAt": 1757093549387
     },
     {
-      "x": 3112,
-      "y": 3505,
+      "x": 3198,
+      "y": 3516,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757029682987
+      "discoveredAt": 1757089489516
     },
     {
-      "x": 3110,
-      "y": 3380,
+      "x": 3241,
+      "y": 3513,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3197,
+      "y": 3367,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3311,
+      "y": 3444,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3271,
+      "y": 3513,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3140,
@@ -1168,20 +1021,6 @@
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757023725070
-    },
-    {
-      "x": 3098,
-      "y": 3393,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030032969
-    },
-    {
-      "x": 3131,
-      "y": 3494,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757024637153
     },
     {
       "x": 3214,
@@ -1198,18 +1037,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3133,
-      "y": 3480,
+      "x": 3301,
+      "y": 3444,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757024637153
-    },
-    {
-      "x": 3094,
-      "y": 3386,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3270,
@@ -1247,6 +1079,13 @@
       "discoveredAt": 1757023725070
     },
     {
+      "x": 3280,
+      "y": 3433,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
       "x": 3102,
       "y": 3383,
       "plane": 0,
@@ -1259,34 +1098,6 @@
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3164,
-      "y": 3387,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3110,
-      "y": 3449,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3120,
-      "y": 3449,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3139,
-      "y": 3404,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725070
     },
     {
       "x": 3120,
@@ -1310,18 +1121,39 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3162,
-      "y": 3398,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458522
-    },
-    {
       "x": 3143,
       "y": 3495,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757024637154
+    },
+    {
+      "x": 3194,
+      "y": 3367,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3302,
+      "y": 3417,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3203,
+      "y": 3357,
+      "plane": 0,
+      "name": "Willow tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3128,
+      "y": 3512,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757096041874
     },
     {
       "x": 3129,
@@ -1331,11 +1163,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3099,
-      "y": 3401,
+      "x": 3306,
+      "y": 3389,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030032969
+      "name": "Tree",
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3141,
@@ -1352,18 +1184,11 @@
       "discoveredAt": 1757021458523
     },
     {
-      "x": 3122,
-      "y": 3363,
+      "x": 3297,
+      "y": 3434,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3135,
-      "y": 3359,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3105,
@@ -1373,11 +1198,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3167,
-      "y": 3380,
+      "x": 3271,
+      "y": 3371,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757093549386
     },
     {
       "x": 3278,
@@ -1387,18 +1212,18 @@
       "discoveredAt": 1757022295386
     },
     {
-      "x": 3127,
-      "y": 3380,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3129,
-      "y": 3505,
+      "x": 3314,
+      "y": 3368,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757024637152
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3235,
+      "y": 3516,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3191,
@@ -1415,13 +1240,6 @@
       "discoveredAt": 1757030032969
     },
     {
-      "x": 3159,
-      "y": 3401,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725071
-    },
-    {
       "x": 3099,
       "y": 3383,
       "plane": 0,
@@ -1429,11 +1247,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3094,
-      "y": 3383,
+      "x": 3296,
+      "y": 3423,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3103,
@@ -1441,6 +1259,13 @@
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3248,
+      "y": 3374,
+      "plane": 0,
+      "name": "Dying tree",
+      "discoveredAt": 1757093549386
     },
     {
       "x": 3106,
@@ -1464,18 +1289,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3166,
-      "y": 3406,
+      "x": 3116,
+      "y": 3527,
       "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458522
-    },
-    {
-      "x": 3101,
-      "y": 3388,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Oak tree",
+      "discoveredAt": 1757096041872
     },
     {
       "x": 3128,
@@ -1492,6 +1310,13 @@
       "discoveredAt": 1757030156240
     },
     {
+      "x": 3191,
+      "y": 3545,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757089489516
+    },
+    {
       "x": 3098,
       "y": 3374,
       "plane": 0,
@@ -1506,25 +1331,18 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3273,
-      "y": 3480,
+      "x": 3295,
+      "y": 3449,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757022295385
+      "discoveredAt": 1757091076467
     },
     {
-      "x": 3132,
-      "y": 3503,
+      "x": 3208,
+      "y": 3514,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757024637153
-    },
-    {
-      "x": 3142,
-      "y": 3399,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725070
+      "discoveredAt": 1757089489516
     },
     {
       "x": 3274,
@@ -1548,11 +1366,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3104,
-      "y": 3384,
+      "x": 3296,
+      "y": 3459,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3137,
@@ -1562,11 +1380,25 @@
       "discoveredAt": 1757023725070
     },
     {
-      "x": 3131,
-      "y": 3353,
+      "x": 3280,
+      "y": 3431,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Oak tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3086,
+      "y": 3526,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757096654416
+    },
+    {
+      "x": 3197,
+      "y": 3364,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093961156
     },
     {
       "x": 3096,
@@ -1576,60 +1408,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3117,
-      "y": 3381,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3127,
-      "y": 3381,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3170,
-      "y": 3378,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3094,
-      "y": 3384,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3132,
-      "y": 3433,
-      "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757024637153
-    },
-    {
       "x": 3089,
       "y": 3384,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3163,
-      "y": 3409,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458522
-    },
-    {
-      "x": 3258,
-      "y": 3468,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458524
     },
     {
       "x": 3101,
@@ -1639,15 +1422,15 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3141,
-      "y": 3498,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757024637154
-    },
-    {
       "x": 3130,
       "y": 3366,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3115,
+      "y": 3383,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
@@ -1660,20 +1443,6 @@
       "discoveredAt": 1757029682987
     },
     {
-      "x": 3115,
-      "y": 3383,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3110,
-      "y": 3383,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3089,
       "y": 3355,
       "plane": 0,
@@ -1681,18 +1450,18 @@
       "discoveredAt": 1757030156240
     },
     {
+      "x": 3295,
+      "y": 3489,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757090377619
+    },
+    {
       "x": 3120,
       "y": 3505,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3166,
-      "y": 3377,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757030156240
     },
     {
       "x": 3140,
@@ -1709,25 +1478,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3125,
-      "y": 3505,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757029682987
-    },
-    {
       "x": 3119,
       "y": 3425,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3188,
-      "y": 3502,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757024637157
     },
     {
       "x": 3120,
@@ -1744,25 +1499,18 @@
       "discoveredAt": 1757029682987
     },
     {
+      "x": 3247,
+      "y": 3509,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
       "x": 3098,
       "y": 3379,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3160,
-      "y": 3383,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3193,
-      "y": 3484,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458523
     },
     {
       "x": 3116,
@@ -1779,18 +1527,18 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3120,
-      "y": 3452,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3162,
-      "y": 3369,
+      "x": 3266,
+      "y": 3499,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3317,
+      "y": 3371,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549388
     },
     {
       "x": 3125,
@@ -1807,18 +1555,18 @@
       "discoveredAt": 1757030156240
     },
     {
+      "x": 3301,
+      "y": 3447,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
       "x": 3140,
       "y": 3435,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757023725070
-    },
-    {
-      "x": 3132,
-      "y": 3369,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
     },
     {
       "x": 3183,
@@ -1863,27 +1611,6 @@
       "discoveredAt": 1757030032969
     },
     {
-      "x": 3100,
-      "y": 3384,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3113,
-      "y": 3381,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3272,
-      "y": 3476,
-      "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757022295385
-    },
-    {
       "x": 3118,
       "y": 3381,
       "plane": 0,
@@ -1891,25 +1618,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3095,
-      "y": 3367,
+      "x": 3291,
+      "y": 3379,
       "plane": 0,
       "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3141,
-      "y": 3395,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725070
-    },
-    {
-      "x": 3266,
-      "y": 3483,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757022295384
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3102,
@@ -1926,32 +1639,25 @@
       "discoveredAt": 1757021458524
     },
     {
-      "x": 3130,
-      "y": 3488,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757024637153
-    },
-    {
-      "x": 3132,
-      "y": 3370,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3166,
-      "y": 3412,
-      "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757021458522
-    },
-    {
       "x": 3133,
       "y": 3363,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3313,
+      "y": 3365,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3315,
+      "y": 3386,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549388
     },
     {
       "x": 3124,
@@ -1968,18 +1674,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3123,
-      "y": 3450,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3170,
-      "y": 3454,
+      "x": 3204,
+      "y": 3374,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458522
+      "discoveredAt": 1757093961156
     },
     {
       "x": 3113,
@@ -1996,18 +1695,25 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3121,
-      "y": 3429,
+      "x": 3318,
+      "y": 3417,
       "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757029682987
+      "name": "Tree",
+      "discoveredAt": 1757093549388
     },
     {
-      "x": 3122,
-      "y": 3370,
+      "x": 3244,
+      "y": 3372,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Dying tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3268,
+      "y": 3518,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3171,
@@ -2017,13 +1723,6 @@
       "discoveredAt": 1757021458522
     },
     {
-      "x": 3106,
-      "y": 3374,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3117,
       "y": 3506,
       "plane": 0,
@@ -2031,39 +1730,11 @@
       "discoveredAt": 1757029682987
     },
     {
-      "x": 3122,
-      "y": 3367,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3168,
-      "y": 3430,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458522
-    },
-    {
       "x": 3089,
       "y": 3457,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757030032960
-    },
-    {
-      "x": 3132,
-      "y": 3437,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757024637153
-    },
-    {
-      "x": 3241,
-      "y": 3462,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458524
     },
     {
       "x": 3168,
@@ -2092,6 +1763,2701 @@
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3250,
+      "y": 3365,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3164,
+      "y": 3510,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757024637155
+    },
+    {
+      "x": 3124,
+      "y": 3509,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3243,
+      "y": 3361,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093961157
+    },
+    {
+      "x": 3312,
+      "y": 3386,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3163,
+      "y": 3360,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3167,
+      "y": 3367,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3128,
+      "y": 3377,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3120,
+      "y": 3363,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3167,
+      "y": 3402,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3144,
+      "y": 3440,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3201,
+      "y": 3409,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3300,
+      "y": 3365,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3128,
+      "y": 3448,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3127,
+      "y": 3438,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3120,
+      "y": 3365,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3264,
+      "y": 3373,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3306,
+      "y": 3429,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3303,
+      "y": 3363,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3264,
+      "y": 3512,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3117,
+      "y": 3403,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757030032969
+    },
+    {
+      "x": 3095,
+      "y": 3382,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3155,
+      "y": 3452,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3208,
+      "y": 3518,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489516
+    },
+    {
+      "x": 3222,
+      "y": 3421,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3101,
+      "y": 3409,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757030032969
+    },
+    {
+      "x": 3118,
+      "y": 3378,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3128,
+      "y": 3378,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3082,
+      "y": 3454,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757096654415
+    },
+    {
+      "x": 3241,
+      "y": 3515,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3090,
+      "y": 3503,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757096654416
+    },
+    {
+      "x": 3161,
+      "y": 3410,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3094,
+      "y": 3371,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3141,
+      "y": 3375,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3224,
+      "y": 3511,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489516
+    },
+    {
+      "x": 3315,
+      "y": 3453,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3308,
+      "y": 3380,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3224,
+      "y": 3413,
+      "plane": 0,
+      "name": "Dying tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3240,
+      "y": 3441,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458524
+    },
+    {
+      "x": 3104,
+      "y": 3377,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3204,
+      "y": 3517,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489516
+    },
+    {
+      "x": 3177,
+      "y": 3513,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489515
+    },
+    {
+      "x": 3304,
+      "y": 3414,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3120,
+      "y": 3370,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3163,
+      "y": 3367,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3268,
+      "y": 3490,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3309,
+      "y": 3431,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3131,
+      "y": 3381,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3263,
+      "y": 3368,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3230,
+      "y": 3510,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757024637159
+    },
+    {
+      "x": 3195,
+      "y": 3458,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3096,
+      "y": 3398,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030032969
+    },
+    {
+      "x": 3123,
+      "y": 3367,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3090,
+      "y": 3370,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3111,
+      "y": 3450,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3167,
+      "y": 3409,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3224,
+      "y": 3517,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757089489516
+    },
+    {
+      "x": 3159,
+      "y": 3395,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3098,
+      "y": 3384,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3312,
+      "y": 3462,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3111,
+      "y": 3380,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3168,
+      "y": 3384,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3143,
+      "y": 3401,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3123,
+      "y": 3366,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3194,
+      "y": 3516,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489516
+    },
+    {
+      "x": 3236,
+      "y": 3503,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089583829
+    },
+    {
+      "x": 3095,
+      "y": 3387,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3316,
+      "y": 3434,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3093,
+      "y": 3366,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3311,
+      "y": 3382,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3143,
+      "y": 3436,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3089,
+      "y": 3359,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3187,
+      "y": 3478,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3138,
+      "y": 3420,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725070
+    },
+    {
+      "x": 3114,
+      "y": 3378,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3233,
+      "y": 3508,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089583828
+    },
+    {
+      "x": 3308,
+      "y": 3422,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3274,
+      "y": 3449,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757022295385
+    },
+    {
+      "x": 3301,
+      "y": 3453,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3272,
+      "y": 3463,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757022295385
+    },
+    {
+      "x": 3133,
+      "y": 3368,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3254,
+      "y": 3518,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3115,
+      "y": 3388,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3107,
+      "y": 3374,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3302,
+      "y": 3463,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3277,
+      "y": 3480,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757022295386
+    },
+    {
+      "x": 3097,
+      "y": 3374,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3143,
+      "y": 3541,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757089489515
+    },
+    {
+      "x": 3117,
+      "y": 3374,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3128,
+      "y": 3454,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3137,
+      "y": 3409,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023375299
+    },
+    {
+      "x": 3217,
+      "y": 3375,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549364
+    },
+    {
+      "x": 3127,
+      "y": 3444,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3203,
+      "y": 3368,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3145,
+      "y": 3458,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3118,
+      "y": 3489,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3177,
+      "y": 3375,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3246,
+      "y": 3365,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3105,
+      "y": 3388,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3236,
+      "y": 3365,
+      "plane": 0,
+      "name": "Dying tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3264,
+      "y": 3518,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3091,
+      "y": 3381,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3122,
+      "y": 3493,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3120,
+      "y": 3368,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3229,
+      "y": 3463,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458524
+    },
+    {
+      "x": 3215,
+      "y": 3456,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3137,
+      "y": 3441,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725070
+    },
+    {
+      "x": 3142,
+      "y": 3493,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725070
+    },
+    {
+      "x": 3311,
+      "y": 3415,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3131,
+      "y": 3483,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757024637153
+    },
+    {
+      "x": 3104,
+      "y": 3375,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3237,
+      "y": 3442,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458524
+    },
+    {
+      "x": 3282,
+      "y": 3425,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3121,
+      "y": 3448,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3114,
+      "y": 3375,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3306,
+      "y": 3432,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3314,
+      "y": 3446,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3125,
+      "y": 3489,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3214,
+      "y": 3445,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3135,
+      "y": 3489,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757024637153
+    },
+    {
+      "x": 3273,
+      "y": 3470,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757022295385
+    },
+    {
+      "x": 3314,
+      "y": 3411,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3089,
+      "y": 3357,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3132,
+      "y": 3354,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3121,
+      "y": 3378,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3251,
+      "y": 3518,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3171,
+      "y": 3380,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3118,
+      "y": 3383,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3308,
+      "y": 3385,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3146,
+      "y": 3397,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3095,
+      "y": 3386,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3153,
+      "y": 3470,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3310,
+      "y": 3406,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3147,
+      "y": 3512,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489515
+    },
+    {
+      "x": 3212,
+      "y": 3356,
+      "plane": 0,
+      "name": "Willow tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3255,
+      "y": 3353,
+      "plane": 0,
+      "name": "Willow tree",
+      "discoveredAt": 1757093961158
+    },
+    {
+      "x": 3317,
+      "y": 3444,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3274,
+      "y": 3447,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757022295385
+    },
+    {
+      "x": 3108,
+      "y": 3383,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3123,
+      "y": 3504,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3102,
+      "y": 3389,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3140,
+      "y": 3438,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725070
+    },
+    {
+      "x": 3250,
+      "y": 3509,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3126,
+      "y": 3362,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3202,
+      "y": 3529,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489516
+    },
+    {
+      "x": 3111,
+      "y": 3379,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3297,
+      "y": 3478,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3082,
+      "y": 3528,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757097503189
+    },
+    {
+      "x": 3233,
+      "y": 3407,
+      "plane": 0,
+      "name": "Dying tree",
+      "discoveredAt": 1757021458524
+    },
+    {
+      "x": 3266,
+      "y": 3508,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3210,
+      "y": 3445,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3282,
+      "y": 3432,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3155,
+      "y": 3531,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489515
+    },
+    {
+      "x": 3094,
+      "y": 3381,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3133,
+      "y": 3371,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3239,
+      "y": 3504,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757089583829
+    },
+    {
+      "x": 3262,
+      "y": 3362,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3141,
+      "y": 3420,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725070
+    },
+    {
+      "x": 3209,
+      "y": 3365,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3168,
+      "y": 3389,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3110,
+      "y": 3444,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3206,
+      "y": 3368,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3124,
+      "y": 3381,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3097,
+      "y": 3516,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757096654416
+    },
+    {
+      "x": 3155,
+      "y": 3461,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3101,
+      "y": 3384,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3105,
+      "y": 3391,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3218,
+      "y": 3528,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757089489516
+    },
+    {
+      "x": 3091,
+      "y": 3384,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3107,
+      "y": 3447,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757029682981
+    },
+    {
+      "x": 3186,
+      "y": 3368,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3100,
+      "y": 3374,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3165,
+      "y": 3392,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3313,
+      "y": 3407,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3301,
+      "y": 3421,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3142,
+      "y": 3362,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3137,
+      "y": 3414,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757024637153
+    },
+    {
+      "x": 3283,
+      "y": 3478,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3102,
+      "y": 3431,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030032969
+    },
+    {
+      "x": 3276,
+      "y": 3440,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757022295386
+    },
+    {
+      "x": 3127,
+      "y": 3379,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3309,
+      "y": 3367,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3312,
+      "y": 3433,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3200,
+      "y": 3411,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3299,
+      "y": 3471,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3306,
+      "y": 3440,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3310,
+      "y": 3447,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3103,
+      "y": 3511,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757096654416
+    },
+    {
+      "x": 3092,
+      "y": 3431,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030032969
+    },
+    {
+      "x": 3249,
+      "y": 3505,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3236,
+      "y": 3439,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458524
+    },
+    {
+      "x": 3133,
+      "y": 3441,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757024637153
+    },
+    {
+      "x": 3173,
+      "y": 3546,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757089489515
+    },
+    {
+      "x": 3311,
+      "y": 3422,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3307,
+      "y": 3415,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3302,
+      "y": 3467,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3138,
+      "y": 3424,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725070
+    },
+    {
+      "x": 3196,
+      "y": 3369,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3100,
+      "y": 3375,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3098,
+      "y": 3386,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3102,
+      "y": 3393,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030032969
+    },
+    {
+      "x": 3139,
+      "y": 3362,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3306,
+      "y": 3437,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3086,
+      "y": 3469,
+      "plane": 0,
+      "name": "Yew tree",
+      "discoveredAt": 1757096654416
+    },
+    {
+      "x": 3229,
+      "y": 3467,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458524
+    },
+    {
+      "x": 3315,
+      "y": 3461,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3294,
+      "y": 3485,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757090377619
+    },
+    {
+      "x": 3102,
+      "y": 3428,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030032969
+    },
+    {
+      "x": 3143,
+      "y": 3404,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757023725070
+    },
+    {
+      "x": 3314,
+      "y": 3416,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3111,
+      "y": 3487,
+      "plane": 0,
+      "name": "Willow tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3247,
+      "y": 3516,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3152,
+      "y": 3463,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3292,
+      "y": 3499,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757090377619
+    },
+    {
+      "x": 3105,
+      "y": 3389,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3097,
+      "y": 3375,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3117,
+      "y": 3410,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3107,
+      "y": 3375,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3118,
+      "y": 3455,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3111,
+      "y": 3382,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3266,
+      "y": 3505,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3240,
+      "y": 3373,
+      "plane": 0,
+      "name": "Dying tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3168,
+      "y": 3421,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3120,
+      "y": 3372,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3301,
+      "y": 3384,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3277,
+      "y": 3448,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757022295386
+    },
+    {
+      "x": 3087,
+      "y": 3446,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757096654416
+    },
+    {
+      "x": 3148,
+      "y": 3457,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3214,
+      "y": 3451,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3111,
+      "y": 3453,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3154,
+      "y": 3450,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3283,
+      "y": 3476,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3232,
+      "y": 3361,
+      "plane": 0,
+      "name": "Dying tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3162,
+      "y": 3395,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3310,
+      "y": 3410,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3107,
+      "y": 3377,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3132,
+      "y": 3360,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3118,
+      "y": 3457,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3309,
+      "y": 3365,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3091,
+      "y": 3383,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3230,
+      "y": 3513,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489517
+    },
+    {
+      "x": 3132,
+      "y": 3359,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3308,
+      "y": 3389,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3296,
+      "y": 3368,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3317,
+      "y": 3448,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3317,
+      "y": 3413,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3121,
+      "y": 3453,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3150,
+      "y": 3547,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757089489515
+    },
+    {
+      "x": 3097,
+      "y": 3411,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757030032969
+    },
+    {
+      "x": 3208,
+      "y": 3359,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3130,
+      "y": 3379,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3160,
+      "y": 3414,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3206,
+      "y": 3373,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3132,
+      "y": 3365,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3216,
+      "y": 3512,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489516
+    },
+    {
+      "x": 3107,
+      "y": 3382,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3286,
+      "y": 3478,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3223,
+      "y": 3411,
+      "plane": 0,
+      "name": "Dying tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3131,
+      "y": 3355,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3178,
+      "y": 3463,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3265,
+      "y": 3363,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3120,
+      "y": 3379,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3290,
+      "y": 3450,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757090377619
+    },
+    {
+      "x": 3129,
+      "y": 3368,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3219,
+      "y": 3369,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549385
+    },
+    {
+      "x": 3192,
+      "y": 3504,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757024637157
+    },
+    {
+      "x": 3145,
+      "y": 3500,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757024637154
+    },
+    {
+      "x": 3125,
+      "y": 3361,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3264,
+      "y": 3491,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3209,
+      "y": 3369,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3172,
+      "y": 3469,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3092,
+      "y": 3364,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3165,
+      "y": 3396,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3114,
+      "y": 3385,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3107,
+      "y": 3451,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3167,
+      "y": 3452,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3113,
+      "y": 3375,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3101,
+      "y": 3390,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3097,
+      "y": 3383,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3151,
+      "y": 3460,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3236,
+      "y": 3374,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3164,
+      "y": 3457,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3112,
+      "y": 3505,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3299,
+      "y": 3406,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3110,
+      "y": 3380,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3098,
+      "y": 3393,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030032969
+    },
+    {
+      "x": 3131,
+      "y": 3494,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757024637153
+    },
+    {
+      "x": 3283,
+      "y": 3482,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3133,
+      "y": 3480,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757024637153
+    },
+    {
+      "x": 3213,
+      "y": 3516,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489516
+    },
+    {
+      "x": 3094,
+      "y": 3386,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3302,
+      "y": 3437,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3164,
+      "y": 3387,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3233,
+      "y": 3377,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076466
+    },
+    {
+      "x": 3110,
+      "y": 3449,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3081,
+      "y": 3459,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757096654362
+    },
+    {
+      "x": 3120,
+      "y": 3449,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3139,
+      "y": 3404,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725070
+    },
+    {
+      "x": 3258,
+      "y": 3360,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093961158
+    },
+    {
+      "x": 3162,
+      "y": 3398,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3216,
+      "y": 3371,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3271,
+      "y": 3493,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3099,
+      "y": 3401,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030032969
+    },
+    {
+      "x": 3122,
+      "y": 3363,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3307,
+      "y": 3382,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3279,
+      "y": 3472,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3135,
+      "y": 3359,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3280,
+      "y": 3482,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3167,
+      "y": 3380,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3304,
+      "y": 3420,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3127,
+      "y": 3380,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3129,
+      "y": 3505,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757024637152
+    },
+    {
+      "x": 3159,
+      "y": 3401,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725071
+    },
+    {
+      "x": 3094,
+      "y": 3383,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3283,
+      "y": 3409,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757090377619
+    },
+    {
+      "x": 3111,
+      "y": 3527,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757097503189
+    },
+    {
+      "x": 3166,
+      "y": 3406,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3101,
+      "y": 3388,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3193,
+      "y": 3375,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3269,
+      "y": 3508,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3132,
+      "y": 3503,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757024637153
+    },
+    {
+      "x": 3273,
+      "y": 3480,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757022295385
+    },
+    {
+      "x": 3142,
+      "y": 3399,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725070
+    },
+    {
+      "x": 3291,
+      "y": 3494,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757090377619
+    },
+    {
+      "x": 3104,
+      "y": 3384,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3183,
+      "y": 3548,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757089489515
+    },
+    {
+      "x": 3131,
+      "y": 3353,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3266,
+      "y": 3372,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3300,
+      "y": 3414,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3090,
+      "y": 3516,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757096654416
+    },
+    {
+      "x": 3117,
+      "y": 3381,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3127,
+      "y": 3381,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3170,
+      "y": 3378,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3094,
+      "y": 3384,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3304,
+      "y": 3386,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3132,
+      "y": 3433,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757024637153
+    },
+    {
+      "x": 3163,
+      "y": 3409,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3258,
+      "y": 3468,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458524
+    },
+    {
+      "x": 3141,
+      "y": 3498,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757024637154
+    },
+    {
+      "x": 3264,
+      "y": 3496,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3110,
+      "y": 3383,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3166,
+      "y": 3377,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3125,
+      "y": 3505,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3290,
+      "y": 3489,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757090377619
+    },
+    {
+      "x": 3188,
+      "y": 3502,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757024637157
+    },
+    {
+      "x": 3160,
+      "y": 3383,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3193,
+      "y": 3484,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3305,
+      "y": 3402,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3269,
+      "y": 3374,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3315,
+      "y": 3437,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3120,
+      "y": 3452,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3162,
+      "y": 3369,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3302,
+      "y": 3475,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3312,
+      "y": 3440,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3164,
+      "y": 3529,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489515
+    },
+    {
+      "x": 3132,
+      "y": 3369,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3286,
+      "y": 3518,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3100,
+      "y": 3384,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3086,
+      "y": 3481,
+      "plane": 0,
+      "name": "Yew tree",
+      "discoveredAt": 1757096654416
+    },
+    {
+      "x": 3113,
+      "y": 3381,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3272,
+      "y": 3476,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757022295385
+    },
+    {
+      "x": 3095,
+      "y": 3367,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3283,
+      "y": 3417,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757090377619
+    },
+    {
+      "x": 3141,
+      "y": 3395,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757023725070
+    },
+    {
+      "x": 3266,
+      "y": 3483,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757022295384
+    },
+    {
+      "x": 3268,
+      "y": 3365,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3288,
+      "y": 3504,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757090377619
+    },
+    {
+      "x": 3130,
+      "y": 3488,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757024637153
+    },
+    {
+      "x": 3132,
+      "y": 3370,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3166,
+      "y": 3412,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3202,
+      "y": 3371,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3123,
+      "y": 3450,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3262,
+      "y": 3510,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3170,
+      "y": 3454,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3280,
+      "y": 3420,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3121,
+      "y": 3429,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757029682987
+    },
+    {
+      "x": 3122,
+      "y": 3370,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3106,
+      "y": 3374,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3122,
+      "y": 3367,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3298,
+      "y": 3397,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3168,
+      "y": 3430,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458522
+    },
+    {
+      "x": 3132,
+      "y": 3437,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757024637153
+    },
+    {
+      "x": 3241,
+      "y": 3462,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757021458524
+    },
+    {
+      "x": 3290,
+      "y": 3452,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757090377619
+    },
+    {
+      "x": 3301,
+      "y": 3428,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3161,
@@ -2136,13 +4502,6 @@
       "discoveredAt": 1757021458523
     },
     {
-      "x": 3164,
-      "y": 3510,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757024637155
-    },
-    {
       "x": 3096,
       "y": 3374,
       "plane": 0,
@@ -2150,11 +4509,18 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3124,
-      "y": 3509,
+      "x": 3314,
+      "y": 3459,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757029682987
+      "discoveredAt": 1757093549388
+    },
+    {
+      "x": 3306,
+      "y": 3445,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3197,
@@ -2162,6 +4528,13 @@
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757021458523
+    },
+    {
+      "x": 3289,
+      "y": 3476,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757090377619
     },
     {
       "x": 3123,
@@ -2178,29 +4551,15 @@
       "discoveredAt": 1757021458523
     },
     {
+      "x": 3098,
+      "y": 3533,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757097503189
+    },
+    {
       "x": 3094,
       "y": 3387,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3163,
-      "y": 3360,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3167,
-      "y": 3367,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3128,
-      "y": 3377,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
@@ -2227,13 +4586,6 @@
       "discoveredAt": 1757029682987
     },
     {
-      "x": 3120,
-      "y": 3363,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3142,
       "y": 3506,
       "plane": 0,
@@ -2248,20 +4600,6 @@
       "discoveredAt": 1757029682987
     },
     {
-      "x": 3144,
-      "y": 3440,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725071
-    },
-    {
-      "x": 3167,
-      "y": 3402,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458522
-    },
-    {
       "x": 3097,
       "y": 3384,
       "plane": 0,
@@ -2269,11 +4607,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3201,
-      "y": 3409,
+      "x": 3306,
+      "y": 3410,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458523
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3157,
@@ -2304,6 +4642,13 @@
       "discoveredAt": 1757030156240
     },
     {
+      "x": 3081,
+      "y": 3531,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757097503189
+    },
+    {
       "x": 3163,
       "y": 3379,
       "plane": 0,
@@ -2318,24 +4663,17 @@
       "discoveredAt": 1757029682987
     },
     {
+      "x": 3219,
+      "y": 3373,
+      "plane": 0,
+      "name": "Dying tree",
+      "discoveredAt": 1757093549385
+    },
+    {
       "x": 3118,
       "y": 3500,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3128,
-      "y": 3448,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3127,
-      "y": 3438,
-      "plane": 0,
-      "name": "Oak tree",
       "discoveredAt": 1757029682987
     },
     {
@@ -2344,13 +4682,6 @@
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757023725071
-    },
-    {
-      "x": 3120,
-      "y": 3365,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
     },
     {
       "x": 3129,
@@ -2367,18 +4698,18 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3117,
-      "y": 3403,
-      "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757030032969
-    },
-    {
       "x": 3100,
       "y": 3382,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3309,
+      "y": 3443,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3090,
@@ -2388,18 +4719,18 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3095,
-      "y": 3382,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3155,
-      "y": 3452,
+      "x": 3296,
+      "y": 3446,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757023725071
+      "discoveredAt": 1757091076467
+    },
+    {
+      "x": 3242,
+      "y": 3369,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
     },
     {
       "x": 3132,
@@ -2430,32 +4761,11 @@
       "discoveredAt": 1757021458524
     },
     {
-      "x": 3222,
-      "y": 3421,
+      "x": 3087,
+      "y": 3454,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458523
-    },
-    {
-      "x": 3101,
-      "y": 3409,
-      "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757030032969
-    },
-    {
-      "x": 3118,
-      "y": 3378,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3128,
-      "y": 3378,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757096654416
     },
     {
       "x": 3245,
@@ -2479,11 +4789,18 @@
       "discoveredAt": 1757029682987
     },
     {
-      "x": 3161,
-      "y": 3410,
+      "x": 3305,
+      "y": 3366,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458522
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3315,
+      "y": 3366,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549388
     },
     {
       "x": 3162,
@@ -2493,18 +4810,11 @@
       "discoveredAt": 1757021458522
     },
     {
-      "x": 3094,
-      "y": 3371,
+      "x": 3295,
+      "y": 3366,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3141,
-      "y": 3375,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3132,
@@ -2512,6 +4822,13 @@
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3238,
+      "y": 3362,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
     },
     {
       "x": 3197,
@@ -2528,25 +4845,11 @@
       "discoveredAt": 1757024637159
     },
     {
-      "x": 3224,
-      "y": 3413,
-      "plane": 0,
-      "name": "Dying tree",
-      "discoveredAt": 1757021458523
-    },
-    {
-      "x": 3240,
-      "y": 3441,
+      "x": 3276,
+      "y": 3417,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458524
-    },
-    {
-      "x": 3104,
-      "y": 3377,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757022295386
     },
     {
       "x": 3275,
@@ -2556,13 +4859,6 @@
       "discoveredAt": 1757022295385
     },
     {
-      "x": 3276,
-      "y": 3417,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757022295386
-    },
-    {
       "x": 3112,
       "y": 3443,
       "plane": 0,
@@ -2570,39 +4866,25 @@
       "discoveredAt": 1757029682987
     },
     {
-      "x": 3120,
-      "y": 3370,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3163,
-      "y": 3367,
+      "x": 3104,
+      "y": 3533,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757097503189
     },
     {
-      "x": 3131,
-      "y": 3381,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3230,
-      "y": 3510,
+      "x": 3267,
+      "y": 3358,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757024637159
+      "discoveredAt": 1757093961158
     },
     {
-      "x": 3195,
-      "y": 3458,
+      "x": 3305,
+      "y": 3407,
       "plane": 0,
-      "name": "Oak tree",
-      "discoveredAt": 1757021458523
+      "name": "Tree",
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3121,
@@ -2612,32 +4894,18 @@
       "discoveredAt": 1757029682987
     },
     {
-      "x": 3096,
-      "y": 3398,
+      "x": 3254,
+      "y": 3361,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030032969
+      "name": "Oak tree",
+      "discoveredAt": 1757093961157
     },
     {
-      "x": 3123,
-      "y": 3367,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3090,
-      "y": 3370,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3167,
-      "y": 3409,
+      "x": 3152,
+      "y": 3513,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458522
+      "discoveredAt": 1757089489515
     },
     {
       "x": 3153,
@@ -2645,13 +4913,6 @@
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757023725071
-    },
-    {
-      "x": 3111,
-      "y": 3450,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
     },
     {
       "x": 3120,
@@ -2668,13 +4929,6 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3159,
-      "y": 3395,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725071
-    },
-    {
       "x": 3163,
       "y": 3454,
       "plane": 0,
@@ -2682,11 +4936,18 @@
       "discoveredAt": 1757021458522
     },
     {
-      "x": 3098,
-      "y": 3384,
+      "x": 3122,
+      "y": 3512,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757096041873
+    },
+    {
+      "x": 3241,
+      "y": 3364,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549386
     },
     {
       "x": 3180,
@@ -2696,32 +4957,11 @@
       "discoveredAt": 1757021458522
     },
     {
-      "x": 3111,
-      "y": 3380,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3168,
-      "y": 3384,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3147,
       "y": 3356,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3143,
-      "y": 3401,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725071
     },
     {
       "x": 3126,
@@ -2731,6 +4971,13 @@
       "discoveredAt": 1757030156240
     },
     {
+      "x": 3210,
+      "y": 3527,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757089489516
+    },
+    {
       "x": 3144,
       "y": 3394,
       "plane": 0,
@@ -2738,25 +4985,11 @@
       "discoveredAt": 1757023725071
     },
     {
-      "x": 3123,
-      "y": 3366,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3229,
       "y": 3378,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757030285594
-    },
-    {
-      "x": 3095,
-      "y": 3387,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
     },
     {
       "x": 3129,
@@ -2773,18 +5006,18 @@
       "discoveredAt": 1757030032969
     },
     {
-      "x": 3093,
-      "y": 3366,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3110,
       "y": 3387,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3120,
+      "y": 3526,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757096041873
     },
     {
       "x": 3186,
@@ -2794,32 +5027,11 @@
       "discoveredAt": 1757021458523
     },
     {
-      "x": 3143,
-      "y": 3436,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725071
-    },
-    {
-      "x": 3089,
-      "y": 3359,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3276,
       "y": 3451,
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757022295386
-    },
-    {
-      "x": 3187,
-      "y": 3478,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458523
     },
     {
       "x": 3091,
@@ -2836,13 +5048,6 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3138,
-      "y": 3420,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725070
-    },
-    {
       "x": 3103,
       "y": 3385,
       "plane": 0,
@@ -2850,11 +5055,25 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3114,
-      "y": 3378,
+      "x": 3308,
+      "y": 3370,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3311,
+      "y": 3436,
       "plane": 0,
       "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757093549387
+    },
+    {
+      "x": 3275,
+      "y": 3512,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3113,
@@ -2864,11 +5083,25 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3274,
-      "y": 3449,
+      "x": 3247,
+      "y": 3359,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757022295385
+      "discoveredAt": 1757093961157
+    },
+    {
+      "x": 3201,
+      "y": 3365,
+      "plane": 0,
+      "name": "Oak tree",
+      "discoveredAt": 1757093961156
+    },
+    {
+      "x": 3291,
+      "y": 3470,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757090377619
     },
     {
       "x": 3093,
@@ -2878,46 +5111,18 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3272,
-      "y": 3463,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757022295385
-    },
-    {
-      "x": 3133,
-      "y": 3368,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3115,
-      "y": 3388,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3107,
-      "y": 3374,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3277,
-      "y": 3480,
+      "x": 3310,
+      "y": 3460,
       "plane": 0,
       "name": "Oak tree",
-      "discoveredAt": 1757022295386
+      "discoveredAt": 1757093549387
     },
     {
-      "x": 3097,
-      "y": 3374,
+      "x": 3259,
+      "y": 3518,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3163,
@@ -2934,25 +5139,18 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3128,
-      "y": 3454,
+      "x": 3235,
+      "y": 3511,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757029682987
+      "discoveredAt": 1757089625789
     },
     {
-      "x": 3117,
-      "y": 3374,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3137,
-      "y": 3409,
+      "x": 3311,
+      "y": 3366,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757023375299
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3126,
@@ -2976,11 +5174,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3127,
-      "y": 3444,
+      "x": 3288,
+      "y": 3473,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757029682987
+      "discoveredAt": 1757090377619
     },
     {
       "x": 3121,
@@ -2997,25 +5195,11 @@
       "discoveredAt": 1757021458523
     },
     {
-      "x": 3145,
-      "y": 3458,
+      "x": 3298,
+      "y": 3473,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757023725071
-    },
-    {
-      "x": 3118,
-      "y": 3489,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3177,
-      "y": 3375,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3096,
@@ -3025,39 +5209,25 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3105,
-      "y": 3388,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3091,
-      "y": 3381,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3122,
-      "y": 3493,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3120,
-      "y": 3368,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3229,
-      "y": 3463,
+      "x": 3268,
+      "y": 3505,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458524
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3285,
+      "y": 3474,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3313,
+      "y": 3384,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3118,
@@ -3081,53 +5251,11 @@
       "discoveredAt": 1757022295385
     },
     {
-      "x": 3215,
-      "y": 3456,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458523
-    },
-    {
-      "x": 3137,
-      "y": 3441,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725070
-    },
-    {
-      "x": 3142,
-      "y": 3493,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725070
-    },
-    {
       "x": 3095,
       "y": 3368,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3131,
-      "y": 3483,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757024637153
-    },
-    {
-      "x": 3104,
-      "y": 3375,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3237,
-      "y": 3442,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757021458524
     },
     {
       "x": 3110,
@@ -3151,20 +5279,6 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3121,
-      "y": 3448,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
-    },
-    {
-      "x": 3114,
-      "y": 3375,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3123,
       "y": 3382,
       "plane": 0,
@@ -3172,32 +5286,25 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3125,
-      "y": 3489,
+      "x": 3258,
+      "y": 3366,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757029682987
+      "name": "Oak tree",
+      "discoveredAt": 1757093549386
     },
     {
-      "x": 3214,
-      "y": 3445,
+      "x": 3267,
+      "y": 3494,
+      "plane": 0,
+      "name": "Yew tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3255,
+      "y": 3369,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757021458523
-    },
-    {
-      "x": 3135,
-      "y": 3489,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757024637153
-    },
-    {
-      "x": 3273,
-      "y": 3470,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757022295385
+      "discoveredAt": 1757093549386
     },
     {
       "x": 3099,
@@ -3214,6 +5321,13 @@
       "discoveredAt": 1757030156240
     },
     {
+      "x": 3216,
+      "y": 3518,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489516
+    },
+    {
       "x": 3093,
       "y": 3381,
       "plane": 0,
@@ -3221,25 +5335,32 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3089,
-      "y": 3357,
+      "x": 3255,
+      "y": 3508,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
-      "x": 3132,
-      "y": 3354,
+      "x": 3301,
+      "y": 3432,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757091076467
     },
     {
-      "x": 3121,
-      "y": 3378,
+      "x": 3252,
+      "y": 3511,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757089625789
+    },
+    {
+      "x": 3298,
+      "y": 3470,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757091076467
     },
     {
       "x": 3142,
@@ -3249,6 +5370,13 @@
       "discoveredAt": 1757023725070
     },
     {
+      "x": 3159,
+      "y": 3550,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757089489515
+    },
+    {
       "x": 3139,
       "y": 3411,
       "plane": 0,
@@ -3256,18 +5384,11 @@
       "discoveredAt": 1757023725070
     },
     {
-      "x": 3171,
-      "y": 3380,
+      "x": 3219,
+      "y": 3516,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3118,
-      "y": 3383,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757089489516
     },
     {
       "x": 3123,
@@ -3298,13 +5419,6 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3146,
-      "y": 3397,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757023725071
-    },
-    {
       "x": 3090,
       "y": 3386,
       "plane": 0,
@@ -3319,13 +5433,6 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3095,
-      "y": 3386,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
       "x": 3223,
       "y": 3419,
       "plane": 0,
@@ -3333,11 +5440,11 @@
       "discoveredAt": 1757021458523
     },
     {
-      "x": 3153,
-      "y": 3470,
+      "x": 3311,
+      "y": 3364,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757023725071
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3110,
@@ -3347,11 +5454,11 @@
       "discoveredAt": 1757029682987
     },
     {
-      "x": 3112,
-      "y": 3442,
+      "x": 3304,
+      "y": 3430,
       "plane": 0,
       "name": "Dead tree",
-      "discoveredAt": 1757029682987
+      "discoveredAt": 1757093549387
     },
     {
       "x": 3113,
@@ -3361,18 +5468,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3274,
-      "y": 3447,
-      "plane": 0,
-      "name": "Tree",
-      "discoveredAt": 1757022295385
-    },
-    {
-      "x": 3108,
-      "y": 3383,
+      "x": 3112,
+      "y": 3442,
       "plane": 0,
       "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "discoveredAt": 1757029682987
     },
     {
       "x": 3138,
@@ -3389,11 +5489,18 @@
       "discoveredAt": 1757021458522
     },
     {
-      "x": 3123,
-      "y": 3504,
+      "x": 3245,
+      "y": 3370,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757029682987
+      "discoveredAt": 1757093549386
+    },
+    {
+      "x": 3202,
+      "y": 3373,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757093961156
     },
     {
       "x": 3126,
@@ -3403,11 +5510,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3102,
-      "y": 3389,
+      "x": 3212,
+      "y": 3512,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757089489516
     },
     {
       "x": 3162,
@@ -3417,22 +5524,15 @@
       "discoveredAt": 1757021458522
     },
     {
-      "x": 3140,
-      "y": 3438,
+      "x": 3202,
+      "y": 3512,
       "plane": 0,
       "name": "Tree",
-      "discoveredAt": 1757023725070
+      "discoveredAt": 1757089489516
     },
     {
       "x": 3135,
       "y": 3369,
-      "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
-    },
-    {
-      "x": 3126,
-      "y": 3362,
       "plane": 0,
       "name": "Dead tree",
       "discoveredAt": 1757030156240
@@ -3445,11 +5545,11 @@
       "discoveredAt": 1757030156240
     },
     {
-      "x": 3111,
-      "y": 3379,
+      "x": 3271,
+      "y": 3502,
       "plane": 0,
-      "name": "Dead tree",
-      "discoveredAt": 1757030156240
+      "name": "Tree",
+      "discoveredAt": 1757089625789
     },
     {
       "x": 3163,
@@ -3457,108 +5557,499 @@
       "plane": 0,
       "name": "Tree",
       "discoveredAt": 1757030156240
+    },
+    {
+      "x": 3187,
+      "y": 3529,
+      "plane": 0,
+      "name": "Tree",
+      "discoveredAt": 1757089489515
+    },
+    {
+      "x": 3209,
+      "y": 3550,
+      "plane": 0,
+      "name": "Dead tree",
+      "discoveredAt": 1757089489516
     }
   ],
   "depletedTrees": [
     {
       "plane": 0,
+      "x": 3187,
+      "y": 3396,
+      "until": 1757096045123
+    },
+    {
+      "plane": 0,
+      "x": 3290,
+      "y": 3446,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3120,
+      "y": 3505,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
       "x": 3238,
       "y": 3476,
-      "until": 1757024185303
+      "until": 1757091309764
     },
     {
       "plane": 0,
-      "x": 3151,
-      "y": 3438,
-      "until": 1757030497306
+      "x": 3161,
+      "y": 3402,
+      "until": 1757097211666
     },
     {
       "plane": 0,
-      "x": 3237,
-      "y": 3488,
-      "until": 1757024185303
-    },
-    {
-      "plane": 1,
-      "x": 3237,
-      "y": 3485,
-      "until": 1757024185303
+      "x": 3107,
+      "y": 3395,
+      "until": 1757095446921
     },
     {
       "plane": 0,
-      "x": 3185,
-      "y": 3394,
-      "until": 1757030497306
+      "x": 3293,
+      "y": 3407,
+      "until": 1757093964467
     },
     {
       "plane": 0,
-      "x": 3237,
-      "y": 3485,
-      "until": 1757024185303
+      "x": 3157,
+      "y": 3430,
+      "until": 1757099839630
     },
     {
       "plane": 0,
       "x": 3274,
       "y": 3445,
-      "until": 1757022422850
+      "until": 1757094008811
+    },
+    {
+      "plane": 0,
+      "x": 3155,
+      "y": 3454,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3295,
+      "y": 3438,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3185,
+      "y": 3393,
+      "until": 1757096045123
+    },
+    {
+      "plane": 0,
+      "x": 3226,
+      "y": 3517,
+      "until": 1757089741541
+    },
+    {
+      "plane": 0,
+      "x": 3253,
+      "y": 3460,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3273,
+      "y": 3373,
+      "until": 1757094008810
+    },
+    {
+      "plane": 0,
+      "x": 3282,
+      "y": 3493,
+      "until": 1757090426405
+    },
+    {
+      "plane": 0,
+      "x": 3151,
+      "y": 3438,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3277,
+      "y": 3493,
+      "until": 1757090426404
+    },
+    {
+      "plane": 0,
+      "x": 3239,
+      "y": 3470,
+      "until": 1757091309764
+    },
+    {
+      "plane": 0,
+      "x": 3161,
+      "y": 3412,
+      "until": 1757097476828
     },
     {
       "plane": 0,
       "x": 3267,
       "y": 3473,
-      "until": 1757022422850
+      "until": 1757091309769
+    },
+    {
+      "plane": 0,
+      "x": 3299,
+      "y": 3390,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3294,
+      "y": 3398,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3286,
+      "y": 3497,
+      "until": 1757090426405
+    },
+    {
+      "plane": 0,
+      "x": 3145,
+      "y": 3355,
+      "until": 1757095446921
     },
     {
       "plane": 0,
       "x": 3213,
       "y": 3482,
-      "until": 1757029601490
+      "until": 1757097211666
     },
     {
       "plane": 1,
       "x": 3213,
       "y": 3482,
-      "until": 1757029601497
+      "until": 1757097211666
+    },
+    {
+      "plane": 0,
+      "x": 3157,
+      "y": 3454,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3304,
+      "y": 3391,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3186,
+      "y": 3393,
+      "until": 1757096045123
+    },
+    {
+      "plane": 0,
+      "x": 3276,
+      "y": 3368,
+      "until": 1757094008811
+    },
+    {
+      "plane": 0,
+      "x": 3253,
+      "y": 3380,
+      "until": 1757094008810
+    },
+    {
+      "plane": 0,
+      "x": 3155,
+      "y": 3452,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3297,
+      "y": 3387,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3261,
+      "y": 3463,
+      "until": 1757091309769
+    },
+    {
+      "plane": 0,
+      "x": 3115,
+      "y": 3425,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3152,
+      "y": 3452,
+      "until": 1757099839630
     },
     {
       "plane": 1,
-      "x": 3236,
-      "y": 3486,
-      "until": 1757024185303
+      "x": 3282,
+      "y": 3497,
+      "until": 1757090426405
+    },
+    {
+      "plane": 0,
+      "x": 3162,
+      "y": 3409,
+      "until": 1757097476828
+    },
+    {
+      "plane": 0,
+      "x": 3153,
+      "y": 3454,
+      "until": 1757099839630
     },
     {
       "plane": 0,
       "x": 3253,
       "y": 3385,
-      "until": 1757022422850
+      "until": 1757094008810
     },
     {
-      "plane": 1,
-      "x": 3236,
-      "y": 3487,
-      "until": 1757024185303
+      "plane": 0,
+      "x": 3198,
+      "y": 3549,
+      "until": 1757089588583
+    },
+    {
+      "plane": 0,
+      "x": 3183,
+      "y": 3393,
+      "until": 1757096045123
+    },
+    {
+      "plane": 0,
+      "x": 3148,
+      "y": 3462,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3277,
+      "y": 3498,
+      "until": 1757090426404
+    },
+    {
+      "plane": 0,
+      "x": 3129,
+      "y": 3439,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3282,
+      "y": 3498,
+      "until": 1757090426405
+    },
+    {
+      "plane": 0,
+      "x": 3151,
+      "y": 3408,
+      "until": 1757097211666
+    },
+    {
+      "plane": 0,
+      "x": 3300,
+      "y": 3382,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3159,
+      "y": 3431,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3164,
+      "y": 3431,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3187,
+      "y": 3393,
+      "until": 1757096045123
+    },
+    {
+      "plane": 0,
+      "x": 3122,
+      "y": 3427,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3161,
+      "y": 3451,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3133,
+      "y": 3480,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3164,
+      "y": 3404,
+      "until": 1757097211666
+    },
+    {
+      "plane": 0,
+      "x": 3184,
+      "y": 3396,
+      "until": 1757096045123
+    },
+    {
+      "plane": 0,
+      "x": 3143,
+      "y": 3550,
+      "until": 1757089588583
+    },
+    {
+      "plane": 0,
+      "x": 3131,
+      "y": 3477,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3124,
+      "y": 3430,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3081,
+      "y": 3459,
+      "until": 0
     },
     {
       "plane": 0,
       "x": 3278,
       "y": 3401,
-      "until": 1757022422850
+      "until": 1757094008811
+    },
+    {
+      "plane": 0,
+      "x": 3143,
+      "y": 3495,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3300,
+      "y": 3387,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3301,
+      "y": 3389,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3122,
+      "y": 3441,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3161,
+      "y": 3405,
+      "until": 1757097211666
+    },
+    {
+      "plane": 0,
+      "x": 3289,
+      "y": 3394,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3253,
+      "y": 3461,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3185,
+      "y": 3394,
+      "until": 1757096045123
+    },
+    {
+      "plane": 0,
+      "x": 3145,
+      "y": 3368,
+      "until": 1757095446921
+    },
+    {
+      "plane": 0,
+      "x": 3289,
+      "y": 3402,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3305,
+      "y": 3458,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3296,
+      "y": 3390,
+      "until": 1757093964467
+    },
+    {
+      "plane": 0,
+      "x": 3155,
+      "y": 3447,
+      "until": 1757099839630
+    },
+    {
+      "plane": 0,
+      "x": 3271,
+      "y": 3363,
+      "until": 1757094008810
+    },
+    {
+      "plane": 0,
+      "x": 3286,
+      "y": 3502,
+      "until": 1757090426405
+    },
+    {
+      "plane": 0,
+      "x": 3285,
+      "y": 3483,
+      "until": 1757090426405
     }
   ],
   "banks": [
     {
-      "x": 3186,
-      "y": 3438,
+      "x": 3252,
+      "y": 3419,
       "plane": 0,
       "name": "Bank booth",
-      "discoveredAt": 1757023727454
-    },
-    {
-      "x": 3147,
-      "y": 3449,
-      "plane": 0,
-      "name": "Bank booth",
-      "discoveredAt": 1757023727452
+      "discoveredAt": 1757091041864
     },
     {
       "x": 3186,
@@ -3568,18 +6059,25 @@
       "discoveredAt": 1757023727454
     },
     {
-      "x": 3095,
-      "y": 3489,
+      "x": 3256,
+      "y": 3419,
       "plane": 0,
       "name": "Bank booth",
-      "discoveredAt": 1757030522289
+      "discoveredAt": 1757091041867
     },
     {
-      "x": 3186,
-      "y": 3440,
+      "x": 3255,
+      "y": 3419,
       "plane": 0,
       "name": "Bank booth",
-      "discoveredAt": 1757023727454
+      "discoveredAt": 1757091041867
+    },
+    {
+      "x": 3096,
+      "y": 3493,
+      "plane": 0,
+      "name": "Bank booth",
+      "discoveredAt": 1757096947453
     },
     {
       "x": 3180,
@@ -3587,6 +6085,13 @@
       "plane": 0,
       "name": "Bank Deposit Box",
       "discoveredAt": 1757022419955
+    },
+    {
+      "x": 3186,
+      "y": 3444,
+      "plane": 0,
+      "name": "Bank booth",
+      "discoveredAt": 1757023727454
     },
     {
       "x": 3174,
@@ -3597,10 +6102,66 @@
     },
     {
       "x": 3186,
-      "y": 3444,
+      "y": 3438,
       "plane": 0,
       "name": "Bank booth",
       "discoveredAt": 1757023727454
+    },
+    {
+      "x": 3254,
+      "y": 3419,
+      "plane": 0,
+      "name": "Bank booth",
+      "discoveredAt": 1757091041867
+    },
+    {
+      "x": 3147,
+      "y": 3449,
+      "plane": 0,
+      "name": "Bank booth",
+      "discoveredAt": 1757023727452
+    },
+    {
+      "x": 3095,
+      "y": 3489,
+      "plane": 0,
+      "name": "Bank booth",
+      "discoveredAt": 1757030522289
+    },
+    {
+      "x": 3095,
+      "y": 3491,
+      "plane": 0,
+      "name": "Bank booth",
+      "discoveredAt": 1757096947452
+    },
+    {
+      "x": 3186,
+      "y": 3440,
+      "plane": 0,
+      "name": "Bank booth",
+      "discoveredAt": 1757023727454
+    },
+    {
+      "x": 3253,
+      "y": 3419,
+      "plane": 0,
+      "name": "Bank booth",
+      "discoveredAt": 1757091041867
+    },
+    {
+      "x": 3098,
+      "y": 3499,
+      "plane": 0,
+      "name": "Bank Deposit Box",
+      "discoveredAt": 1757096947453
+    },
+    {
+      "x": 3098,
+      "y": 3493,
+      "plane": 0,
+      "name": "Bank booth",
+      "discoveredAt": 1757032808022
     },
     {
       "x": 3148,
@@ -3611,10 +6172,50 @@
     }
   ],
   "blacklistedBanks": [
-    { "plane": 0, "x": 3095, "y": 3489 },
-    { "plane": 0, "x": 3095, "y": 3491 },
-    { "plane": 0, "x": 3096, "y": 3493 },
-    { "plane": 0, "x": 3098, "y": 3493 },
-    { "plane": 0, "x": 3098, "y": 3499 }
+    {
+      "plane": 0,
+      "x": 3147,
+      "y": 3449
+    },
+    {
+      "plane": 0,
+      "x": 3095,
+      "y": 3489
+    },
+    {
+      "plane": 0,
+      "x": 3256,
+      "y": 3419
+    },
+    {
+      "plane": 0,
+      "x": 3096,
+      "y": 3493
+    },
+    {
+      "plane": 0,
+      "x": 3095,
+      "y": 3491
+    },
+    {
+      "plane": 0,
+      "x": 3098,
+      "y": 3499
+    },
+    {
+      "plane": 0,
+      "x": 3098,
+      "y": 3493
+    },
+    {
+      "plane": 0,
+      "x": 3174,
+      "y": 3493
+    },
+    {
+      "plane": 0,
+      "x": 3148,
+      "y": 3449
+    }
   ]
 }

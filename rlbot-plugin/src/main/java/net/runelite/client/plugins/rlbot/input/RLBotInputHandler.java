@@ -22,6 +22,7 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.input.MouseManager;
 import net.runelite.client.plugins.rlbot.RLBotLogger;
+import net.runelite.client.plugins.rlbot.RLBotPlugin;
 
 /**
  * Handles mouse and keyboard input for the RLBot plugin.
@@ -50,6 +51,11 @@ public class RLBotInputHandler {
     private final ClientThread clientThread;
     
     /**
+     * Plugin instance for updating overlay position.
+     */
+    private RLBotPlugin plugin;
+    
+    /**
      * Key manager for RuneLite key events.
      */
     private final KeyManager keyManager;
@@ -63,6 +69,11 @@ public class RLBotInputHandler {
      * Reference to the RL agent for applying penalties.
      */
     private net.runelite.client.plugins.rlbot.RLBotAgent rlAgent;
+    
+    /**
+     * Handles chatbox collision detection and resolution.
+     */
+    private ChatboxCollisionHandler chatboxCollisionHandler;
 
     // Track the last canvas point we moved to, to allow precise clicking
     private volatile Point lastCanvasMovePoint = null;
@@ -121,6 +132,15 @@ public class RLBotInputHandler {
     }
     
     /**
+     * Set the plugin instance for overlay synchronization.
+     *
+     * @param plugin The plugin instance
+     */
+    public void setPlugin(RLBotPlugin plugin) {
+        this.plugin = plugin;
+    }
+    
+    /**
      * Get the game canvas
      * 
      * @return The Canvas object or null if not available
@@ -139,20 +159,10 @@ public class RLBotInputHandler {
      */
     public void setRLAgent(net.runelite.client.plugins.rlbot.RLBotAgent agent) {
         this.rlAgent = agent;
+        // Initialize the chatbox collision handler with the agent reference
+        this.chatboxCollisionHandler = new ChatboxCollisionHandler(client, this, logger, agent);
     }
     
-    /**
-     * Check if a canvas point is within the chat area that should be avoided.
-     * Based on widget inspector: chat container bounds are x=0, y=338, width=519, height=165
-     *
-     * @param canvasPoint The point to check
-     * @return true if the point is in the chat area
-     */
-    private boolean isInChatArea(Point canvasPoint) {
-        // Chat area bounds: x=0, y=338, width=519, height=165
-        return canvasPoint.x >= 0 && canvasPoint.x <= 519 && 
-               canvasPoint.y >= 338 && canvasPoint.y <= 503; // 338 + 165 = 503
-    }
 
     /**
      * True if the point lies within the current 3D viewport area (excludes UI panels).
@@ -183,8 +193,16 @@ public class RLBotInputHandler {
             return true;
         }
         // Also treat known chat area overlay as occluding
-        if (isInChatArea(canvasPoint)) {
-            return true;
+        if (chatboxCollisionHandler != null) {
+            try {
+                if (chatboxCollisionHandler.isInChatArea(canvasPoint)) {
+                    return true;
+                }
+            } catch (IllegalStateException e) {
+                logger.error("[RLBOT_INPUT] Chat widget error: " + e.getMessage());
+                // If chat widget is missing, assume no collision to avoid blocking all clicks
+                return false;
+            }
         }
         return false;
     }
@@ -416,10 +434,16 @@ public class RLBotInputHandler {
      */
     public void smoothMouseMove(Point canvasPoint) {
         // Check if the target point is in the chat area and apply penalty for RL learning
-        if (isInChatArea(canvasPoint)) {
-            logger.warn("[RLBOT_INPUT] Attempting to move mouse to chat area (" + canvasPoint.x + "," + canvasPoint.y + ") - applying penalty");
-            if (rlAgent != null) {
-                rlAgent.addExternalPenalty(0.3f); // Penalty for trying to move mouse to chat area
+        if (chatboxCollisionHandler != null) {
+            try {
+                if (chatboxCollisionHandler.isInChatArea(canvasPoint)) {
+                    logger.warn("[RLBOT_INPUT] Attempting to move mouse to chat area (" + canvasPoint.x + "," + canvasPoint.y + ") - applying penalty");
+                    if (rlAgent != null) {
+                        rlAgent.addExternalPenalty(0.3f); // Penalty for trying to move mouse to chat area
+                    }
+                }
+            } catch (IllegalStateException e) {
+                logger.error("[RLBOT_INPUT] Chat widget error in smoothMouseMove: " + e.getMessage());
             }
         }
         
@@ -482,20 +506,29 @@ public class RLBotInputHandler {
      * @param point The point on the component
      */
     private void dispatchMouseMoveEvent(Component component, Point point) {
-        logger.info("[RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: " + point.x + "," + point.y);
+        // Transform coordinates for stretched mode
+        Point transformedPoint = transformToStretchedCoordinates(point);
+        logger.info("[RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: " + point.x + "," + point.y + 
+                   " (transformed: " + transformedPoint.x + "," + transformedPoint.y + ")");
+        
+        // Update the plugin's mouse location with canvas coordinates (overlay expects canvas space)
+        if (plugin != null) {
+            plugin.updateLastMouseLocation(point);
+        }
+        
         long when = System.currentTimeMillis();
         int modifiers = 0;
         int clickCount = 0;
         boolean popupTrigger = false;
-        boolean isInBounds = point.x >= 0 && point.y >= 0 && point.x < component.getWidth() && point.y < component.getHeight();
+        boolean isInBounds = transformedPoint.x >= 0 && transformedPoint.y >= 0 && transformedPoint.x < component.getWidth() && transformedPoint.y < component.getHeight();
         if (!isInBounds) {
             MouseEvent exitEvent = new MouseEvent(
                 component,
                 MouseEvent.MOUSE_EXITED,
                 when,
                 modifiers,
-                point.x,
-                point.y,
+                transformedPoint.x,
+                transformedPoint.y,
                 clickCount,
                 popupTrigger
             );
@@ -507,8 +540,8 @@ public class RLBotInputHandler {
             MouseEvent.MOUSE_MOVED,
             when,
             modifiers,
-            point.x,
-            point.y,
+            transformedPoint.x,
+            transformedPoint.y,
             clickCount,
             popupTrigger
         );
@@ -533,13 +566,29 @@ public class RLBotInputHandler {
         smoothMouseMove(canvasPoint);
         if (isWoodcutting() || isWalking()) return false;
         
+        // Find the target object first so we can pass it to collision handler
+        net.runelite.api.GameObject targetObj = findObjectAtPointMatchingAction(canvasPoint, expectedAction);
+        
         // Try to clear UI occlusion first
         if (isOccludedByUI(canvasPoint)) {
-            revealPointByCameraUI(canvasPoint, 6);
+            // Use enhanced collision handler if it's a chatbox collision and we have the target object
+            if (chatboxCollisionHandler != null) {
+                try {
+                    if (chatboxCollisionHandler.isInChatArea(canvasPoint)) {
+                        chatboxCollisionHandler.handleChatboxCollision(canvasPoint, targetObj, expectedAction);
+                    } else {
+                        revealPointByCameraUI(canvasPoint, 6);
+                    }
+                } catch (IllegalStateException e) {
+                    logger.error("[RLBOT_INPUT] Chat widget error in moveAndClickWithValidation: " + e.getMessage());
+                    revealPointByCameraUI(canvasPoint, 6);
+                }
+            } else {
+                revealPointByCameraUI(canvasPoint, 6);
+            }
         }
 
         // If multiple meshes overlap at this point, prefer the nearest-to-camera
-        net.runelite.api.GameObject targetObj = findObjectAtPointMatchingAction(canvasPoint, expectedAction);
         if (targetObj != null && isOccludedByGeometry(canvasPoint, targetObj)) {
             revealPointByCameraGeometry(canvasPoint, targetObj, 6);
         }
@@ -587,13 +636,30 @@ public class RLBotInputHandler {
         }
         
         if (isWoodcutting() || isWalking()) return false;
+        
+        // Find the target object first so we can pass it to collision handler
+        net.runelite.api.GameObject targetObj2 = findObjectAtPointMatchingAction(clickPoint, expectedAction);
+        
         // Try to clear UI occlusion
         if (isOccludedByUI(clickPoint)) {
-            revealPointByCameraUI(clickPoint, 6);
+            // Use enhanced collision handler if it's a chatbox collision and we have the target object
+            if (chatboxCollisionHandler != null) {
+                try {
+                    if (chatboxCollisionHandler.isInChatArea(clickPoint)) {
+                        chatboxCollisionHandler.handleChatboxCollision(clickPoint, targetObj2, expectedAction);
+                    } else {
+                        revealPointByCameraUI(clickPoint, 6);
+                    }
+                } catch (IllegalStateException e) {
+                    logger.error("[RLBOT_INPUT] Chat widget error in clickWithValidation: " + e.getMessage());
+                    revealPointByCameraUI(clickPoint, 6);
+                }
+            } else {
+                revealPointByCameraUI(clickPoint, 6);
+            }
         }
 
         // Check geometry occlusion
-        net.runelite.api.GameObject targetObj2 = findObjectAtPointMatchingAction(clickPoint, expectedAction);
         if (targetObj2 != null && isOccludedByGeometry(clickPoint, targetObj2)) {
             revealPointByCameraGeometry(clickPoint, targetObj2, 6);
         }
@@ -636,13 +702,30 @@ public class RLBotInputHandler {
         clickInProgress.set(true);
         try {
         if (isWoodcutting() || isWalking()) return false;
+        
+        // Find the target object first so we can pass it to collision handler
+        net.runelite.api.GameObject targetObj3 = findObjectAtPointMatchingAction(canvasPoint, expectedAction);
+        
         // Try to clear UI occlusion
         if (isOccludedByUI(canvasPoint)) {
-            revealPointByCameraUI(canvasPoint, 6);
+            // Use enhanced collision handler if it's a chatbox collision and we have the target object
+            if (chatboxCollisionHandler != null) {
+                try {
+                    if (chatboxCollisionHandler.isInChatArea(canvasPoint)) {
+                        chatboxCollisionHandler.handleChatboxCollision(canvasPoint, targetObj3, expectedAction);
+                    } else {
+                        revealPointByCameraUI(canvasPoint, 6);
+                    }
+                } catch (IllegalStateException e) {
+                    logger.error("[RLBOT_INPUT] Chat widget error in clickAtWithValidation: " + e.getMessage());
+                    revealPointByCameraUI(canvasPoint, 6);
+                }
+            } else {
+                revealPointByCameraUI(canvasPoint, 6);
+            }
         }
 
         // Check geometry occlusion
-        net.runelite.api.GameObject targetObj3 = findObjectAtPointMatchingAction(canvasPoint, expectedAction);
         if (targetObj3 != null && isOccludedByGeometry(canvasPoint, targetObj3)) {
             revealPointByCameraGeometry(canvasPoint, targetObj3, 6);
         }
@@ -702,6 +785,7 @@ public class RLBotInputHandler {
                     SwingUtilities.invokeAndWait(() -> { /* flush */ });
                 } catch (Exception ignored) {}
             }
+            // Guarantee overlay and physical click match by using the same finalClickPoint
             dispatchMouseClickEvent(canvas, finalClickPoint);
             lastCanvasMovePoint = null;
         }, "rlbot-click");
@@ -715,12 +799,11 @@ public class RLBotInputHandler {
      * Click at a specific canvas coordinate.
      */
     public void clickAt(Point canvasPoint) {
-        // Check if the target point is in the chat area and apply penalty for RL learning
-        if (isInChatArea(canvasPoint)) {
-            logger.warn("[RLBOT_INPUT] Attempting to click in chat area (" + canvasPoint.x + "," + canvasPoint.y + ") - applying penalty");
-            if (rlAgent != null) {
-                rlAgent.addExternalPenalty(0.5f); // Higher penalty for clicking in chat area
-            }
+        // Use enhanced chatbox collision handler if available
+        if (chatboxCollisionHandler != null && chatboxCollisionHandler.handleChatboxCollision(canvasPoint, null, "click")) {
+            logger.warn("[RLBOT_INPUT] Chatbox collision detected and handled for click at " + canvasPoint);
+            // The collision handler has already applied penalties and attempted resolution
+            // Continue with the click anyway in case the resolution was successful
         }
         
         logger.debug("[RLBOT_INPUT] BEGIN clickAt point: " + canvasPoint.x + "," + canvasPoint.y);
@@ -749,13 +832,52 @@ public class RLBotInputHandler {
     }
     
     /**
+     * Transform real canvas coordinates to stretched coordinates if stretched mode is enabled.
+     *
+     * @param realPoint The point in real canvas coordinates
+     * @return The point in stretched coordinates (or original if stretched mode is disabled)
+     */
+    private Point transformToStretchedCoordinates(Point realPoint) {
+        if (!client.isStretchedEnabled()) {
+            return realPoint;
+        }
+        
+        java.awt.Dimension stretchedDimensions = client.getStretchedDimensions();
+        java.awt.Dimension realDimensions = client.getRealDimensions();
+        
+        if (stretchedDimensions == null || realDimensions == null) {
+            return realPoint;
+        }
+        
+        double scaleX = (double) stretchedDimensions.width / realDimensions.width;
+        double scaleY = (double) stretchedDimensions.height / realDimensions.height;
+        
+        int stretchedX = (int) Math.round(realPoint.x * scaleX);
+        int stretchedY = (int) Math.round(realPoint.y * scaleY);
+        
+        logger.debug("[RLBOT_INPUT] Transformed coordinates from real (" + realPoint.x + "," + realPoint.y + 
+                     ") to stretched (" + stretchedX + "," + stretchedY + ") with scale (" + scaleX + "," + scaleY + ")");
+        
+        return new Point(stretchedX, stretchedY);
+    }
+
+    /**
      * Dispatches mouse press, release, and click events to simulate a click.
      *
      * @param component The component to dispatch the events to
      * @param point The point on the component
      */
     private void dispatchMouseClickEvent(Component component, Point point) {
-        logger.info("[RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: " + point.x + "," + point.y);
+        // Transform coordinates for stretched mode
+        Point transformedPoint = transformToStretchedCoordinates(point);
+        logger.info("[RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: " + point.x + "," + point.y + 
+                   " (transformed: " + transformedPoint.x + "," + transformedPoint.y + ")");
+        
+        // Update the plugin's mouse location with canvas coordinates (overlay expects canvas space)
+        if (plugin != null) {
+            plugin.updateLastMouseLocation(point);
+        }
+        
         long when = System.currentTimeMillis();
         int modifiers = InputEvent.BUTTON1_DOWN_MASK;
         int clickCount = 1;
@@ -766,8 +888,8 @@ public class RLBotInputHandler {
                 MouseEvent.MOUSE_PRESSED,
                 when,
                 modifiers,
-                point.x,
-                point.y,
+                transformedPoint.x,
+                transformedPoint.y,
                 clickCount,
                 popupTrigger,
                 MouseEvent.BUTTON1
@@ -777,8 +899,8 @@ public class RLBotInputHandler {
                 MouseEvent.MOUSE_RELEASED,
                 when + 50,
                 modifiers,
-                point.x,
-                point.y,
+                transformedPoint.x,
+                transformedPoint.y,
                 clickCount,
                 popupTrigger,
                 MouseEvent.BUTTON1
@@ -788,8 +910,8 @@ public class RLBotInputHandler {
                 MouseEvent.MOUSE_CLICKED,
                 when + 51,
                 modifiers,
-                point.x,
-                point.y,
+                transformedPoint.x,
+                transformedPoint.y,
                 clickCount,
                 popupTrigger,
                 MouseEvent.BUTTON1
@@ -833,7 +955,8 @@ public class RLBotInputHandler {
                 String desired = action == null ? "" : action.trim();
                 String[] synonyms;
                 if (desired.equalsIgnoreCase("Bank")) {
-                    synonyms = new String[] {"Bank"}; // enforce exact Bank only
+                    // Support bank chests which often expose "Use" instead of "Bank"
+                    synonyms = new String[] {"Bank", "Use", "Open", "Open bank", "Use-quickly"};
                 } else if (desired.equalsIgnoreCase("Chop down") || desired.equalsIgnoreCase("Chop")) {
                     synonyms = new String[] {"Chop down", "Chop"};
                 } else {
@@ -860,7 +983,7 @@ public class RLBotInputHandler {
                     return;
                 }
                 
-                // Convert action index to MenuAction
+                // Convert action index to MenuAction (Jagex order uses THIRD_OPTION for index 2)
                 net.runelite.api.MenuAction menuAction;
                 switch (actionIndex) {
                     case 0: menuAction = net.runelite.api.MenuAction.GAME_OBJECT_FIRST_OPTION; break;
@@ -873,7 +996,7 @@ public class RLBotInputHandler {
                         return;
                 }
                 
-                // Use scene coordinates for object interactions
+                // Use scene coordinates (tile) and the object's id as per client.menuAction signature
                 net.runelite.api.coords.LocalPoint lp = net.runelite.api.coords.LocalPoint.fromWorld(client, gameObject.getWorldLocation());
                 if (lp == null) {
                     logger.error("[RLBOT_INPUT] LocalPoint null for object " + gameObject.getId());
@@ -894,15 +1017,7 @@ public class RLBotInputHandler {
 
                 // Invoke the menu action with scene coords (this is the primary interaction method)
                 logger.info("[RLBOT_INPUT] Invoking menu action: sceneX=" + sceneX + ", sceneY=" + sceneY + ", menuAction=" + menuAction + ", objectId=" + gameObject.getId() + ", action='" + desired + "'");
-                client.menuAction(
-                    sceneX,
-                    sceneY,
-                    menuAction,
-                    gameObject.getId(),
-                    -1,
-                    desired,
-                    ""
-                );
+                client.menuAction(sceneX, sceneY, menuAction, gameObject.getId(), -1, desired, "");
                 logger.info("[RLBOT_INPUT] Menu action invoked successfully");
                 
             } catch (Exception e) {
@@ -960,6 +1075,10 @@ public class RLBotInputHandler {
      * @param point The point on the component
      */
     private void dispatchMouseRightClickEvent(Component component, Point point) {
+        // Transform coordinates for stretched mode
+        Point transformedPoint = transformToStretchedCoordinates(point);
+        logger.debug("[RLBOT_INPUT] Right-click at: " + point.x + "," + point.y + 
+                    " (transformed: " + transformedPoint.x + "," + transformedPoint.y + ")");
         long when = System.currentTimeMillis();
         int modifiers = InputEvent.BUTTON3_DOWN_MASK;
         int clickCount = 1;
@@ -970,8 +1089,8 @@ public class RLBotInputHandler {
                 MouseEvent.MOUSE_PRESSED,
                 when,
                 modifiers,
-                point.x,
-                point.y,
+                transformedPoint.x,
+                transformedPoint.y,
                 clickCount,
                 popupTrigger,
                 MouseEvent.BUTTON3
@@ -981,8 +1100,8 @@ public class RLBotInputHandler {
                 MouseEvent.MOUSE_RELEASED,
                 when + 50,
                 modifiers,
-                point.x,
-                point.y,
+                transformedPoint.x,
+                transformedPoint.y,
                 clickCount,
                 popupTrigger,
                 MouseEvent.BUTTON3
@@ -992,8 +1111,8 @@ public class RLBotInputHandler {
                 MouseEvent.MOUSE_CLICKED,
                 when + 51,
                 modifiers,
-                point.x,
-                point.y,
+                transformedPoint.x,
+                transformedPoint.y,
                 clickCount,
                 popupTrigger,
                 MouseEvent.BUTTON3
@@ -1177,6 +1296,14 @@ public class RLBotInputHandler {
     }
 
     private void dispatchMiddleDrag(Component component, Point start, Point end) {
+        // Transform coordinates for stretched mode
+        Point transformedStart = transformToStretchedCoordinates(start);
+        Point transformedEnd = transformToStretchedCoordinates(end);
+        
+        logger.debug("[RLBOT_INPUT] Middle drag from: " + start.x + "," + start.y + 
+                    " (transformed: " + transformedStart.x + "," + transformedStart.y + ") to: " +
+                    end.x + "," + end.y + " (transformed: " + transformedEnd.x + "," + transformedEnd.y + ")");
+        
         long when = System.currentTimeMillis();
         int button = MouseEvent.BUTTON2;
         int modifiers = InputEvent.getMaskForButton(button);
@@ -1191,8 +1318,8 @@ public class RLBotInputHandler {
             MouseEvent.MOUSE_PRESSED,
             when,
             modifiers,
-            start.x,
-            start.y,
+            transformedStart.x,
+            transformedStart.y,
             1,
             false,
             button
@@ -1203,8 +1330,8 @@ public class RLBotInputHandler {
         // Drag in small steps
         int steps = 6;
         for (int i = 1; i <= steps; i++) {
-            int x = start.x + (end.x - start.x) * i / steps;
-            int y = start.y + (end.y - start.y) * i / steps;
+            int x = transformedStart.x + (transformedEnd.x - transformedStart.x) * i / steps;
+            int y = transformedStart.y + (transformedEnd.y - transformedStart.y) * i / steps;
             MouseEvent drag = new MouseEvent(
                 component,
                 MouseEvent.MOUSE_DRAGGED,
@@ -1226,8 +1353,8 @@ public class RLBotInputHandler {
             MouseEvent.MOUSE_RELEASED,
             when + 10L * (steps + 2),
             modifiers,
-            end.x,
-            end.y,
+            transformedEnd.x,
+            transformedEnd.y,
             1,
             false,
             button
@@ -1244,8 +1371,8 @@ public class RLBotInputHandler {
     // Convenience camera controls
     public void rotateCameraLeftSmall() { pressKey(KeyEvent.VK_LEFT); }
     public void rotateCameraRightSmall() { pressKey(KeyEvent.VK_RIGHT); }
-    public void tiltCameraUpSmall() { pressKey(KeyEvent.VK_PAGE_UP); }
-    public void tiltCameraDownSmall() { pressKey(KeyEvent.VK_PAGE_DOWN); }
+    public void tiltCameraUpSmall() { pressKey(KeyEvent.VK_UP); }
+    public void tiltCameraDownSmall() { pressKey(KeyEvent.VK_DOWN); }
 
     /**
      * Zoom using mouse wheel events without moving the cursor.
@@ -1284,6 +1411,21 @@ public class RLBotInputHandler {
     private boolean revealPointByCameraUI(Point target, int attempts) {
         // Single-step non-blocking UI de-occlusion attempt
         if (!isOccludedByUI(target)) return true;
+        
+        // Use enhanced chatbox collision handler if available
+        if (chatboxCollisionHandler != null) {
+            try {
+                if (chatboxCollisionHandler.isInChatArea(target)) {
+                    logger.debug("[RLBOT_INPUT] Using enhanced chatbox collision handler for UI occlusion");
+                    chatboxCollisionHandler.handleChatboxCollision(target, null, "reveal");
+                    return !isOccludedByUI(target); // Check if resolved
+                }
+            } catch (IllegalStateException e) {
+                logger.error("[RLBOT_INPUT] Chat widget error in revealPointByCameraUI: " + e.getMessage());
+            }
+        }
+        
+        // Fallback to original logic for non-chatbox UI occlusion
         try {
             int vy = client.getViewportYOffset();
             int vh = client.getViewportHeight();
@@ -1337,7 +1479,14 @@ public class RLBotInputHandler {
         } catch (Exception ignored) { return null; }
     }
 
-    private boolean isOccludedByGeometry(Point canvasPoint, net.runelite.api.GameObject target) {
+    public boolean isOccludedByGeometry(Point canvasPoint, net.runelite.api.GameObject target) {
+        return isOccludedByGeometryWithDiagnostics(canvasPoint, target, false);
+    }
+    
+    /**
+     * Check if a target GameObject is occluded by other geometry with optional diagnostics.
+     */
+    public boolean isOccludedByGeometryWithDiagnostics(Point canvasPoint, net.runelite.api.GameObject target, boolean enableDiagnostics) {
         try {
             if (target == null) return false;
             net.runelite.api.coords.LocalPoint tlp = target.getLocalLocation();
@@ -1346,11 +1495,19 @@ public class RLBotInputHandler {
             double tdy = tlp.getY() - client.getCameraY();
             double tdist = Math.hypot(tdx, tdy);
 
+            if (enableDiagnostics) {
+                logger.info("[GEOMETRY] Checking occlusion for target at " + target.getWorldLocation());
+                logger.info("[GEOMETRY] Target distance from camera: " + String.format("%.1f", tdist));
+                logger.info("[GEOMETRY] Click point: " + canvasPoint);
+            }
+
             final int plane = client.getPlane();
             net.runelite.api.Scene scene = client.getScene();
             if (scene == null) return false;
             net.runelite.api.Tile[][] tiles = scene.getTiles()[plane];
             if (tiles == null) return false;
+            
+            int occludersFound = 0;
             for (int x = 0; x < tiles.length; x++) {
                 net.runelite.api.Tile[] col = tiles[x];
                 if (col == null) continue;
@@ -1361,31 +1518,94 @@ public class RLBotInputHandler {
                         if (go == null || go == target) continue;
                         java.awt.Shape hull = go.getConvexHull();
                         if (hull == null || !hull.contains(canvasPoint)) continue;
+                        
                         net.runelite.api.coords.LocalPoint lp = go.getLocalLocation();
                         if (lp == null) continue;
                         double dx = lp.getX() - client.getCameraX();
                         double dy = lp.getY() - client.getCameraY();
                         double dist = Math.hypot(dx, dy);
+                        
                         if (dist + 1.0 < tdist) {
+                            if (enableDiagnostics) {
+                                try {
+                                    net.runelite.api.ObjectComposition comp = client.getObjectDefinition(go.getId());
+                                    String occluderName = comp != null && comp.getName() != null ? comp.getName() : "Unknown";
+                                    logger.warn("[GEOMETRY] OCCLUDER FOUND: " + occluderName + " (ID: " + go.getId() + 
+                                              ") at " + go.getWorldLocation());
+                                    logger.info("[GEOMETRY] - Occluder distance: " + String.format("%.1f", dist) + 
+                                              " (closer than target: " + String.format("%.1f", tdist) + ")");
+                                    logger.info("[GEOMETRY] - Occluder hull contains click point: " + hull.contains(canvasPoint));
+                                } catch (Exception e) {
+                                    logger.warn("[GEOMETRY] OCCLUDER FOUND: ID " + go.getId() + " at " + go.getWorldLocation() + 
+                                              " (distance: " + String.format("%.1f", dist) + ")");
+                                }
+                            }
                             return true;
+                        } else if (enableDiagnostics && hull.contains(canvasPoint)) {
+                            occludersFound++;
+                            try {
+                                net.runelite.api.ObjectComposition comp = client.getObjectDefinition(go.getId());
+                                String name = comp != null && comp.getName() != null ? comp.getName() : "Unknown";
+                                logger.info("[GEOMETRY] Object at click point but behind target: " + name + 
+                                          " (distance: " + String.format("%.1f", dist) + " vs target: " + String.format("%.1f", tdist) + ")");
+                            } catch (Exception ignored) {}
                         }
                     }
                 }
             }
+            
+            if (enableDiagnostics) {
+                logger.info("[GEOMETRY] No occluders found (checked " + occludersFound + " objects at click point)");
+            }
+            
             return false;
-        } catch (Exception ignored) { return false; }
+        } catch (Exception e) { 
+            if (enableDiagnostics) {
+                logger.error("[GEOMETRY] Error during occlusion check: " + e.getMessage());
+            }
+            return false; 
+        }
     }
 
-    private boolean revealPointByCameraGeometry(Point targetPoint, net.runelite.api.GameObject target, int attempts) {
-        // Single-step non-blocking geometry de-occlusion attempt
-        if (!isOccludedByGeometry(targetPoint, target)) return true;
+    public boolean revealPointByCameraGeometry(Point targetPoint, net.runelite.api.GameObject target, int attempts) {
+        // Attempt to reveal target by applying a strategy based on the attempt index.
+        // Return true if the point is no longer occluded after adjustment.
+        if (!isOccludedByGeometry(targetPoint, target)) {
+            return true;
+        }
         try {
-            int dx = 180; // larger sweep for occluders
-            rotateCameraSafe(dx, 0);
-            // Nudge zoom to vary perspective
-            zoomOutSmall();
+            int attemptIndex = Math.max(0, attempts);
+            int mode = attemptIndex % 6;
+            switch (mode) {
+                case 0:
+                    // Zoom out a bit to reduce overlap
+                    zoomOutSmall();
+                    zoomOutSmall();
+                    break;
+                case 1:
+                    // Rotate left
+                    rotateCameraSafe(-120, 0);
+                    break;
+                case 2:
+                    // Rotate right
+                    rotateCameraSafe(120, 0);
+                    break;
+                case 3:
+                    // Tilt up
+                    rotateCameraSafe(0, -40);
+                    break;
+                case 4:
+                    // Tilt down
+                    rotateCameraSafe(0, 40);
+                    break;
+                default:
+                    // Zoom in slightly to change parallax, then a small rotate
+                    zoomInSmall();
+                    rotateCameraSafe(90, 0);
+                    break;
+            }
         } catch (Exception ignored) {}
-        return false;
+        return !isOccludedByGeometry(targetPoint, target);
     }
     
     /**
@@ -1529,4 +1749,4 @@ public class RLBotInputHandler {
             return pose == 819 || pose == 824 || pose == 822 || pose == 820;
         } catch (Exception ignored) { return false; }
     }
-} 
+}

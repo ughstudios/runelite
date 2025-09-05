@@ -10,6 +10,7 @@ import net.runelite.client.config.ConfigManager;
 // RLBotGameStateGenerator import removed
 import net.runelite.client.plugins.rlbot.input.RLBotInputHandler;
 import net.runelite.client.plugins.rlbot.tasks.*;
+import net.runelite.client.plugins.rlbot.rewards.LogQualityRewards;
 import java.util.Random;
 import net.runelite.client.plugins.rlbot.rl.DJLDqnPolicy;
 import net.runelite.client.plugins.rlbot.tasks.ObjectFinder;
@@ -86,6 +87,7 @@ public class RLBotAgent {
             new NavigateToTreeHotspotTask(),
             new ExploreTask(),
             new CameraRotateTask(),
+            new CameraAdjustmentTask(), // Enhanced camera controls for stuck/idle situations
             new IdleTask()
         );
         if (config.enableRLAgent()) {
@@ -270,6 +272,10 @@ public class RLBotAgent {
                 }
                 // Mask chop if no tree visible
                 if (ti instanceof ChopNearestTreeTask && !treeVisible) allowed = false;
+                // Prefer BankDepositTask over NavigateToBank when a bank is visible
+                if (ti instanceof NavigateToBankHotspotTask && bankVisible) {
+                    // leave allowed true, but we'll select BankDeposit in the deterministic preference block
+                }
                 // Ditch crossing allowed when ditch visible and inventory not full
                 if (ti instanceof CrossWildernessDitchTask) {
                     allowed = !inventoryFull && ditchVisible;
@@ -298,6 +304,24 @@ public class RLBotAgent {
                 mask[i] = false;
             }
         }
+        // Deterministic preference: when a target is visible and close, prefer interacting task over navigation
+        try {
+            int chopIdx = -1, navTreeIdx = -1, bankIdx = -1, navBankIdx = -1;
+            for (int i = 0; i < tasks.size(); i++) {
+                if (tasks.get(i) instanceof ChopNearestTreeTask) chopIdx = i;
+                if (tasks.get(i) instanceof NavigateToTreeHotspotTask) navTreeIdx = i;
+                if (tasks.get(i) instanceof BankDepositTask) bankIdx = i;
+                if (tasks.get(i) instanceof NavigateToBankHotspotTask) navBankIdx = i;
+            }
+            int tDist = distanceToNearestTree();
+            if (!inventoryFull && treeVisible && tDist >= 0 && tDist <= 6 && chopIdx >= 0 && mask[chopIdx]) {
+                return chopIdx; // Prefer chopping when close and visible
+            }
+            int bDist = distanceToNearestBank();
+            if (inventoryFull && ((bankVisible && bDist >= 0 && bDist <= 6) || (bDist >= 0 && bDist <= 6)) && bankIdx >= 0 && mask[bankIdx]) {
+                return bankIdx; // Prefer banking when close and visible
+            }
+        } catch (Exception ignored) {}
         if (eligibleCount == 0) {
             // Recovery: if nothing eligible, try exploration or camera rotate
             for (int i = 0; i < tasks.size(); i++) {
@@ -592,18 +616,27 @@ public class RLBotAgent {
             r += 2.0f; // Significant reward for productive woodcutting
         }
         
-        // Major reward for XP gains (measurable progress)
+        // Major reward for XP gains (measurable progress) - ENHANCED WITH QUALITY REWARDS
         try {
             int curXp = client.getSkillExperience(net.runelite.api.Skill.WOODCUTTING);
             if (prevWoodcutXp != null && curXp > prevWoodcutXp) {
-                r += Math.min(5.0f, (curXp - prevWoodcutXp) * 0.1f); // Large reward for XP gains
+                int xpGained = curXp - prevWoodcutXp;
+                // Use quality-based XP reward system that favors higher-value logs
+                float qualityXpReward = LogQualityRewards.calculateExperienceReward(xpGained);
+                r += qualityXpReward;
+                logger.info("[RL] XP reward: " + xpGained + " XP -> " + String.format("%.2f", qualityXpReward) + " reward");
             }
         } catch (Exception ignored) {}
         
-        // Major reward for gaining logs (inventory progress)
+        // Major reward for gaining logs (inventory progress) - ENHANCED WITH QUALITY REWARDS
         if (prevFreeSlots != null) {
             int delta = prevFreeSlots - curFree; // +1 when we gained a log
-            if (delta > 0) r += Math.min(3.0f, delta * 2.0f); // Large reward per log gained
+            if (delta > 0) {
+                // Use quality-based log reward system that favors higher-tier logs
+                float qualityLogReward = LogQualityRewards.calculateLogQualityReward(client, delta);
+                r += qualityLogReward;
+                logger.info("[RL] Log reward: " + delta + " logs gained -> " + String.format("%.2f", qualityLogReward) + " reward");
+            }
         }
         
         // Major reward for successful banking (completing the cycle)

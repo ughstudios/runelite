@@ -43,6 +43,14 @@ final class UiHelper {
                 return; // cooldown to avoid spam
             }
 
+            // First, collapse side panels (inventory) if they are covering the viewport
+            if (maybeCollapseInventorySidePanel(ctx)) {
+                ctx.logger.info("[UI] Collapsed inventory side panel");
+                ctx.setBusyForMs(150);
+                lastUiCloseAttemptMs = now;
+                return;
+            }
+
             loadJsonBlockerConfig(ctx);
             if (closeConfiguredJsonBlockers(ctx)) {
                 ctx.logger.info("[UI] Closed JSON-configured blocker");
@@ -78,6 +86,9 @@ final class UiHelper {
             // Prefer exact group targeting to avoid hitting non-close 'X' widgets (e.g., Quantity X)
             if (clickCloseForGroup(ctx, WidgetID.BANK_GROUP_ID)) return true;
             if (clickCloseForGroup(ctx, WidgetID.DEPOSIT_BOX_GROUP_ID)) return true;
+
+            // Explicit: close bank main by concrete widget id if present (user-provided)
+            if (closeBankMainById(ctx, 786434)) return true; // 12<<16 | 2
 
             // Heuristic search: scan recent top-layer component ids that commonly have Close
             int[] commonGroupIds = new int[] { 162, 593, 219, 164, 216, 193, 15, 12 };
@@ -115,6 +126,117 @@ final class UiHelper {
         } catch (Exception ignored) {
         }
         return false;
+    }
+
+    /**
+     * Explicitly close the Bank main interface by known root widget id (e.g., 786434).
+     * Heuristics: search subtree for a small button near top-right, or a widget with
+     * action/name/text indicating Close, then click it and issue CC_OP.
+     */
+    static boolean closeBankMainById(TaskContext ctx, int rootWidgetId) {
+        try {
+            Widget root = findWidgetById(ctx, rootWidgetId);
+            if (root == null || root.isHidden()) return false;
+            Rectangle rb = root.getBounds();
+            if (rb == null || rb.width <= 0 || rb.height <= 0) return false;
+
+            // First pass: exact close predicate
+            Widget target = findCloseInSubtree(ctx, root);
+            if (target == null) {
+                // Second pass: heuristic small button near top-right of root
+                target = findTopRightSmallButton(root);
+            }
+            if (target == null) return false;
+
+            Rectangle b = target.getBounds();
+            if (b == null || b.width <= 0 || b.height <= 0) return false;
+            int wid = target.getId();
+            Point center = new Point(b.x + b.width / 2, b.y + b.height / 2);
+            ctx.input.smoothMouseMove(center);
+            ctx.setBusyForMs(150);
+            ctx.input.clickAt(center);
+            ctx.setBusyForMs(200);
+            int op = 1;
+            String[] actions = target.getActions();
+            if (actions != null) {
+                for (int i = 0; i < actions.length; i++) {
+                    String a = actions[i];
+                    if (a != null && a.toLowerCase().contains("close")) { op = i + 1; break; }
+                }
+            }
+            final int opFinal = op;
+            final int widFinal = wid;
+            ctx.clientThread.invoke(() -> {
+                try {
+                    ctx.client.menuAction(-1, widFinal, MenuAction.CC_OP, opFinal, -1, "Close", "");
+                } catch (Exception ignored) {}
+            });
+            ctx.setBusyForMs(300);
+            ctx.logger.info("[UI] Closed bank via explicit widget id=" + rootWidgetId + " targetId=" + wid);
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private static Widget findWidgetById(TaskContext ctx, int id) {
+        try {
+            for (int groupId = 0; groupId <= 800; groupId++) {
+                for (int child = 0; child < 600; child++) {
+                    Widget w = ctx.client.getWidget(groupId, child);
+                    if (w == null) continue;
+                    if (w.getId() == id) return w;
+                }
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    private static Widget findCloseInSubtree(TaskContext ctx, Widget root) {
+        Deque<Widget> stack = new ArrayDeque<>();
+        Set<Integer> seen = new HashSet<>();
+        stack.push(root);
+        while (!stack.isEmpty()) {
+            Widget w = stack.pop();
+            if (w == null) continue;
+            if (!seen.add(w.getId())) continue;
+            if (!w.isHidden() && isCloseWidget(w)) return w;
+            enqueueChildren(stack, w.getChildren());
+            enqueueChildren(stack, w.getStaticChildren());
+            enqueueChildren(stack, w.getDynamicChildren());
+            enqueueChildren(stack, w.getNestedChildren());
+        }
+        return null;
+    }
+
+    private static Widget findTopRightSmallButton(Widget root) {
+        Rectangle rb = root.getBounds();
+        if (rb == null) return null;
+        Deque<Widget> stack = new ArrayDeque<>();
+        Set<Integer> seen = new HashSet<>();
+        stack.push(root);
+        Widget best = null;
+        int bestScore = Integer.MAX_VALUE;
+        while (!stack.isEmpty()) {
+            Widget w = stack.pop();
+            if (w == null) continue;
+            if (!seen.add(w.getId())) continue;
+            Rectangle b = w.getBounds();
+            if (b != null && b.width > 0 && b.height > 0) {
+                boolean small = b.width <= 30 && b.height <= 30;
+                if (small) {
+                    int dx = Math.abs((rb.x + rb.width) - (b.x + b.width));
+                    int dy = Math.abs((rb.y) - (b.y));
+                    int score = dx + dy;
+                    if (score < bestScore) { bestScore = score; best = w; }
+                }
+            }
+            enqueueChildren(stack, w.getChildren());
+            enqueueChildren(stack, w.getStaticChildren());
+            enqueueChildren(stack, w.getDynamicChildren());
+            enqueueChildren(stack, w.getNestedChildren());
+        }
+        return best;
     }
 
     private static boolean dfsClickClose(TaskContext ctx, Widget root, int maxNodes) {
@@ -183,6 +305,39 @@ final class UiHelper {
         // Longer delay to ensure the close action registers
         ctx.setBusyForMs(500);
         return true;
+    }
+
+    /**
+     * Collapse the inventory side panel if it's visible in Pre-EoC resizable layout and may occlude clicks.
+     * Uses known widget ids: ToplevelPreEoc.SIDE_CONTAINER (164,96) and toggles STONE3 tab.
+     */
+    private static boolean maybeCollapseInventorySidePanel(TaskContext ctx) {
+        try {
+            // Detect side container visibility and size
+            Widget side = ctx.client.getWidget(164, 96); // ToplevelPreEoc.SIDE_CONTAINER
+            if (side == null || side.isHidden()) return false;
+            Rectangle b = side.getBounds();
+            if (b == null || b.width <= 0 || b.height <= 0) return false;
+            // If the side container is wide enough, it's likely expanded
+            if (b.width < 180) return false; // small width likely collapsed
+
+            // Toggle the inventory tab button to collapse the panel
+            Widget invTab = ctx.client.getWidget(net.runelite.api.widgets.WidgetInfo.RESIZABLE_VIEWPORT_BOTTOM_LINE_INVENTORY_TAB);
+            if (invTab == null || invTab.isHidden()) {
+                invTab = ctx.client.getWidget(net.runelite.api.widgets.WidgetInfo.FIXED_VIEWPORT_INVENTORY_TAB);
+            }
+            if (invTab != null && !invTab.isHidden()) {
+                final int wid = invTab.getId();
+                ctx.clientThread.invoke(() -> {
+                    try {
+                        ctx.client.menuAction(-1, wid, MenuAction.CC_OP, 1, -1, "Toggle", "");
+                    } catch (Exception ignored) {}
+                });
+                ctx.setBusyForMs(200);
+                return true;
+            }
+        } catch (Exception ignored) {}
+        return false;
     }
 
     private static boolean isCloseWidget(Widget w) {
