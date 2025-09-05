@@ -572,7 +572,7 @@ final class UiHelper {
         lastBlockerLoadMs = now;
         try {
             // Load from file in ~/.runelite/rlbot-ui-blockers.txt if present
-            Path p = Paths.get(System.getProperty("user.home"), ".runelite", "rlbot-ui-blockers.txt");
+            Path p = Paths.get("rlbot-ui-blockers.txt");
             if (Files.exists(p)) {
                 List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
                 parseBlockerLines(lines);

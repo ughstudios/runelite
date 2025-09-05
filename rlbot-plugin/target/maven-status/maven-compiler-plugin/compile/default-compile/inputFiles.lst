@@ -3,6 +3,7 @@
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/rl/Transition.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/UiHelper.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/action/RLBotActionHandler.java
+/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/RandomCameraMovementTask.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/RLBotStateViewer.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/CameraAdjustmentTask.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/Task.java

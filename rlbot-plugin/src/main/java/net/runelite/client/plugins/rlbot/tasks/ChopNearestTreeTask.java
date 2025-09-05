@@ -193,6 +193,8 @@ public class ChopNearestTreeTask implements Task {
     @Override
     public void run(TaskContext context) {
         context.logger.warn("[ChopTask] *** DEBUG: run() method called ***");
+        // Track invocation timing so recovery logic can work correctly
+        lastInvokeMs = System.currentTimeMillis();
         UiHelper.closeObstructions(context);
         context.logger.warn("[ChopTask] *** DEBUG: isBusy: " + context.isBusy() + ", timedOutSince(4000): " + context.timedOutSince(4000) + " ***");
         if (context.isBusy() && !context.timedOutSince(4000)) {
@@ -388,12 +390,23 @@ public class ChopNearestTreeTask implements Task {
                 context.logger.info("[Task] Found valid chop action: " + chopLabel + " at index " + chopIdx);
                 
                 // Move cursor overlay to the object's canvas projection so overlay matches action point
-                java.awt.Point projPoint = ObjectFinder.projectToCanvas(context, best);
+                // Use clickable point from convex hull for better targeting
+                java.awt.Point projPoint = ObjectFinder.projectToClickablePoint(context, best);
+                context.logger.warn("[ChopTask] *** DEBUG: projectToClickablePoint returned: " + (projPoint != null ? "Point(" + projPoint.x + "," + projPoint.y + ")" : "null") + " ***");
+                
+                // If clickable point is off-screen, fall back to center projection
+                if (projPoint != null && (projPoint.x < 0 || projPoint.y < 0 || projPoint.x >= 765 || projPoint.y >= 503)) {
+                    context.logger.warn("[ChopTask] *** DEBUG: Clickable point off-screen, falling back to center projection ***");
+                    projPoint = ObjectFinder.projectToCanvas(context, best);
+                    context.logger.warn("[ChopTask] *** DEBUG: projectToCanvas returned: " + (projPoint != null ? "Point(" + projPoint.x + "," + projPoint.y + ")" : "null") + " ***");
+                }
+                
                 if (projPoint != null) {
                     try { 
                         // Move mouse to tree and click with validation in one step
                         // Move first, then single validated click at the tree
-                        boolean clickSuccess = context.input.moveAndClickWithValidation(new java.awt.Point(projPoint.x, projPoint.y), "Chop");
+                        context.logger.info("[Task] Attempting validated click at (" + projPoint.x + "," + projPoint.y + ") with action label: " + chopLabel);
+                        boolean clickSuccess = context.input.moveAndClickWithValidation(new java.awt.Point(projPoint.x, projPoint.y), chopLabel);
                         if (!clickSuccess) {
                             context.logger.warn("[Task] Click validation failed - target may not have chop action");
                             TreeDiscovery.markDepleted(best.getWorldLocation());
@@ -405,9 +418,7 @@ public class ChopNearestTreeTask implements Task {
                         // Set busy immediately to prevent overlapping actions
                         context.setBusyForMs(200); // Reduced from 500ms
                         
-                        // Mark the tree as depleted since we successfully clicked it
-                        TreeDiscovery.markDepleted(best.getWorldLocation());
-                        context.logger.info("[Task] Marked tree as depleted: " + best.getWorldLocation());
+                        // Do NOT mark tree as depleted on click; only mark when action truly absent or after failure
                         
                         // Log current animation for debugging
                         Player player = context.client.getLocalPlayer();
@@ -472,7 +483,7 @@ public class ChopNearestTreeTask implements Task {
                         context.setBusyForMs(100); // Reduced from 500ms
                     }
                 } else {
-                    context.logger.warn("[Task] Could not project tree to canvas - attempting camera adjustment");
+                    context.logger.warn("[ChopTask] *** DEBUG: Could not project tree to canvas - attempting camera adjustment ***");
                     
                     // Simple camera adjustment strategy
                     int adjustmentAttempts = TreeDiscovery.getCameraAdjustmentAttempts(best.getWorldLocation());

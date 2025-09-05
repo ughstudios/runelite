@@ -122,7 +122,7 @@ public final class DJLDqnPolicy implements AutoCloseable {
     public void saveIfNeeded(long steps) {
         try {
             if (steps % 5000L == 0 && steps > 0) {
-                java.nio.file.Path out = java.nio.file.Paths.get(System.getProperty("user.home"), ".rlbot", "models");
+                java.nio.file.Path out = java.nio.file.Paths.get("models");
                 java.nio.file.Files.createDirectories(out);
                 online.save(out, "rlbot-dqn");
             }

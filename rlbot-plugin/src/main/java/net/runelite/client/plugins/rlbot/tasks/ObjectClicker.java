@@ -48,7 +48,7 @@ public final class ObjectClicker {
         new String[]{"Bank", "Deposit"}, // Only actual RuneScape bank actions
         new String[]{"Bank", "Deposit"}, // Same as preferred - no fake fallbacks
         true, // Use convex hull
-        -8    // Click slightly above center to avoid NPCs
+        -14   // Click higher to avoid NPC heads/walls
     );
     
     /**
@@ -212,14 +212,7 @@ public final class ObjectClicker {
             }
         }
         
-        // For banks, try any non-null action as last resort
-        if (objectType == BANK) {
-            for (String action : actions) {
-                if (action != null && !action.trim().isEmpty()) {
-                    return action;
-                }
-            }
-        }
+        // For banks, DO NOT click arbitrary actions. Require explicit preferred/fallbacks only.
         
         return null;
     }

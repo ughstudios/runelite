@@ -55,10 +55,9 @@ public class BankDepositTask implements Task {
             }
         } catch (Exception ignored) {}
         if (!canSeeBank && !nearBank) {
-            // Allow run if we have discovered banks so navigation can proceed
-            boolean hasDiscovered = !BankDiscovery.getDiscoveredBanks().isEmpty();
-            context.logger.info("[BankDeposit] shouldRun() - hasDiscoveredBanks: " + hasDiscovered + " (count=" + BankDiscovery.getDiscoveredBanks().size() + ")");
-            return hasDiscovered;
+            // Do not run when no bank is visible or nearby; let navigation/exploration handle movement
+            context.logger.info("[BankDeposit] shouldRun=false (no visible/nearby bank)");
+            return false;
         }
         return true;
     }
@@ -168,7 +167,21 @@ public class BankDepositTask implements Task {
                 context.logger.info("[BankDeposit] Bank opened successfully!");
                 if (context.telemetry != null) context.telemetry.addReward(15);
             } else {
-                context.logger.warn("[BankDeposit] Bank click succeeded but bank did not open - may need different action or timing");
+                context.logger.warn("[BankDeposit] Bank click validated but UI not open - applying camera nudge and retry");
+                // Nudge camera and retry once at a higher click point to avoid occluders
+                CameraHelper.sweepYawSmall(context, 6);
+                context.input.tiltCameraUpSmall();
+                context.setBusyForMs(200);
+                // Retry using ObjectClicker again
+                if (ObjectClicker.clickNearestObject(context, ObjectClicker.BANK)) {
+                    context.setBusyForMs(500);
+                    if (isBankOpen(context)) {
+                        context.logger.info("[BankDeposit] Bank opened on retry");
+                        if (context.telemetry != null) context.telemetry.addReward(10);
+                    } else {
+                        context.logger.warn("[BankDeposit] Retry validated click but UI still not open");
+                    }
+                }
             }
             return;
         } else {

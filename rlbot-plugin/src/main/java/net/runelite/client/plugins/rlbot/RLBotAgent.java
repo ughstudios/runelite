@@ -88,6 +88,7 @@ public class RLBotAgent {
             new ExploreTask(),
             new CameraRotateTask(),
             new CameraAdjustmentTask(), // Enhanced camera controls for stuck/idle situations
+            new RandomCameraMovementTask(), // Random camera movement while walking
             new IdleTask()
         );
         if (config.enableRLAgent()) {
@@ -123,7 +124,7 @@ public class RLBotAgent {
                 actionCounts = new int[tasks.size()];
                 // Try load model from disk on startup
                 try {
-                    java.nio.file.Path modelDir = java.nio.file.Paths.get(System.getProperty("user.home"), ".rlbot", "models");
+                    java.nio.file.Path modelDir = java.nio.file.Paths.get("models");
                     boolean loaded = dqn.loadFrom(modelDir);
                     logger.info("[RL] Model load " + (loaded ? "succeeded" : "not found/failed") + " from " + modelDir);
                 } catch (Exception ignored) {}
@@ -197,6 +198,7 @@ public class RLBotAgent {
     public void triggerCrossWildernessOut() { logger.info("[UI] Enqueue CrossWildernessDitchOutTask"); manualTasks.offer(new CrossWildernessDitchOutTask()); }
     public void triggerExplore() { logger.info("[UI] Enqueue ExploreTask"); manualTasks.offer(new ExploreTask()); }
     public void triggerRotateCamera() { logger.info("[UI] Enqueue CameraRotateTask"); manualTasks.offer(new CameraRotateTask()); }
+    public void triggerRandomCameraMovement() { logger.info("[UI] Enqueue RandomCameraMovementTask"); manualTasks.offer(new RandomCameraMovementTask()); }
 
     public void triggerRotateDirection(String dir, int steps) {
         logger.info("[UI] Enqueue rotate direction dir=" + dir + " steps=" + steps);
@@ -290,12 +292,12 @@ public class RLBotAgent {
                 if (!(ti instanceof IdleTask) && taskContext.isWoodcuttingAnim()) {
                     allowed = false;
                 }
-                // Never rotate or explore when inventory is full; must bank
-                if (inventoryFull && (ti instanceof CameraRotateTask || ti instanceof ExploreTask)) {
+                // Never rotate, explore, or random camera movement when inventory is full; must bank
+                if (inventoryFull && (ti instanceof CameraRotateTask || ti instanceof ExploreTask || ti instanceof RandomCameraMovementTask)) {
                     allowed = false;
                 }
-                // Also, if inventoryFull and bank is visible or bank is open, prefer banking tasks over rotation
-                if (inventoryFull && (ti instanceof CameraRotateTask) && (bankVisible || curBankOpen())) {
+                // Also, if inventoryFull and bank is visible or bank is open, prefer banking tasks over camera tasks
+                if (inventoryFull && (ti instanceof CameraRotateTask || ti instanceof RandomCameraMovementTask) && (bankVisible || curBankOpen())) {
                     allowed = false;
                 }
                 mask[i] = allowed && ti.shouldRun(taskContext);
@@ -333,7 +335,7 @@ public class RLBotAgent {
                     }
                     continue;
                 }
-                if (ti instanceof ExploreTask || ti instanceof CameraRotateTask) {
+                if (ti instanceof ExploreTask || ti instanceof CameraRotateTask || ti instanceof RandomCameraMovementTask) {
                     return i;
                 }
             }
