@@ -45,6 +45,12 @@ public class RLBotControlWindow extends JFrame {
 		JButton btnRotD = new JButton("↓");
 		javax.swing.JTextField rotateSteps = new javax.swing.JTextField("4", 3);
 		javax.swing.JTextField exploreTiles = new javax.swing.JTextField("6", 3);
+		// Manual canvas click controls
+		javax.swing.JLabel lblClick = new javax.swing.JLabel("Click X/Y:");
+		javax.swing.JTextField clickX = new javax.swing.JTextField("400", 4);
+		javax.swing.JTextField clickY = new javax.swing.JTextField("300", 4);
+		javax.swing.JTextField clickAction = new javax.swing.JTextField("Chop down", 10);
+		JButton btnClickXY = new JButton("Click X/Y");
 		JButton btnNorth = new JButton("N");
 		JButton btnSouth = new JButton("S");
 		JButton btnEast = new JButton("E");
@@ -67,6 +73,12 @@ public class RLBotControlWindow extends JFrame {
 		buttons.add(btnRotR);
 		buttons.add(btnRotU);
 		buttons.add(btnRotD);
+		// Add manual canvas click controls to panel
+		buttons.add(lblClick);
+		buttons.add(clickX);
+		buttons.add(clickY);
+		buttons.add(clickAction);
+		buttons.add(btnClickXY);
 		add(buttons, BorderLayout.CENTER);
 
 		btnNavTrees.addActionListener(e -> safe(() -> agent.triggerNavigateTrees()));
@@ -85,6 +97,11 @@ public class RLBotControlWindow extends JFrame {
 		btnSouth.addActionListener(e -> safe(() -> agent.triggerExploreCardinal("SOUTH", parseInt(exploreTiles.getText(), 6))));
 		btnEast.addActionListener(e -> safe(() -> agent.triggerExploreCardinal("EAST", parseInt(exploreTiles.getText(), 6))));
 		btnWest.addActionListener(e -> safe(() -> agent.triggerExploreCardinal("WEST", parseInt(exploreTiles.getText(), 6))));
+		btnClickXY.addActionListener(e -> safe(() -> agent.triggerClickAtXY(
+			parseInt(clickX.getText(), 400),
+			parseInt(clickY.getText(), 300),
+			clickAction.getText() != null ? clickAction.getText().trim() : "Chop down"
+		)));
 
 		addWindowListener(new WindowAdapter() {
 			@Override

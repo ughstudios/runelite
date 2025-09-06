@@ -500,6 +500,19 @@ public class RLBotInputHandler {
     }
     
     /**
+     * Get the current mouse position relative to the canvas.
+     */
+    private Point getCurrentMousePosition() {
+        Canvas canvas = getCanvas();
+        if (canvas == null) return null;
+        try {
+            return canvas.getMousePosition();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    /**
      * Dispatches a mouse move event to the component.
      *
      * @param component The component to dispatch the event to
@@ -564,6 +577,27 @@ public class RLBotInputHandler {
         if (isWoodcutting() || isWalking()) return false;
         // First move the mouse to the target (now synchronous)
         smoothMouseMove(canvasPoint);
+        
+        // Verify mouse reached target before clicking; if not, retry move
+        Point currentMousePos = getCurrentMousePosition();
+        if (currentMousePos != null) {
+            double distance = Math.hypot(currentMousePos.x - canvasPoint.x, currentMousePos.y - canvasPoint.y);
+            if (distance > 10) {
+                logger.warn("[RLBOT_INPUT] Mouse didn't reach target. Expected: " + canvasPoint + ", Actual: " + currentMousePos + ", Distance: " + String.format("%.1f", distance));
+                smoothMouseMove(canvasPoint);
+            }
+        }
+
+        // Allow hover-settle: repeatedly validate for a short window before clicking
+        long hoverStart = System.nanoTime();
+        boolean hoverValidated = false;
+        for (int i = 0; i < 4; i++) { // ~4 iterations over ~200ms
+            if (validateTargetAtPoint(canvasPoint, expectedAction)) { hoverValidated = true; break; }
+            try { Thread.sleep(50); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+        }
+        long hoverEnd = System.nanoTime();
+        logger.perf("[RLBOT_INPUT] Hover-settle validation took " + ((hoverEnd - hoverStart) / 1_000_000) + " ms, validated=" + hoverValidated);
+        
         if (isWoodcutting() || isWalking()) return false;
         
         // Find the target object first so we can pass it to collision handler

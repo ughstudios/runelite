@@ -102,347 +102,41 @@ public class RLBotOverlay extends OverlayPanel {
         
         panelComponent.getChildren().clear();
         
-        // Add title
-        panelComponent.getChildren().add(TitleComponent.builder()
-            .text("RLBot")
-            .color(Color.GREEN)
-            .build());
-        
-        // Add connection status
-        panelComponent.getChildren().add(LineComponent.builder()
-            .left("Status:")
-            .right("In-Process")
-            .rightColor(Color.GREEN)
-            .build());
-        
-        // Add uptime
-        Duration uptime = Duration.between(startTime, Instant.now());
-        long hours = uptime.toHours();
-        long minutes = uptime.toMinutesPart();
-        long seconds = uptime.toSecondsPart();
-        panelComponent.getChildren().add(LineComponent.builder()
-            .left("Uptime:")
-            .right(String.format("%02d:%02d:%02d", hours, minutes, seconds))
-            .build());
-        
-        // Add current action
-        if (currentAction != null && !currentAction.isEmpty()) {
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Current action:")
-                .right(currentAction)
-                .build());
-        }
-
-        // Telemetry
-        if (telemetry != null) {
-            String taskName = telemetry.getMode();
-            if (taskName != null && !taskName.isEmpty()) {
-                panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Current task:")
-                    .right(taskName)
-                    .build());
-            }
-            if (telemetry.getTargetName() != null && !telemetry.getTargetName().isEmpty()) {
-                panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Target:")
-                    .right(telemetry.getTargetName())
-                    .build());
-            }
-            if (telemetry.getDistanceTiles() >= 0) {
-                panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Dist:")
-                    .right(Integer.toString(telemetry.getDistanceTiles()))
-                    .build());
-            }
-            if (telemetry.getBusyRemainingMs() > 0) {
-                panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Busy ms:")
-                    .right(Long.toString(telemetry.getBusyRemainingMs()))
-                    .build());
-            }
-        }
-        
-        // Agent State Information
+        // Main title with status indicator
+        String statusText = "RLBot - Learning";
+        Color statusColor = Color.GREEN;
         if (agent != null && config.enableRLAgent()) {
-            panelComponent.getChildren().add(TitleComponent.builder()
-                .text("Agent State")
-                .color(Color.CYAN)
-                .build());
-            
-            // RL Training Metrics
-            long steps = agent.getSteps();
-            double episodeReturn = agent.getEpisodeReturn();
             int epsilonPct = agent.getLastEpsilonPct();
-            Float trainLoss = agent.getLastTrainLoss();
-            int totalActions = agent.getTotalActions();
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Steps:")
-                .right(Long.toString(steps))
-                .build());
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Episode Return:")
-                .right(String.format("%.2f", episodeReturn))
-                .rightColor(episodeReturn > 0 ? Color.GREEN : Color.RED)
-                .build());
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Epsilon:")
-                .right(epsilonPct + "%")
-                .rightColor(epsilonPct > 50 ? Color.YELLOW : Color.GREEN)
-                .build());
-            
-            if (trainLoss != null) {
-                panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Train Loss:")
-                    .right(String.format("%.4f", trainLoss))
-                    .build());
+            if (epsilonPct > 80) {
+                statusText = "RLBot - Exploring";
+                statusColor = Color.YELLOW;
+            } else if (epsilonPct > 50) {
+                statusText = "RLBot - Learning";
+                statusColor = Color.ORANGE;
+            } else {
+                statusText = "RLBot - Exploiting";
+                statusColor = Color.GREEN;
             }
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Total Actions:")
-                .right(Integer.toString(totalActions))
-                .build());
         }
         
-        // Inventory Status
-        if (taskContext != null) {
-            panelComponent.getChildren().add(TitleComponent.builder()
-                .text("Inventory")
-                .color(Color.ORANGE)
-                .build());
-            
-            int freeSlots = taskContext.getInventoryFreeSlots();
-            boolean nearFull = taskContext.isInventoryNearFull();
-            boolean full = taskContext.isInventoryFull();
-            
-            Color inventoryColor = full ? Color.RED : (nearFull ? Color.YELLOW : Color.GREEN);
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Free Slots:")
-                .right(Integer.toString(freeSlots))
-                .rightColor(inventoryColor)
-                .build());
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Status:")
-                .right(full ? "FULL" : (nearFull ? "NEAR FULL" : "OK"))
-                .rightColor(inventoryColor)
-                .build());
-        }
+        panelComponent.getChildren().add(TitleComponent.builder()
+            .text(statusText)
+            .color(statusColor)
+            .build());
         
-        // Navigation & Movement Status
-        if (taskContext != null) {
-            panelComponent.getChildren().add(TitleComponent.builder()
-                .text("Navigation")
-                .color(Color.MAGENTA)
-                .build());
-            
-            boolean isWalking = taskContext.isPlayerWalking();
-            boolean isStuck = !taskContext.isPlayerMovingRecent(3000);
-            int navNoProgress = taskContext.getNavNoProgressCount();
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Walking:")
-                .right(isWalking ? "YES" : "NO")
-                .rightColor(isWalking ? Color.GREEN : Color.RED)
-                .build());
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Stuck:")
-                .right(isStuck ? "YES" : "NO")
-                .rightColor(isStuck ? Color.RED : Color.GREEN)
-                .build());
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Nav Failures:")
-                .right(Integer.toString(navNoProgress))
-                .rightColor(navNoProgress > 3 ? Color.RED : Color.GREEN)
-                .build());
-            
-            // Run energy
-            float runEnergy = taskContext.getRunEnergy01();
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Run Energy:")
-                .right(String.format("%.0f%%", runEnergy * 100))
-                .rightColor(runEnergy > 0.5f ? Color.GREEN : Color.YELLOW)
-                .build());
-        }
-        
-        // Goal State Information
-        if (client != null && taskContext != null) {
-            panelComponent.getChildren().add(TitleComponent.builder()
-                .text("Goal State")
-                .color(Color.PINK)
-                .build());
-            
-            try {
-                Player player = client.getLocalPlayer();
-                if (player != null) {
-                    boolean inWilderness = player.getWorldLocation().getY() > 3523;
-                    panelComponent.getChildren().add(LineComponent.builder()
-                        .left("Wilderness:")
-                        .right(inWilderness ? "YES" : "NO")
-                        .rightColor(inWilderness ? Color.RED : Color.GREEN)
-                        .build());
-                }
-                
-                // Current goal based on inventory and location
-                String currentGoal = "Find Trees";
-                if (taskContext.isInventoryNearFull()) {
-                    currentGoal = "Bank Items";
-                } else if (player != null && player.getWorldLocation().getY() <= 3523) {
-                    currentGoal = "Cross Wilderness";
-                }
-                
-                panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Current Goal:")
-                    .right(currentGoal)
-                    .build());
-                
-                // Woodcutting XP
-                try {
-                    int woodcuttingXp = client.getSkillExperience(Skill.WOODCUTTING);
-                    panelComponent.getChildren().add(LineComponent.builder()
-                        .left("WC XP:")
-                        .right(Integer.toString(woodcuttingXp))
-                        .build());
-                } catch (Exception ignored) {}
-                
-            } catch (Exception ignored) {}
-        }
-        
-        // Performance Metrics
+        // Learning Progress Section (Most Important)
         if (agent != null && config.enableRLAgent()) {
-            panelComponent.getChildren().add(TitleComponent.builder()
-                .text("Performance")
-                .color(Color.BLUE)
-                .build());
-            
-            // Performance metrics using getter methods
-            double stepsPerSecond = agent.getStepsPerSecond();
-            long episodeStartMs = agent.getEpisodeStartMs();
-            long episodeDurationMs = System.currentTimeMillis() - episodeStartMs;
-            float actionDiversity = agent.getActionDiversity();
-            double efficiency = agent.getEfficiency();
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Steps/sec:")
-                .right(String.format("%.2f", stepsPerSecond))
-                .rightColor(stepsPerSecond > 1.0 ? Color.GREEN : Color.YELLOW)
-                .build());
-            
-            // Episode duration
-            long episodeMinutes = episodeDurationMs / 60000;
-            long episodeSeconds = (episodeDurationMs % 60000) / 1000;
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Episode Time:")
-                .right(String.format("%02d:%02d", episodeMinutes, episodeSeconds))
-                .build());
-            
-            // Action diversity
-            if (actionDiversity > 0) {
-                panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Action Diversity:")
-                    .right(String.format("%.2f", actionDiversity))
-                    .rightColor(actionDiversity > 0.5f ? Color.GREEN : Color.YELLOW)
-                    .build());
-            }
-            
-            // Efficiency metrics
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Efficiency:")
-                .right(String.format("%.4f", efficiency))
-                .rightColor(efficiency > 0 ? Color.GREEN : Color.RED)
-                .build());
+            renderLearningProgress();
         }
         
-        // Add animation ID display
-        if (client != null && client.getLocalPlayer() != null) {
-            int animId = client.getLocalPlayer().getAnimation();
-            String animText = Integer.toString(animId);
-            Color animColor = animId == -1 ? Color.GREEN : Color.YELLOW;
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Animation:")
-                .right(animText)
-                .rightColor(animColor)
-                .build());
-        }
+        // Current Activity Section
+        renderCurrentActivity();
         
-        // Add detailed movement detection info
-        if (client != null && client.getLocalPlayer() != null && taskContext != null) {
-            Player p = client.getLocalPlayer();
-            long now = System.currentTimeMillis();
-            long timeSinceMove = now - taskContext.getLastMoveMs();
-            
-            // Position change
-            boolean positionChanged = timeSinceMove < 2000;
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Position Changed:")
-                .right(positionChanged ? "YES" : "NO")
-                .rightColor(positionChanged ? Color.GREEN : Color.RED)
-                .build());
-            
-            // Animation
-            int anim = p.getAnimation();
-            boolean isWalkingAnim = anim == 819 || anim == 820 || anim == 821 || anim == 822 || anim == 824;
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Walking Animation:")
-                .right(isWalkingAnim ? "YES (" + anim + ")" : "NO")
-                .rightColor(isWalkingAnim ? Color.GREEN : Color.RED)
-                .build());
-            
-            // Pose Animation
-            int poseAnim = p.getPoseAnimation();
-            boolean hasPoseAnimation = poseAnim != -1;
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Pose Animation:")
-                .right(hasPoseAnimation ? "YES (" + poseAnim + ")" : "NO")
-                .rightColor(hasPoseAnimation ? Color.GREEN : Color.RED)
-                .build());
-            
-            // Graphic
-            int graphic = p.getGraphic();
-            boolean hasGraphic = graphic != -1;
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Graphic Effect:")
-                .right(hasGraphic ? "YES (" + graphic + ")" : "NO")
-                .rightColor(hasGraphic ? Color.GREEN : Color.RED)
-                .build());
-            
-            // Interacting
-            boolean isInteracting = p.getInteracting() != null;
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Interacting:")
-                .right(isInteracting ? "YES" : "NO")
-                .rightColor(isInteracting ? Color.GREEN : Color.RED)
-                .build());
-            
-            // Running
-            boolean isRunning = client.getVarpValue(173) == 1;
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Running:")
-                .right(isRunning ? "YES" : "NO")
-                .rightColor(isRunning ? Color.GREEN : Color.RED)
-                .build());
-            
-            // Time since last move
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Time Since Move:")
-                .right(timeSinceMove + "ms")
-                .rightColor(timeSinceMove < 2000 ? Color.GREEN : Color.RED)
-                .build());
-            
-            // Overall walking detection
-            boolean isWalking = taskContext.isPlayerWalking();
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Overall Walking:")
-                .right(isWalking ? "YES" : "NO")
-                .rightColor(isWalking ? Color.GREEN : Color.RED)
-                .build());
-        }
+        // Quick Stats Section
+        renderQuickStats();
+
+        // Q-values Visualization
+        renderQValues();
         
         // Draw goal object outline (green if unobstructed, red if occluded)
         try {
@@ -490,6 +184,351 @@ public class RLBotOverlay extends OverlayPanel {
         }
         
         return super.render(graphics);
+    }
+    
+    /**
+     * Render a wide, compact visualization of the agent's latest Q-values in 2 columns.
+     */
+    private void renderQValues() {
+        if (agent == null || !config.enableRLAgent()) return;
+        // Use real-time Q prediction to avoid overlay staleness
+        float[] q = agent.predictQNowSafe();
+        if (q == null || q.length == 0) return;
+
+        panelComponent.getChildren().add(TitleComponent.builder()
+            .text("Policy")
+            .color(new Color(180, 120, 255))
+            .build());
+
+        // Compute normalization range
+        float min = q[0], max = q[0];
+        for (float v : q) { if (v < min) min = v; if (v > max) max = v; }
+        float range = Math.max(1e-6f, max - min);
+
+        // Sort indices by descending Q and show ALL actions
+        java.util.List<Integer> idx = new java.util.ArrayList<>();
+        for (int i = 0; i < q.length; i++) idx.add(i);
+        idx.sort((a,b) -> Float.compare(q[b], q[a]));
+        int chosen = agent.getLastChosenAction();
+        boolean wasExplore = agent.wasLastActionExploratory();
+
+        // Render as a single, readable column to avoid overlap
+        for (int k = 0; k < idx.size(); k++) {
+            int i = idx.get(k);
+            float norm = (q[i] - min) / range;
+            String name = shortActionName(agent.getActionName(i));
+            // Fixed widths: name(10) bar(12) q(>=5)
+            String line = String.format("%-10s %.2f", name, q[i]);
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left(line)
+                .leftColor(getActionColor(chosen, i))
+                .build());
+        }
+
+        // Show chosen and last actions
+        if (chosen >= 0) {
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Current:")
+                .right(shortActionName(agent.getActionName(chosen)) + (wasExplore ? " (explore)" : " (greedy)"))
+                .rightColor(wasExplore ? Color.ORANGE : Color.CYAN)
+                .build());
+        }
+        String lastAction = getLastExecutedAction();
+        if (lastAction != null && !lastAction.isEmpty()) {
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Last:")
+                .right(lastAction)
+                .rightColor(Color.YELLOW)
+                .build());
+        }
+    }
+    
+    /**
+     * Get color for action based on whether it's chosen.
+     */
+    private Color getActionColor(int chosenAction, int actionIndex) {
+        if (actionIndex == chosenAction) {
+            return Color.GREEN;
+        }
+        return Color.LIGHT_GRAY;
+    }
+    
+    /**
+     * Get the name of the last executed action with timing and result info.
+     */
+    private String getLastExecutedAction() {
+        if (agent == null) return null;
+        
+        try {
+            // Get the most recent action from the recent actions list
+            java.util.LinkedList<Integer> recentActions = agent.getRecentActions();
+            if (recentActions != null && !recentActions.isEmpty()) {
+                Integer lastActionIndex = recentActions.peekLast();
+                if (lastActionIndex != null && lastActionIndex >= 0) {
+                    String actionName = shortActionName(agent.getActionName(lastActionIndex));
+                    
+                    // Add current task status for context
+                    if (telemetry != null) {
+                        String currentTask = telemetry.getMode();
+                        if (currentTask != null && !currentTask.isEmpty()) {
+                            // Show both the RL action and what task is currently running
+                            return actionName + " → " + currentTask;
+                        }
+                    }
+                    
+                    // Add action count for this action type
+                    int[] actionCounts = agent.getActionCounts();
+                    if (actionCounts != null && lastActionIndex < actionCounts.length) {
+                        int count = actionCounts[lastActionIndex];
+                        return actionName + " (×" + count + ")";
+                    }
+                    
+                    return actionName;
+                }
+            }
+        } catch (Exception ignored) {}
+        
+        return "None";
+    }
+
+    private String qBar(float v01, int width) {
+        int n = Math.max(0, Math.min(width, Math.round(v01 * width)));
+        StringBuilder sb = new StringBuilder();
+        // ASCII-friendly bar to avoid missing glyph boxes in RuneLite font
+        for (int i = 0; i < n; i++) sb.append('|');
+        for (int i = n; i < width; i++) sb.append('-');
+        return sb.toString();
+    }
+
+    private String shortActionName(String simpleClass) {
+        if (simpleClass == null) return "?";
+        String s = simpleClass;
+        if (s.contains("BankDeposit")) return "Bank";
+        if (s.contains("NavigateToBank")) return "NavBank";
+        if (s.contains("CrossWildernessDitchOut")) return "DitchOut";
+        if (s.contains("CrossWildernessDitch")) return "Ditch";
+        if (s.contains("ChopNearestTree")) return "Chop";
+        if (s.contains("NavigateToTree")) return "NavTrees";
+        if (s.contains("CameraAdjustment")) return "CamAdj";
+        if (s.contains("CameraRotate")) return "CamRot";
+        if (s.contains("RandomCameraMovement")) return "CamRnd";
+        if (s.contains("Explore")) return "Explore";
+        if (s.contains("Idle")) return "Idle";
+        return s.length() > 12 ? s.substring(0, 12) : s;
+    }
+
+    /**
+     * Renders the learning progress section with clear, user-friendly metrics.
+     */
+    private void renderLearningProgress() {
+        panelComponent.getChildren().add(TitleComponent.builder()
+            .text("Learning Progress")
+            .color(Color.CYAN)
+            .build());
+        
+        // Episode Return (Reward) - Most important metric
+        double episodeReturn = agent.getEpisodeReturn();
+        String rewardText = String.format("%.1f", episodeReturn);
+        Color rewardColor = episodeReturn > 0 ? Color.GREEN : Color.RED;
+        if (Math.abs(episodeReturn) < 0.1) rewardColor = Color.YELLOW;
+        
+        panelComponent.getChildren().add(LineComponent.builder()
+            .left("Reward:")
+            .right(rewardText)
+            .rightColor(rewardColor)
+            .build());
+        
+        // Learning Phase (Exploration vs Exploitation)
+        int epsilonPct = agent.getLastEpsilonPct();
+        String phaseText;
+        Color phaseColor;
+        if (epsilonPct > 80) {
+            phaseText = "Exploring (" + epsilonPct + "%)";
+            phaseColor = Color.YELLOW;
+        } else if (epsilonPct > 50) {
+            phaseText = "Learning (" + epsilonPct + "%)";
+            phaseColor = Color.ORANGE;
+        } else {
+            phaseText = "Using Knowledge (" + epsilonPct + "%)";
+            phaseColor = Color.GREEN;
+        }
+        
+        panelComponent.getChildren().add(LineComponent.builder()
+            .left("Phase:")
+            .right(phaseText)
+            .rightColor(phaseColor)
+            .build());
+        
+        // Training Progress
+        Float trainLoss = agent.getLastTrainLoss();
+        if (trainLoss != null) {
+            String lossText = String.format("%.3f", trainLoss);
+            Color lossColor = trainLoss < 0.1 ? Color.GREEN : (trainLoss < 0.5 ? Color.YELLOW : Color.RED);
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Learning:")
+                .right(lossText)
+                .rightColor(lossColor)
+                .build());
+        }
+        
+        // Episode Duration
+        long episodeStartMs = agent.getEpisodeStartMs();
+        long episodeDurationMs = System.currentTimeMillis() - episodeStartMs;
+        long episodeMinutes = episodeDurationMs / 60000;
+        long episodeSeconds = (episodeDurationMs % 60000) / 1000;
+        
+        panelComponent.getChildren().add(LineComponent.builder()
+            .left("Episode:")
+            .right(String.format("%02d:%02d", episodeMinutes, episodeSeconds))
+            .build());
+        
+        // Total Experience
+        long steps = agent.getSteps();
+        panelComponent.getChildren().add(LineComponent.builder()
+            .left("Experience:")
+            .right(formatNumber(steps) + " steps")
+            .build());
+    }
+    
+    /**
+     * Renders the current activity section with what the bot is doing right now.
+     */
+    private void renderCurrentActivity() {
+        panelComponent.getChildren().add(TitleComponent.builder()
+            .text("Current Activity")
+            .color(Color.GREEN)
+            .build());
+        
+        // Current action
+        if (currentAction != null && !currentAction.isEmpty()) {
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Action:")
+                .right(currentAction)
+                .build());
+        }
+        
+        // Current task from telemetry (condensed)
+        if (telemetry != null) {
+            String taskName = telemetry.getMode();
+            if (taskName != null && !taskName.isEmpty()) {
+                panelComponent.getChildren().add(LineComponent.builder()
+                    .left("Task:")
+                    .right(taskName)
+                    .build());
+            }
+        }
+        
+        // Inventory status (simplified)
+        if (taskContext != null) {
+            int freeSlots = taskContext.getInventoryFreeSlots();
+            boolean nearFull = taskContext.isInventoryNearFull();
+            boolean full = taskContext.isInventoryFull();
+            
+            String inventoryStatus;
+            Color inventoryColor;
+            if (full) {
+                inventoryStatus = "FULL";
+                inventoryColor = Color.RED;
+            } else if (nearFull) {
+                inventoryStatus = "NEAR FULL";
+                inventoryColor = Color.YELLOW;
+            } else {
+                inventoryStatus = "OK (" + freeSlots + " free)";
+                inventoryColor = Color.GREEN;
+            }
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Inventory:")
+                .right(inventoryStatus)
+                .rightColor(inventoryColor)
+                .build());
+        }
+    }
+    
+    /**
+     * Renders quick stats section with essential information.
+     */
+    private void renderQuickStats() {
+        panelComponent.getChildren().add(TitleComponent.builder()
+            .text("Quick Stats")
+            .color(Color.ORANGE)
+            .build());
+        
+        // Uptime
+        Duration uptime = Duration.between(startTime, Instant.now());
+        long hours = uptime.toHours();
+        long minutes = uptime.toMinutesPart();
+        panelComponent.getChildren().add(LineComponent.builder()
+            .left("Runtime:")
+            .right(String.format("%02d:%02d", hours, minutes))
+            .build());
+        
+        // Performance indicator
+        if (agent != null && config.enableRLAgent()) {
+            double stepsPerSecond = agent.getStepsPerSecond();
+            String perfText = String.format("%.1f", stepsPerSecond) + "/sec";
+            Color perfColor = stepsPerSecond > 1.0 ? Color.GREEN : Color.YELLOW;
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Speed:")
+                .right(perfText)
+                .rightColor(perfColor)
+                .build());
+        }
+        
+        // Woodcutting XP
+        if (client != null) {
+            try {
+                int woodcuttingXp = client.getSkillExperience(Skill.WOODCUTTING);
+                panelComponent.getChildren().add(LineComponent.builder()
+                    .left("WC XP:")
+                    .right(formatNumber(woodcuttingXp))
+                    .build());
+            } catch (Exception ignored) {}
+        }
+        
+        // Movement status
+        if (taskContext != null) {
+            boolean isWalking = taskContext.isPlayerWalking();
+            boolean isChopping = taskContext.isWoodcuttingAnim();
+            boolean isStuck = !taskContext.isPlayerMovingRecent(3000) && !isWalking && !isChopping;
+            
+            String movementStatus;
+            Color movementColor;
+            if (isStuck) {
+                movementStatus = "STUCK";
+                movementColor = Color.RED;
+            } else if (isWalking) {
+                movementStatus = "MOVING";
+                movementColor = Color.GREEN;
+            } else if (isChopping) {
+                movementStatus = "CHOPPING";
+                movementColor = Color.GREEN;
+            } else {
+                movementStatus = "IDLE";
+                movementColor = Color.YELLOW;
+            }
+            
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Movement:")
+                .right(movementStatus)
+                .rightColor(movementColor)
+                .build());
+        }
+    }
+    
+    /**
+     * Formats large numbers with K/M suffixes for better readability.
+     */
+    private String formatNumber(long number) {
+        if (number >= 1_000_000) {
+            return String.format("%.1fM", number / 1_000_000.0);
+        } else if (number >= 1_000) {
+            return String.format("%.1fK", number / 1_000.0);
+        } else {
+            return Long.toString(number);
+        }
     }
     
     /**

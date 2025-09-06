@@ -82,6 +82,7 @@ public class TreeDiscovery {
                                     if (!RLBotConfigManager.hasTree(treeLocation)) {
                                         RLBotConfigManager.addTree(treeLocation, name);
                                         foundNewTrees = true;
+                                        logger.info("[TreeDiscovery] Discovered new tree: " + name + " at " + treeLocation);
                                     }
                                     // If it has Chop now, clear any prior depletion mark
                                     RLBotConfigManager.markTreeDepleted(treeLocation, 0); // Clear depletion
@@ -89,6 +90,7 @@ public class TreeDiscovery {
                                     // Tree found but no chop action - likely a stump, mark as depleted
                                     WorldPoint treeLocation = to.getWorldLocation();
                                     markDepleted(treeLocation);
+                                    logger.debug("[TreeDiscovery] Marked stump as depleted: " + name + " at " + treeLocation);
                                 }
                             }
                         }
@@ -161,6 +163,8 @@ public class TreeDiscovery {
         List<RLBotConfigManager.TreeLocation> trees = RLBotConfigManager.getTrees();
         if (trees.isEmpty()) return new ArrayList<>();
         String[] allowed = allowedTreeNamesForLevel(woodcuttingLevel);
+        logger.info("[TreeDiscovery] Player WC level: " + woodcuttingLevel + ", allowed trees: " + java.util.Arrays.toString(allowed));
+        
         // Determine highest tier among allowed that we have discovered and available
         int bestTier = 0;
         for (RLBotConfigManager.TreeLocation tree : trees) {
@@ -174,18 +178,26 @@ public class TreeDiscovery {
             int tier = inferLogQualityTierFromTreeName(tree.name);
             if (tier > bestTier) bestTier = tier;
         }
+        logger.info("[TreeDiscovery] Best tier found for level " + woodcuttingLevel + ": " + bestTier);
+        
         if (bestTier <= 0) return new ArrayList<>();
-        // Collect all available trees matching the best tier
+        // Collect all available trees matching the best tier AND that are allowed for current level
         List<WorldPoint> out = new ArrayList<>();
         for (RLBotConfigManager.TreeLocation tree : trees) {
             if (tree == null || tree.name == null) continue;
+            String lower = tree.name.toLowerCase();
+            boolean allowedName = false;
+            for (String a : allowed) { if (lower.contains(a)) { allowedName = true; break; } }
+            if (!allowedName) continue; // CRITICAL FIX: Re-check allowed names in collection phase
             WorldPoint wp = tree.toWorldPoint();
             if (RLBotConfigManager.isTreeDepleted(wp)) continue;
             int tier = inferLogQualityTierFromTreeName(tree.name);
             if (tier == bestTier) {
                 out.add(wp);
+                logger.info("[TreeDiscovery] Added tree to best list: " + tree.name + " (tier " + tier + ") at " + wp);
             }
         }
+        logger.info("[TreeDiscovery] Returning " + out.size() + " trees for level " + woodcuttingLevel);
         return out;
     }
 
@@ -273,6 +285,24 @@ public class TreeDiscovery {
         if (woodcuttingLevel >= 60) names.add("yew");
         if (woodcuttingLevel >= 75) names.add("magic");
         return names.toArray(new String[0]);
+    }
+    
+    /**
+     * Check if a specific tree name is allowed for the given woodcutting level.
+     * This provides an additional safety check to prevent cutting trees above the player's level.
+     */
+    public static boolean isTreeAllowedForLevel(String treeName, int woodcuttingLevel) {
+        if (treeName == null || woodcuttingLevel < 1) return false;
+        
+        String lowerName = treeName.toLowerCase();
+        String[] allowed = allowedTreeNamesForLevel(woodcuttingLevel);
+        
+        for (String allowedName : allowed) {
+            if (lowerName.contains(allowedName)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**

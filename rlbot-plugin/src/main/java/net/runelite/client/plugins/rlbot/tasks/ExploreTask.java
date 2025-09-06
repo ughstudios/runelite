@@ -9,7 +9,7 @@ public class ExploreTask implements Task {
 	@Override
 	public boolean shouldRun(TaskContext ctx) {
 		// Only explore when we can't find trees and have been stuck for a while
-		if (ctx.isBusy() && !ctx.timedOutSince(1000)) {
+		/*if (ctx.isBusy() && !ctx.timedOutSince(1000)) {
 			ctx.logger.info("[Explore] shouldRun=false: busy and not timed out");
 			return false;
 		}
@@ -74,7 +74,8 @@ public class ExploreTask implements Task {
 		
 		boolean shouldExplore = !playerMovingRecent || (inventoryFull && !playerMovingRecentShort);
 		ctx.logger.info("[Explore] shouldRun=" + shouldExplore + ": playerMovingRecent=" + playerMovingRecent + ", inventoryFull=" + inventoryFull + ", playerMovingRecentShort=" + playerMovingRecentShort);
-		return shouldExplore;
+		return shouldExplore;*/
+		return true;
 	}
 
 	@Override
@@ -124,6 +125,6 @@ public class ExploreTask implements Task {
 			double jitter = Math.toRadians(rng.nextDouble() * 30 - 15); // ±15 degrees jitter
 			MinimapPathing.stepTowards(ctx, exploreTarget, jitter);
 		}
-		ctx.setBusyForMs(800); // Longer busy time for aggressive exploration
+		ctx.setBusyForMs(300); // Reduced busy time for faster exploration
 	}
 }

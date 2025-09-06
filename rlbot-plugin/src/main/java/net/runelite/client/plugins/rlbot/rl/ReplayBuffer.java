@@ -7,6 +7,7 @@ public final class ReplayBuffer {
     private final List<Transition> data;
     private final int capacity;
     private int rrIndex = 0; // round-robin index for overwrite/sample
+    private final java.util.Random random = new java.util.Random();
 
     public ReplayBuffer(int capacity) {
         this.capacity = Math.max(1, capacity);
@@ -28,8 +29,14 @@ public final class ReplayBuffer {
     public List<Transition> sample(int batchSize) {
         int n = Math.min(batchSize, data.size());
         List<Transition> batch = new ArrayList<>(n);
-        for (int i = 0; i < n; i++) {
-            batch.add(data.get((rrIndex + i) % data.size()));
+        if (n <= 0) return batch;
+        // Uniform random sample without replacement for better i.i.d. batches
+        java.util.HashSet<Integer> picked = new java.util.HashSet<>(n * 2);
+        while (batch.size() < n) {
+            int idx = random.nextInt(data.size());
+            if (picked.add(idx)) {
+                batch.add(data.get(idx));
+            }
         }
         return batch;
     }

@@ -43,4 +43,11 @@ cp "$SCRIPT_DIR/target/rlbot-plugin-1.0.0.jar" "$RL_ROOT_DIR/runelite/sideloaded
 
 echo "✅ RLBot plugin JAR created: $SCRIPT_DIR/target/rlbot-plugin-1.0.0.jar"
 echo "📦 Plugin copied to: $RL_ROOT_DIR/runelite/sideloaded-plugins/"
-echo "💡 Restart RuneLite to load the plugin"
+
+# Also copy to user-level sideload dir used by a system-installed RuneLite
+USER_SIDELOAD_DIR="$HOME/.runelite/sideloaded-plugins"
+mkdir -p "$USER_SIDELOAD_DIR"
+cp "$SCRIPT_DIR/target/rlbot-plugin-1.0.0.jar" "$USER_SIDELOAD_DIR/" || true
+echo "📁 Also copied to: $USER_SIDELOAD_DIR/"
+
+echo "⚡ Auto-reload: If RuneLite is running in developer mode, changes will hot-reload automatically."

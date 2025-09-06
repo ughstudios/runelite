@@ -175,8 +175,24 @@ public interface RLBotConfig extends Config {
         name = "RL Epsilon",
         description = "Exploration rate ε (0.0-1.0)"
     )
-    @Range(min = 0, max = 1)
-    default int rlEpsilon() { return 0; } // default 0 for deterministic behavior
+    @Range(min = 0, max = 100)
+    default int rlEpsilon() { return 15; } // percent (0-100)
+
+    @ConfigItem(
+        keyName = "rlMinEpsilon",
+        name = "RL Min Epsilon",
+        description = "Minimum exploration rate ε_min (0.0-1.0)"
+    )
+    @Range(min = 0, max = 100)
+    default int rlMinEpsilon() { return 2; } // percent (0-100)
+
+    @ConfigItem(
+        keyName = "rlEpsilonDecaySteps",
+        name = "RL Epsilon Decay Steps",
+        description = "Steps over which to linearly decay ε to ε_min"
+    )
+    @Range(min = 1000, max = 500000)
+    default int rlEpsilonDecaySteps() { return 50000; }
 
     @ConfigItem(
         keyName = "rlAlpha",
@@ -203,6 +219,22 @@ public interface RLBotConfig extends Config {
     default int rlBatchSize() { return 32; }
 
     @ConfigItem(
+        keyName = "rlTrainEverySteps",
+        name = "RL Train Every N Steps",
+        description = "How often to run a training update (steps)"
+    )
+    @Range(min = 1, max = 50)
+    default int rlTrainEverySteps() { return 5; }
+
+    @ConfigItem(
+        keyName = "rlTrainIterations",
+        name = "RL Train Iterations",
+        description = "Number of gradient steps per training call"
+    )
+    @Range(min = 1, max = 10)
+    default int rlTrainIterations() { return 2; }
+
+    @ConfigItem(
         keyName = "rlReplayCapacity",
         name = "RL Replay Capacity",
         description = "Replay buffer capacity"
@@ -217,6 +249,22 @@ public interface RLBotConfig extends Config {
     )
     @Range(min = 100, max = 20000)
     default int rlTargetSyncSteps() { return 1000; }
+
+    @ConfigItem(
+        keyName = "rlRewardClipAbs",
+        name = "RL Reward Clip |r|",
+        description = "Clip rewards to [-clip, clip] for stability"
+    )
+    @Range(min = 0, max = 50)
+    default int rlRewardClipAbs() { return 5; }
+
+    @ConfigItem(
+        keyName = "rlMaxEpisodeSteps",
+        name = "RL Max Episode Steps",
+        description = "Force episode end after this many steps"
+    )
+    @Range(min = 100, max = 5000)
+    default int rlMaxEpisodeSteps() { return 1000; }
 
     @ConfigItem(
         keyName = "rngSeed",

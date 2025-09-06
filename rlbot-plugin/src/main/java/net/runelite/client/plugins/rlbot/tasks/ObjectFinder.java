@@ -112,10 +112,19 @@ public final class ObjectFinder {
                         String lower = name.toLowerCase();
                         boolean nameOk = false;
                         for (String s : nameSubstrings) {
-                            if (lower.contains(s)) { 
-                                nameOk = true; 
-                                // Only log when we actually find a valid target, not every object
-                                break; 
+                            // FIXED: More precise tree name matching to prevent "tree" from matching "yew tree"
+                            if (s.equals("tree")) {
+                                // For generic "tree", only match if it's exactly "tree" or "dead tree", not "yew tree", "oak tree", etc.
+                                if (lower.equals("tree") || lower.equals("dead tree")) {
+                                    nameOk = true;
+                                    break;
+                                }
+                            } else {
+                                // For specific trees like "oak", "willow", "yew", match if the name contains the substring
+                                if (lower.contains(s)) { 
+                                    nameOk = true; 
+                                    break; 
+                                }
                             }
                         }
                         if (!nameOk) continue;
@@ -312,10 +321,12 @@ public final class ObjectFinder {
         if (hull != null) {
             Rectangle b = hull.getBounds();
             if (b != null && b.width > 1 && b.height > 1) {
+                ctx.logger.info("[PROJECTION] Convex hull bounds: x=" + b.x + ", y=" + b.y + ", w=" + b.width + ", h=" + b.height);
                 // Aim toward the upper-middle of the hull to reduce NPC occlusion
                 int x = b.x + (b.width / 2);
                 int y = b.y + Math.max(1, b.height / 3);
                 java.awt.Point candidate = new java.awt.Point(x, y);
+                ctx.logger.info("[PROJECTION] Candidate click point: (" + candidate.x + "," + candidate.y + ")");
                 if (hull.contains(candidate)) {
                     // Also ensure within viewport
                     int vx = ctx.client.getViewportXOffset();
@@ -323,13 +334,23 @@ public final class ObjectFinder {
                     int vw = ctx.client.getViewportWidth();
                     int vh = ctx.client.getViewportHeight();
                     if (candidate.x >= vx && candidate.y >= vy && candidate.x < (vx + vw) && candidate.y < (vy + vh)) {
+                        ctx.logger.info("[PROJECTION] Using candidate point (within viewport and hull)");
                         return candidate;
+                    } else {
+                        ctx.logger.warn("[PROJECTION] Candidate point outside viewport");
                     }
+                } else {
+                    ctx.logger.warn("[PROJECTION] Candidate point not contained in hull");
                 }
                 // Fallback to hull center
                 java.awt.Point center = new java.awt.Point(b.x + b.width / 2, b.y + b.height / 2);
+                ctx.logger.info("[PROJECTION] Using hull center fallback: (" + center.x + "," + center.y + ")");
                 return center;
+            } else {
+                ctx.logger.warn("[PROJECTION] Hull bounds invalid: " + (b == null ? "null" : "w=" + b.width + " h=" + b.height));
             }
+        } else {
+            ctx.logger.warn("[PROJECTION] No convex hull available, falling back to simple projection");
         }
         return projectToCanvas(ctx, go);
     }

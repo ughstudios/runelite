@@ -47,7 +47,33 @@ public class NavigateToTreeHotspotTask extends NavigateToHotspotTask {
 
     @Override
     protected boolean shouldBeActive(TaskContext ctx) {
-        return !ctx.isInventoryNearFull();
+        if (ctx.isInventoryNearFull()) {
+            return false;
+        }
+        try {
+            net.runelite.api.Player me = ctx.client.getLocalPlayer();
+            if (me != null) {
+                net.runelite.api.coords.WorldPoint myWp = me.getWorldLocation();
+                if (myWp != null) {
+                    java.util.List<net.runelite.api.coords.WorldPoint> available = TreeDiscovery.getAvailableTrees();
+                    if (!available.isEmpty()) {
+                        int nearest = Integer.MAX_VALUE;
+                        for (net.runelite.api.coords.WorldPoint wp : available) {
+                            if (wp == null) continue;
+                            int d = myWp.distanceTo(wp);
+                            if (d >= 0 && d < nearest) {
+                                nearest = d;
+                            }
+                        }
+                        if (nearest <= 15) {
+                            ctx.logger.info("[NavigateToTree] Within " + nearest + " tiles of a tree; skipping navigation task");
+                            return false;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        return true;
     }
 }
 

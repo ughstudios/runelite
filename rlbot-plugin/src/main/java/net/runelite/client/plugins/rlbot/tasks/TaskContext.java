@@ -73,6 +73,24 @@ public final class TaskContext {
         return performing || moving || inDialog || timeLocked;
     }
 
+    /**
+     * Refresh movement timestamp from the player's current world location.
+     * Call this once per tick to ensure lastMoveMs stays accurate even when
+     * no task invokes isBusy().
+     */
+    public void refreshMovementFromPlayer() {
+        try {
+            Player p = client.getLocalPlayer();
+            if (p == null) return;
+            WorldPoint wp = p.getWorldLocation();
+            if (wp == null) return;
+            if (lastWorldPoint == null || !wp.equals(lastWorldPoint)) {
+                lastWorldPoint = wp;
+                lastMoveMs = System.currentTimeMillis();
+            }
+        } catch (Exception ignored) {}
+    }
+
     public void setBusyForMs(long durationMs) {
         long now = System.currentTimeMillis();
         long proposed = now + Math.max(25, durationMs); // Reduced from 50ms to 25ms minimum
@@ -87,6 +105,14 @@ public final class TaskContext {
             telemetry.setBusyRemainingMs(durationMs);
             telemetry.incEpisodeSteps();
         }
+    }
+
+    /**
+     * Clear any artificial busy lock so a manual action can run immediately.
+     */
+    public void clearBusyLock() {
+        busyUntilMs = 0L;
+        lastActionMs = 0L;
     }
 
     public boolean timedOutSince(long sinceMs) {

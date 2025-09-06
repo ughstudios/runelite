@@ -9,13 +9,10 @@ echo "🔥 Hot reloading RLBot plugin..."
 if [ $? -eq 0 ]; then
     echo "✅ Plugin built successfully!"
     echo "📦 Plugin JAR: rlbot-plugin/target/rlbot-plugin-1.0.0.jar"
-    echo "📁 Sideloaded to: runelite/sideloaded-plugins/"
+    echo "📁 Sideloaded to: runelite/sideloaded-plugins/ and ~/.runelite/sideloaded-plugins/"
     echo ""
-    echo "💡 To load the plugin:"
-    echo "   1. Restart RuneLite, OR"
-    echo "   2. Go to RuneLite Settings > External Plugins and enable RLBot"
-    echo ""
-    echo "⚡ Hot reload complete! Changes are ready to test."
+    echo "⚡ If RuneLite is running (developer mode), the plugin will hot-reload automatically."
+    echo "   Otherwise start RuneLite and enable RLBot in settings."
 else
     echo "❌ Plugin build failed!"
     exit 1

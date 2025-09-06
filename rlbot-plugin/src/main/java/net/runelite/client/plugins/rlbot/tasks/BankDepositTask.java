@@ -4,6 +4,8 @@ import java.awt.event.KeyEvent;
 import net.runelite.api.MenuAction;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
+import net.runelite.api.GameObject;
+import net.runelite.api.ObjectComposition;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 
@@ -22,7 +24,10 @@ public class BankDepositTask implements Task {
             }
             return inventoryFull || context.getInventoryFreeSlots() == 28; // Close bank if empty
         }
-        if (!context.isInventoryFull()) {
+        // Be more aggressive - run when inventory is full OR nearly full
+        boolean inventoryFull = context.isInventoryFull();
+        boolean inventoryNearFull = context.isInventoryNearFull();
+        if (!inventoryFull && !inventoryNearFull) {
             if (context.getInventoryFreeSlots() <= 5) {
                 context.logger.info("[BankDeposit] shouldRun() = false (inventory not near full, free slots: " + context.getInventoryFreeSlots() + ")");
             }
@@ -34,14 +39,15 @@ public class BankDepositTask implements Task {
         boolean canSeeBank = false;
         boolean nearBank = false;
         try {
+            // Require a valid bank interaction action to avoid clicking tables, stalls, etc.
             net.runelite.api.GameObject byName = ObjectFinder.findNearestByNames(
-                context, new String[]{"bank booth", "bank chest", "bank", "deposit box", "bank deposit box"}, null);
+                context, new String[]{"bank booth", "bank chest", "bank", "bank counter", "banker"}, "Bank");
             if (byName != null) {
                 java.awt.Point proj = ObjectFinder.projectToCanvas(context, byName);
                 if (proj != null) {
                     net.runelite.api.coords.WorldPoint wp = byName.getWorldLocation();
                     boolean blacklisted = BankDiscovery.isBlacklisted(wp);
-                    canSeeBank = !blacklisted && context.isInventoryFull();
+                    canSeeBank = !blacklisted && (inventoryFull || inventoryNearFull);
                     if (canSeeBank) {
                         context.logger.info("[BankDeposit] Visible bank on-screen; proceeding to interact (wp=" + wp + ")");
                     }
@@ -50,7 +56,11 @@ public class BankDepositTask implements Task {
                 net.runelite.api.Player me = context.client.getLocalPlayer();
                 if (me != null) {
                     int dist = me.getWorldLocation().distanceTo(byName.getWorldLocation());
-                    nearBank = dist >= 0 && dist <= 6 && !BankDiscovery.isBlacklisted(byName.getWorldLocation());
+                    // Be more aggressive - consider "near" to be within 8 tiles instead of 6
+                    nearBank = dist >= 0 && dist <= 8 && !BankDiscovery.isBlacklisted(byName.getWorldLocation());
+                    if (nearBank) {
+                        context.logger.info("[BankDeposit] Near bank at distance " + dist + "; proceeding to interact");
+                    }
                 }
             }
         } catch (Exception ignored) {}
@@ -67,6 +77,7 @@ public class BankDepositTask implements Task {
     public void run(TaskContext context) {
         UiHelper.closeObstructions(context);
         if (context.isBusy() && !context.timedOutSince(4000)) {
+            context.logger.info("[BankDeposit] Context is busy, skipping this tick");
             return;
         }
         Client client = context.client;
@@ -75,6 +86,8 @@ public class BankDepositTask implements Task {
         boolean bankOpen = isBankOpen(context);
         
         if (bankOpen) {
+            context.logger.info("[BankDeposit] Bank is open, inventory free slots: " + context.getInventoryFreeSlots());
+            
             // If inventory is empty, close the bank
             if (context.getInventoryFreeSlots() == 28) {
                 context.logger.info("[BankDeposit] Inventory is empty, closing bank");
@@ -88,30 +101,71 @@ public class BankDepositTask implements Task {
             
             // Check for deposit inventory widget first
             Widget depositInv = client.getWidget(WidgetInfo.BANK_DEPOSIT_INVENTORY);
+            context.logger.info("[BankDeposit] Checking deposit inventory widget: " + (depositInv != null ? "found" : "null") + 
+                              (depositInv != null ? (depositInv.isHidden() ? " (hidden)" : " (visible)") : ""));
+            
             if (depositInv != null && !depositInv.isHidden()) {
                 context.logger.info("[BankDeposit] Found deposit inventory widget, clicking it");
                 int widgetId = depositInv.getId();
+                context.logger.info("[BankDeposit] Widget ID: " + widgetId + ", about to invoke menuAction");
                 context.clientThread.invoke(() -> {
                     try {
+                        context.logger.info("[BankDeposit] Executing menuAction with widgetId=" + widgetId);
                         client.menuAction(-1, widgetId, MenuAction.CC_OP, 1, -1, "Deposit inventory", "");
-                    } catch (Exception ignored) {}
+                        context.logger.info("[BankDeposit] menuAction completed successfully");
+                    } catch (Exception e) {
+                        context.logger.error("[BankDeposit] menuAction failed: " + e.getMessage());
+                    }
                 });
-                context.setBusyForMs(500);
+                context.logger.info("[BankDeposit] Set busy for 200ms after widget click");
+                context.setBusyForMs(200);
                 if (context.telemetry != null) context.telemetry.addReward(10);
+                // Fallback: also perform a direct click on the widget bounds to ensure activation
+                try {
+                    java.awt.Rectangle b = depositInv.getBounds();
+                    if (b != null && b.width > 0 && b.height > 0) {
+                        java.awt.Point p = new java.awt.Point(b.x + b.width / 2, b.y + b.height / 2);
+                        context.logger.info("[BankDeposit] Fallback-clicking Deposit inventory at " + p);
+                        context.input.smoothMouseMove(p);
+                        context.input.clickAt(p);
+                        context.setBusyForMs(250);
+                    }
+                } catch (Exception ignored) {}
+                context.logger.info("[BankDeposit] Returning after deposit inventory widget click");
                 return;
             }
             
             Widget depositButton = findDepositButton(context);
+            context.logger.info("[BankDeposit] Scanning for deposit button: " + (depositButton != null ? "found" : "not found"));
+            
             if (depositButton != null) {
                 context.logger.info("[BankDeposit] Found deposit button via scanning, clicking it");
                 int widgetId = depositButton.getId();
+                context.logger.info("[BankDeposit] Deposit button widget ID: " + widgetId + ", about to invoke menuAction");
                 context.clientThread.invoke(() -> {
                     try {
-                        client.menuAction(-1, widgetId, MenuAction.CC_OP, 1, -1, "Deposit", "");
-                    } catch (Exception ignored) {}
+                        context.logger.info("[BankDeposit] Executing menuAction for deposit button with widgetId=" + widgetId);
+                        client.menuAction(-1, widgetId, MenuAction.CC_OP, 1, -1, "Deposit inventory", "");
+                        context.logger.info("[BankDeposit] Deposit button menuAction completed successfully");
+                    } catch (Exception e) {
+                        context.logger.error("[BankDeposit] Deposit button menuAction failed: " + e.getMessage());
+                    }
                 });
-                context.setBusyForMs(500);
+                context.logger.info("[BankDeposit] Set busy for 200ms after deposit button click");
+                context.setBusyForMs(200);
                 if (context.telemetry != null) context.telemetry.addReward(10);
+                // Fallback: direct click the located button's bounds
+                try {
+                    java.awt.Rectangle b = depositButton.getBounds();
+                    if (b != null && b.width > 0 && b.height > 0) {
+                        java.awt.Point p = new java.awt.Point(b.x + b.width / 2, b.y + b.height / 2);
+                        context.logger.info("[BankDeposit] Fallback-clicking deposit button at " + p);
+                        context.input.smoothMouseMove(p);
+                        context.input.clickAt(p);
+                        context.setBusyForMs(250);
+                    }
+                } catch (Exception ignored) {}
+                context.logger.info("[BankDeposit] Returning after deposit button click");
                 return;
             }
             
@@ -135,26 +189,52 @@ public class BankDepositTask implements Task {
             return;
         }
         Widget depositBoxButton = client.getWidget(192, 29);
+        context.logger.info("[BankDeposit] Checking deposit box widget (192,29): " + (depositBoxButton != null ? "found" : "null") + 
+                          (depositBoxButton != null ? (depositBoxButton.isHidden() ? " (hidden)" : " (visible)") : ""));
         if (depositBoxButton != null && !depositBoxButton.isHidden() && depositBoxButton.getBounds() != null && depositBoxButton.getBounds().width > 0) {
             context.logger.info("[BankDeposit] Found deposit box, clicking Deposit inventory");
             int widgetId = depositBoxButton.getId();
+            context.logger.info("[BankDeposit] Deposit box widget ID: " + widgetId + ", about to invoke menuAction");
             context.clientThread.invoke(() -> {
                 try {
+                    context.logger.info("[BankDeposit] Executing menuAction for deposit box with widgetId=" + widgetId);
                     client.menuAction(-1, widgetId, MenuAction.CC_OP, 1, -1, "Deposit inventory", "");
-                } catch (Exception ignored) {}
+                    context.logger.info("[BankDeposit] Deposit box menuAction completed successfully");
+                } catch (Exception e) {
+                    context.logger.error("[BankDeposit] Deposit box menuAction failed: " + e.getMessage());
+                }
             });
+            context.logger.info("[BankDeposit] Set busy for 500ms after deposit box click");
             context.setBusyForMs(500);
             if (context.telemetry != null) context.telemetry.addReward(10);
+            context.logger.info("[BankDeposit] Attempting to close deposit box UI");
             if (!UiHelper.clickCloseIfVisible(context)) {
+                context.logger.info("[BankDeposit] Close button not found, pressing ESC");
                 context.input.pressKey(KeyEvent.VK_ESCAPE);
                 context.setBusyForMs(250);
             }
+            context.logger.info("[BankDeposit] Returning after deposit box handling");
             return;
         }
 
         // NEW: Use ObjectClicker for consistent bank clicking behavior
         Player me = context.client.getLocalPlayer();
         if (me == null) return;
+        
+        // Log what bank objects are available for debugging
+        context.logger.info("[BankDeposit] Scanning for bank objects with actions...");
+        
+        // First, let's see what ObjectFinder.findNearestBankInteractable finds
+        GameObject bankInteractable = ObjectFinder.findNearestBankInteractable(context);
+        if (bankInteractable != null) {
+            ObjectComposition comp = context.client.getObjectDefinition(bankInteractable.getId());
+            String[] actions = comp.getActions();
+            context.logger.info("[BankDeposit] findNearestBankInteractable found: " + comp.getName() + 
+                              " (ID: " + bankInteractable.getId() + ") at " + bankInteractable.getWorldLocation() + 
+                              " Actions: " + java.util.Arrays.toString(actions));
+        } else {
+            context.logger.warn("[BankDeposit] findNearestBankInteractable returned null - no interactable banks found");
+        }
         
         // Try using ObjectClicker first - this should fix the action name issue
         context.logger.info("[BankDeposit] Attempting to click bank using ObjectClicker");
@@ -163,7 +243,9 @@ public class BankDepositTask implements Task {
             
             // Check if bank opened after a short delay
             context.setBusyForMs(500);
-            if (isBankOpen(context)) {
+            boolean bankOpenAfterClick = isBankOpen(context);
+            context.logger.info("[BankDeposit] After ObjectClicker click, isBankOpen() = " + bankOpenAfterClick);
+            if (bankOpenAfterClick) {
                 context.logger.info("[BankDeposit] Bank opened successfully!");
                 if (context.telemetry != null) context.telemetry.addReward(15);
             } else {
@@ -174,7 +256,7 @@ public class BankDepositTask implements Task {
                 context.setBusyForMs(200);
                 // Retry using ObjectClicker again
                 if (ObjectClicker.clickNearestObject(context, ObjectClicker.BANK)) {
-                    context.setBusyForMs(500);
+                    context.setBusyForMs(200);
                     if (isBankOpen(context)) {
                         context.logger.info("[BankDeposit] Bank opened on retry");
                         if (context.telemetry != null) context.telemetry.addReward(10);
@@ -207,7 +289,7 @@ public class BankDepositTask implements Task {
                 context.logger.info("[BankDeposit] Successfully clicked specific bank using ObjectClicker");
                 
                 // Check if bank opened after a short delay
-                context.setBusyForMs(500);
+                context.setBusyForMs(200);
                 if (isBankOpen(context)) {
                     context.logger.info("[BankDeposit] Bank opened successfully!");
                     if (context.telemetry != null) context.telemetry.addReward(15);
@@ -234,7 +316,7 @@ public class BankDepositTask implements Task {
                 if (!visible && (distTiles < 0 || distTiles > 6)) {
                     context.logger.info("[BankDeposit] Bank not visible, navigating closer");
                     WorldPathing.clickStepToward(context, best.getWorldLocation(), 6);
-                    context.setBusyForMs(600);
+                    context.setBusyForMs(300);
                 }
                 return;
             } else {
@@ -264,7 +346,7 @@ public class BankDepositTask implements Task {
                         MinimapPathing.stepTowards(context, nearest, 0.0);
                     }
                 }
-                context.setBusyForMs(600);
+                context.setBusyForMs(300);
                 return;
             }
         }
@@ -278,13 +360,17 @@ public class BankDepositTask implements Task {
             if (!worldClicked) {
                 MinimapPathing.stepTowards(context, target, 0.0);
             }
-            context.setBusyForMs(600);
+            context.setBusyForMs(300);
         }
     }
 
     private static boolean isBankOpen(TaskContext context) {
         Widget bank = context.client.getWidget(WidgetInfo.BANK_CONTAINER);
-        return bank != null && !bank.isHidden();
+        boolean isOpen = bank != null && !bank.isHidden();
+        context.logger.info("[BankDeposit] isBankOpen check: widget=" + (bank != null ? "found" : "null") + 
+                          (bank != null ? (bank.isHidden() ? " (hidden)" : " (visible)") : "") + 
+                          " -> result=" + isOpen);
+        return isOpen;
     }
 
     private static boolean isDepositBoxOpen(TaskContext context) {

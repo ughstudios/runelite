@@ -323,7 +323,7 @@ public class RLBotPlugin extends Plugin implements KeyListener {
         if (!isGeneratingState) {
             Long lastAnyChunk = lastVisitTime.values().stream().findAny().orElse(0L);
             long lastUpdateTs = Math.max(lastAnyChunk, 0L);
-            if (currentTime - lastUpdateTs >= Math.max(25, config.updateInterval())) { // Reduced from 50ms to 25ms
+            if (currentTime - lastUpdateTs >= Math.max(1000, config.updateInterval())) { // Increased to 1000ms for better performance
                 updateGameState();
             }
         }
@@ -356,6 +356,13 @@ public class RLBotPlugin extends Plugin implements KeyListener {
                     if (javaAgent != null) javaAgent.addExternalPenalty(0.5f);
                 } catch (Exception ignored) {}
             }
+            // Punish agent for trying to chop trees it doesn't have the level for
+            if (lower.contains("you need a") && lower.contains("level of") && lower.contains("to chop")) {
+                logger.warn("[Chat] Detected level requirement failure; punishing agent for attempting impossible action");
+                try {
+                    if (javaAgent != null) javaAgent.addExternalPenalty(1.0f); // Strong penalty for level failures
+                } catch (Exception ignored) {}
+            }
         } catch (Exception ignored) {}
     }
 
@@ -377,6 +384,11 @@ public class RLBotPlugin extends Plugin implements KeyListener {
                     net.runelite.client.plugins.rlbot.tasks.BankDiscovery.blacklistLastTargetedBank();
                     net.runelite.client.plugins.rlbot.tasks.TreeDiscovery.blacklistLastTargetedTree();
                     try { if (javaAgent != null) javaAgent.addExternalPenalty(0.5f); } catch (Exception ignored) {}
+                }
+                // Punish agent for trying to chop trees it doesn't have the level for
+                if (lower.contains("you need a") && lower.contains("level of") && lower.contains("to chop")) {
+                    logger.warn("[Chat] Detected level requirement failure; punishing agent for attempting impossible action");
+                    try { if (javaAgent != null) javaAgent.addExternalPenalty(1.0f); } catch (Exception ignored) {}
                 }
                 // Inventory full of logs — switch immediately to banking behavior
                 if (lower.contains("too full to hold any more logs") || lower.contains("inventory is too full")) {
