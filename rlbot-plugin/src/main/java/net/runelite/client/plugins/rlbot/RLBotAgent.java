@@ -10,17 +10,16 @@ import net.runelite.client.config.ConfigManager;
 // RLBotGameStateGenerator import removed
 import net.runelite.client.plugins.rlbot.input.RLBotInputHandler;
 import net.runelite.client.plugins.rlbot.tasks.*;
-import net.runelite.client.plugins.rlbot.rewards.LogQualityRewards;
 import java.util.Random;
 import net.runelite.client.plugins.rlbot.rl.DJLDqnPolicy;
 import net.runelite.client.plugins.rlbot.tasks.ObjectFinder;
 import net.runelite.api.GameObject;
 import net.runelite.client.plugins.rlbot.rl.ReplayBuffer;
 import net.runelite.client.plugins.rlbot.rl.Transition;
+import net.runelite.client.plugins.rlbot.rewards.LogQualityRewards;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.Player;
-import net.runelite.client.plugins.rlbot.rewards.LogQualityRewards;
 
 @Singleton
 public class RLBotAgent {
@@ -1580,5 +1579,3 @@ public class RLBotAgent {
         try { return tasks.get(idx).getClass().getSimpleName(); } catch (Exception e) { return ""; }
     }
 }
-
-

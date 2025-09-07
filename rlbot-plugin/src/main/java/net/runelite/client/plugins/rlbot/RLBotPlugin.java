@@ -51,9 +51,10 @@ import net.runelite.api.MessageNode;
 import java.awt.MouseInfo;
 
 @PluginDescriptor(
-    name = "RLBot",
+    name = "RLBot (Dev)",
     description = "RuneLite Bot Plugin for AI Training",
     tags = {"bot", "ai", "training"},
+    conflicts = {"RLBot"},
     enabledByDefault = true
 )
 public class RLBotPlugin extends Plugin implements KeyListener {

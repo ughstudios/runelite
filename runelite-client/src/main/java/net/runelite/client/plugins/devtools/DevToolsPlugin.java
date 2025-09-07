@@ -29,6 +29,10 @@ import ch.qos.logback.classic.Logger;
 import com.formdev.flatlaf.extras.FlatInspector;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 import com.google.inject.Provides;
 import java.awt.AWTEvent;
 import java.awt.KeyboardFocusManager;
@@ -87,10 +91,8 @@ import net.runelite.client.util.ColorUtil;
 import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.ImageUtil;
 import org.slf4j.LoggerFactory;
-import net.runelite.client.plugins.rlbot.RLBotPlugin;
 import com.google.common.collect.ImmutableMap;
 import javax.swing.SwingUtilities;
-import net.runelite.client.plugins.rlbot.RLBotConfig;
 
 @Slf4j
 @PluginDescriptor(
@@ -146,11 +148,6 @@ public class DevToolsPlugin extends Plugin
 	@Inject
 	private DevToolsConfig config;
 
-	@Inject
-	private RLBotConfig rlBotConfig;
-
-	@Inject
-	private RLBotPlugin rlBotPlugin;
 
 	private DevToolsButton players;
 	private DevToolsButton npcs;
@@ -222,6 +219,29 @@ public class DevToolsPlugin extends Plugin
 		}
 	};
 
+	// Utility used by VarInspector/InventoryInspector to map ID constants to names
+	public static Map<Integer, String> loadFieldNames(Class<?> constantsClass)
+	{
+		Map<Integer, String> names = new HashMap<>();
+		for (Field f : constantsClass.getDeclaredFields())
+		{
+			int mods = f.getModifiers();
+			if (Modifier.isPublic(mods) && Modifier.isStatic(mods) && f.getType() == int.class)
+			{
+				try
+				{
+					int value = f.getInt(null);
+					names.put(value, f.getName());
+				}
+				catch (IllegalAccessException ignored)
+				{
+					// ignore inaccessible fields
+				}
+			}
+		}
+		return names;
+	}
+
 	private final AWTEventListener swingInspectorKeyListener = rawEv ->
 	{
 		if (rawEv instanceof KeyEvent)
@@ -244,11 +264,7 @@ public class DevToolsPlugin extends Plugin
 		return configManager.getConfig(DevToolsConfig.class);
 	}
 
-	@Provides
-	RLBotConfig provideRLBotConfig(ConfigManager configManager)
-	{
-		return configManager.getConfig(RLBotConfig.class);
-	}
+	// RLBot integration removed from DevTools to avoid hard dependency on RLBot classes.
 
 	private NavigationButton createNavigationButton(String tooltip, BufferedImage icon, PluginPanel panel, int priority) {
 		return NavigationButton.builder()

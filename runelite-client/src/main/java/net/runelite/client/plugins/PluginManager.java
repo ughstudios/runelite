@@ -294,7 +294,9 @@ public class PluginManager
 					ClassLoader classLoader = new PluginClassLoader(f, getClass().getClassLoader());
 
 					List<Class<?>> plugins = ClassPath.from(classLoader)
-						.getAllClasses()
+						// Only scan the RuneLite plugin package to avoid non-class entries
+						// like META-INF/versions/9/module-info in multi-release JARs
+						.getTopLevelClassesRecursive(PLUGIN_PACKAGE)
 						.stream()
 						.map(ClassInfo::load)
 						.collect(Collectors.toList());

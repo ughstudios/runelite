@@ -47,7 +47,6 @@ net/runelite/client/plugins/rlbot/RLBotLogger.class
 net/runelite/client/plugins/rlbot/RLBotConstants.class
 net/runelite/client/plugins/rlbot/tasks/UiHelper$BlockerRule.class
 net/runelite/client/plugins/rlbot/tasks/ExploreStepTask$Cardinal.class
-net/runelite/client/plugins/rlbot/rl/DJLDqnPolicy$1.class
 net/runelite/client/plugins/rlbot/tasks/CameraRotateStepTask.class
 net/runelite/client/plugins/rlbot/tasks/RunHelper.class
 net/runelite/client/plugins/rlbot/RLBotScreenshotUtil.class

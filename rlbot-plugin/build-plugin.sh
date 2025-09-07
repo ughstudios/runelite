@@ -18,6 +18,7 @@ echo "Using JAVA_HOME=$JAVA_HOME"
 # Ensure local RuneLite shaded client JAR is installed to Maven local for compilation
 RL_ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 RL_CLIENT_SHADED="$RL_ROOT_DIR/runelite/runelite-client/target/client-1.11.16-SNAPSHOT-shaded.jar"
+RL_API_JAR="$RL_ROOT_DIR/runelite-api/target/runelite-api-1.11.16-SNAPSHOT.jar"
 if [ -f "$RL_CLIENT_SHADED" ]; then
   echo "Installing local RuneLite shaded client to Maven repo: $RL_CLIENT_SHADED"
   mvn -q install:install-file -Dfile="$RL_CLIENT_SHADED" -DgroupId=net.runelite -DartifactId=client -Dversion=1.11.16-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
@@ -31,23 +32,32 @@ else
   fi
 fi
 
+# Also install runelite-api to local Maven if available (compile-scope provided)
+if [ -f "$RL_API_JAR" ]; then
+  echo "Installing local RuneLite API to Maven repo: $RL_API_JAR"
+  mvn -q install:install-file -Dfile="$RL_API_JAR" -DgroupId=net.runelite -DartifactId=runelite-api -Dversion=1.11.16-SNAPSHOT -Dpackaging=jar -DgeneratePom=true || true
+else
+  echo "ℹ️  RuneLite API jar not found at $RL_API_JAR; assuming it exists in local Maven or will resolve remotely."
+fi
+
 # Build the rlbot-plugin with Maven (ensure correct working directory)
 (
   cd "$SCRIPT_DIR"
   mvn -q -DskipTests clean package
 )
 
-# Copy to RuneLite sideloaded plugins directory
-mkdir -p "$RL_ROOT_DIR/runelite/sideloaded-plugins"
-cp "$SCRIPT_DIR/target/rlbot-plugin-1.0.0.jar" "$RL_ROOT_DIR/runelite/sideloaded-plugins/"
+# Copy to user sideload dir (~/.runelite/sideloaded-plugins)
+LOCAL_SIDELOAD_DIR="$HOME/.runelite/sideloaded-plugins"
+mkdir -p "$LOCAL_SIDELOAD_DIR"
+
+# Optional backup of previous jar
+if [ -f "$LOCAL_SIDELOAD_DIR/rlbot-plugin-1.0.0.jar" ]; then
+  cp -f "$LOCAL_SIDELOAD_DIR/rlbot-plugin-1.0.0.jar" "$LOCAL_SIDELOAD_DIR/rlbot-plugin-1.0.0.jar.backup" || true
+fi
+
+cp "$SCRIPT_DIR/target/rlbot-plugin-1.0.0.jar" "$LOCAL_SIDELOAD_DIR/"
 
 echo "✅ RLBot plugin JAR created: $SCRIPT_DIR/target/rlbot-plugin-1.0.0.jar"
-echo "📦 Plugin copied to: $RL_ROOT_DIR/runelite/sideloaded-plugins/"
-
-# Also copy to user-level sideload dir used by a system-installed RuneLite
-USER_SIDELOAD_DIR="$HOME/.runelite/sideloaded-plugins"
-mkdir -p "$USER_SIDELOAD_DIR"
-cp "$SCRIPT_DIR/target/rlbot-plugin-1.0.0.jar" "$USER_SIDELOAD_DIR/" || true
-echo "📁 Also copied to: $USER_SIDELOAD_DIR/"
+echo "📁 Copied to: $LOCAL_SIDELOAD_DIR/"
 
 echo "⚡ Auto-reload: If RuneLite is running in developer mode, changes will hot-reload automatically."
