@@ -54,3 +54,4 @@ models/
 .env.development.local
 .env.test.local
 .env.production.local rlbot/logs/rlbot.log
+rlbot/logs/rlbot.log
