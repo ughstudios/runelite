@@ -465,29 +465,65 @@ public class RLBotInputHandler {
             } catch (Exception ex) {
                 start = new Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
             }
+            
+            // Enhanced mouse movement with trailing behavior
             int px = 20;
             try {
                 px = ((net.runelite.client.plugins.rlbot.RLBotConfig)net.runelite.client.RuneLite.getInjector().getInstance(net.runelite.client.plugins.rlbot.RLBotConfig.class)).mouseMoveInterpolationPx();
             } catch (Throwable ignore) {}
+            
             double dx = canvasPoint.x - start.x;
             double dy = canvasPoint.y - start.y;
             double dist = Math.hypot(dx, dy);
-            int steps = Math.max(1, (int)Math.ceil(dist / Math.max(5, px)));
+            
+            // Calculate steps with more natural movement
+            int steps = Math.max(3, (int)Math.ceil(dist / Math.max(3, px)));
+            
+            // Add some natural variation to the movement
+            java.util.Random rand = new java.util.Random();
+            
             for (int i = 1; i <= steps; i++) {
-                int x = start.x + (int)Math.round(dx * i / steps);
-                int y = start.y + (int)Math.round(dy * i / steps);
+                double progress = (double) i / steps;
+                
+                // Use easing function for more natural movement (ease-out)
+                double easedProgress = 1.0 - Math.pow(1.0 - progress, 3);
+                
+                // Add slight random variation to make movement look more human
+                double variationX = (rand.nextDouble() - 0.5) * 2.0; // -1 to 1 pixel variation
+                double variationY = (rand.nextDouble() - 0.5) * 2.0;
+                
+                int x = start.x + (int)Math.round(dx * easedProgress + variationX);
+                int y = start.y + (int)Math.round(dy * easedProgress + variationY);
+                
+                // Ensure we don't go outside canvas bounds
+                x = Math.max(0, Math.min(canvas.getWidth() - 1, x));
+                y = Math.max(0, Math.min(canvas.getHeight() - 1, y));
+                
                 Point stepPoint = new Point(x, y);
+                
                 // Dispatch from this background thread; dispatchMouseMoveEvent will ensure EDT dispatching
                 dispatchMouseMoveEvent(canvas, stepPoint);
+                
+                // Add small delay between steps for more natural movement
+                try {
+                    Thread.sleep(8 + rand.nextInt(5)); // 8-12ms between steps
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
+            
+            // Ensure we end exactly at the target point
+            dispatchMouseMoveEvent(canvas, canvasPoint);
             lastCanvasMovePoint = new Point(canvasPoint);
             finished.countDown();
         }, "rlbot-mouse-move");
         mover.setDaemon(true);
         mover.start();
-        // Wait briefly for movement to complete so subsequent click uses the correct point
+        
+        // Wait for movement to complete so subsequent click uses the correct point
         try {
-            finished.await(500, TimeUnit.MILLISECONDS);
+            finished.await(800, TimeUnit.MILLISECONDS); // Increased timeout for more natural movement
             // Ensure queued move events are processed before returning
             if (!SwingUtilities.isEventDispatchThread()) {
                 try {

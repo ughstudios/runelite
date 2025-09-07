@@ -217,7 +217,7 @@ public class BankDepositTask implements Task {
             return;
         }
 
-        // NEW: Use ObjectClicker for consistent bank clicking behavior
+        // Use simplified BankClicker for consistent bank clicking behavior (same as TreeClicker)
         Player me = context.client.getLocalPlayer();
         if (me == null) return;
         
@@ -236,15 +236,15 @@ public class BankDepositTask implements Task {
             context.logger.warn("[BankDeposit] findNearestBankInteractable returned null - no interactable banks found");
         }
         
-        // Try using ObjectClicker first - this should fix the action name issue
-        context.logger.info("[BankDeposit] Attempting to click bank using ObjectClicker");
-        if (ObjectClicker.clickNearestObject(context, ObjectClicker.BANK)) {
-            context.logger.info("[BankDeposit] Successfully clicked bank using ObjectClicker");
+        // Try using simplified BankClicker first - same approach as TreeClicker
+        context.logger.info("[BankDeposit] Attempting to click bank using BankClicker");
+        if (BankClicker.clickBank(context, bankInteractable)) {
+            context.logger.info("[BankDeposit] Successfully clicked bank using BankClicker");
             
             // Check if bank opened after a short delay
             context.setBusyForMs(500);
             boolean bankOpenAfterClick = isBankOpen(context);
-            context.logger.info("[BankDeposit] After ObjectClicker click, isBankOpen() = " + bankOpenAfterClick);
+            context.logger.info("[BankDeposit] After BankClicker click, isBankOpen() = " + bankOpenAfterClick);
             if (bankOpenAfterClick) {
                 context.logger.info("[BankDeposit] Bank opened successfully!");
                 if (context.telemetry != null) context.telemetry.addReward(15);
@@ -254,8 +254,8 @@ public class BankDepositTask implements Task {
                 CameraHelper.sweepYawSmall(context, 6);
                 context.input.tiltCameraUpSmall();
                 context.setBusyForMs(200);
-                // Retry using ObjectClicker again
-                if (ObjectClicker.clickNearestObject(context, ObjectClicker.BANK)) {
+                // Retry using BankClicker again
+                if (BankClicker.clickBank(context, bankInteractable)) {
                     context.setBusyForMs(200);
                     if (isBankOpen(context)) {
                         context.logger.info("[BankDeposit] Bank opened on retry");
@@ -267,10 +267,10 @@ public class BankDepositTask implements Task {
             }
             return;
         } else {
-            context.logger.warn("[BankDeposit] ObjectClicker.clickNearestObject failed - no bank objects found or click failed");
+            context.logger.warn("[BankDeposit] BankClicker.clickBank failed - no bank objects found or click failed");
         }
         
-        // Fallback: try to find a specific bank object and use ObjectClicker on it
+        // Fallback: try to find a specific bank object and use BankClicker on it
         net.runelite.api.GameObject best = ObjectFinder.findNearestBankInteractable(context);
         if (best != null) {
             context.logger.info("[BankDeposit] Found bank object: " + best.getId() + " at " + best.getWorldLocation());
@@ -283,10 +283,10 @@ public class BankDepositTask implements Task {
             // Mark as last targeted so chat-based blacklist can apply if unreachable
             BankDiscovery.setLastTargetedBank(best.getWorldLocation());
             
-            // Try using ObjectClicker with the specific object
-            context.logger.info("[BankDeposit] Attempting to click specific bank object using ObjectClicker");
-            if (ObjectClicker.clickObject(context, best, ObjectClicker.BANK)) {
-                context.logger.info("[BankDeposit] Successfully clicked specific bank using ObjectClicker");
+            // Try using BankClicker with the specific object
+            context.logger.info("[BankDeposit] Attempting to click specific bank object using BankClicker");
+            if (BankClicker.clickBank(context, best)) {
+                context.logger.info("[BankDeposit] Successfully clicked specific bank using BankClicker");
                 
                 // Check if bank opened after a short delay
                 context.setBusyForMs(200);
@@ -299,8 +299,8 @@ public class BankDepositTask implements Task {
                 return;
             }
             
-            // If ObjectClicker fails, fall back to navigation or camera adjustment
-            context.logger.warn("[BankDeposit] ObjectClicker.clickObject failed for specific bank - trying camera adjustment or navigation");
+            // If BankClicker fails, fall back to navigation or camera adjustment
+            context.logger.warn("[BankDeposit] BankClicker.clickBank failed for specific bank - trying camera adjustment or navigation");
             
             // Project bank to canvas 
             java.awt.Point proj = ObjectFinder.projectToClickablePoint(context, best);
