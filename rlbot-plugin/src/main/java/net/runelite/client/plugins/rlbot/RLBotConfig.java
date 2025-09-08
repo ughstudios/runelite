@@ -100,23 +100,26 @@ public interface RLBotConfig extends Config {
     }
 
     @ConfigItem(
-        keyName = "enableRLAgent",
-        name = "Enable RL Agent",
-        description = "Run the reinforcement learning agent"
+        keyName = "enableGymControl",
+        name = "Enable Gym Control",
+        description = "Drive actions from a Gym controller via file-based IPC"
     )
-    default boolean enableRLAgent() {
-        return true;
-    }
+    default boolean enableGymControl() { return true; }
 
     @ConfigItem(
-        keyName = "agentIntervalMs",
-        name = "Agent Interval (ms)",
-        description = "How often the Java agent decides and acts"
+        keyName = "gymIpcDir",
+        name = "Gym IPC Dir",
+        description = "Directory for IPC files with the Gym controller"
+    )
+    default String gymIpcDir() { return "rlbot-ipc"; }
+
+    @ConfigItem(
+        keyName = "gymStepIntervalMs",
+        name = "Gym Step Interval (ms)",
+        description = "How often to exchange observation/action with Gym"
     )
     @Range(min = 50, max = 2000)
-    default int agentIntervalMs() {
-        return 250;
-    }
+    default int gymStepIntervalMs() { return 250; }
 
     @ConfigItem(
         keyName = "inventoryFreeSlotsToBank",
@@ -168,104 +171,6 @@ public interface RLBotConfig extends Config {
     @Range(min = 1, max = 5)
     default int stuckRetries() { return 3; }
 
-    // RL controls
-
-    @ConfigItem(
-        keyName = "rlEpsilon",
-        name = "RL Epsilon",
-        description = "Exploration rate ε (0.0-1.0)"
-    )
-    @Range(min = 0, max = 100)
-    default int rlEpsilon() { return 15; } // percent (0-100)
-
-    @ConfigItem(
-        keyName = "rlMinEpsilon",
-        name = "RL Min Epsilon",
-        description = "Minimum exploration rate ε_min (0.0-1.0)"
-    )
-    @Range(min = 0, max = 100)
-    default int rlMinEpsilon() { return 2; } // percent (0-100)
-
-    @ConfigItem(
-        keyName = "rlEpsilonDecaySteps",
-        name = "RL Epsilon Decay Steps",
-        description = "Steps over which to linearly decay ε to ε_min"
-    )
-    @Range(min = 1000, max = 500000)
-    default int rlEpsilonDecaySteps() { return 50000; }
-
-    @ConfigItem(
-        keyName = "rlAlpha",
-        name = "RL Alpha",
-        description = "Learning rate α (0.0-1.0)"
-    )
-    @Range(min = 1, max = 100)
-    default int rlAlpha() { return 20; } // percent
-
-    @ConfigItem(
-        keyName = "rlGamma",
-        name = "RL Gamma",
-        description = "Discount γ (0.0-1.0)"
-    )
-    @Range(min = 0, max = 100)
-    default int rlGamma() { return 90; } // percent
-
-    @ConfigItem(
-        keyName = "rlBatchSize",
-        name = "RL Batch Size",
-        description = "Mini-batch size for DQN training"
-    )
-    @Range(min = 8, max = 256)
-    default int rlBatchSize() { return 32; }
-
-    @ConfigItem(
-        keyName = "rlTrainEverySteps",
-        name = "RL Train Every N Steps",
-        description = "How often to run a training update (steps)"
-    )
-    @Range(min = 1, max = 50)
-    default int rlTrainEverySteps() { return 5; }
-
-    @ConfigItem(
-        keyName = "rlTrainIterations",
-        name = "RL Train Iterations",
-        description = "Number of gradient steps per training call"
-    )
-    @Range(min = 1, max = 10)
-    default int rlTrainIterations() { return 2; }
-
-    @ConfigItem(
-        keyName = "rlReplayCapacity",
-        name = "RL Replay Capacity",
-        description = "Replay buffer capacity"
-    )
-    @Range(min = 1000, max = 200000)
-    default int rlReplayCapacity() { return 20000; }
-
-    @ConfigItem(
-        keyName = "rlTargetSyncSteps",
-        name = "RL Target Sync (steps)",
-        description = "How often to sync target network"
-    )
-    @Range(min = 100, max = 20000)
-    default int rlTargetSyncSteps() { return 1000; }
-
-    @ConfigItem(
-        keyName = "rlRewardClipAbs",
-        name = "RL Reward Clip |r|",
-        description = "Clip rewards to [-clip, clip] for stability"
-    )
-    @Range(min = 0, max = 50)
-    default int rlRewardClipAbs() { return 5; }
-
-    @ConfigItem(
-        keyName = "rlMaxEpisodeSteps",
-        name = "RL Max Episode Steps",
-        description = "Force episode end after this many steps"
-    )
-    @Range(min = 100, max = 5000)
-    default int rlMaxEpisodeSteps() { return 1000; }
-
     @ConfigItem(
         keyName = "rngSeed",
         name = "RNG Seed",
@@ -273,6 +178,4 @@ public interface RLBotConfig extends Config {
     )
     @Range(min = 0, max = 1_000_000_000)
     default int rngSeed() { return 1337; }
-
-    // Removed test toggles; actions will be triggered via UI buttons on RLBot panel
-} 
+}

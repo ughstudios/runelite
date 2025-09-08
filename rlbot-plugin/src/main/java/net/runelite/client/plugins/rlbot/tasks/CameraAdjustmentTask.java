@@ -296,3 +296,4 @@ public class CameraAdjustmentTask implements Task {
         }
     }
 }
+

@@ -73,12 +73,7 @@ public abstract class NavigateToHotspotTask implements Task {
             return;
         }
 
-        // Rotate/tilt camera periodically to seek target
-        final WorldPoint sweepTarget = target;
-        CameraHelper.sweepUntilVisible(ctx, () -> {
-            // consider visible if a world step toward target would be accepted
-            return WorldPathing.clickStepToward(ctx, sweepTarget, 0);
-        }, 4);
+        // Do not perform camera movements here; dedicated camera tasks handle view control
         // Turn run on when moving between hotspots
         RunHelper.ensureRunOn(ctx);
 
@@ -87,11 +82,8 @@ public abstract class NavigateToHotspotTask implements Task {
         // Try a mid-distance world step before minimap
         boolean worldClicked = WorldPathing.clickStepToward(ctx, target, 6);
         if (!worldClicked) {
-            // Only minimap if target (or a near offset) is not currently visible in viewport
-            boolean visible = WorldPathing.clickStepToward(ctx, target, 0);
-            if (!visible) {
-                MinimapPathing.stepTowards(ctx, target, jitter);
-            }
+            // Prefer minimap when world step isn't possible (or for longer distances)
+            MinimapPathing.stepTowards(ctx, target, jitter);
         }
 
         int busyMs = ThreadLocalRandom.current().nextInt(
@@ -100,7 +92,7 @@ public abstract class NavigateToHotspotTask implements Task {
         );
         ctx.setBusyForMs(busyMs);
 
-        // Stuck detection and recovery: after several no-progress windows, try different routes
+        // Stuck detection and recovery: after several no-progress windows, try different routes (movement only)
         if (ctx.getNavNoProgressCount() >= Math.max(1, ctx.config.stuckRetries())) {
             ctx.logger.warn("[Nav] No progress for " + ctx.getNavNoProgressCount() + " attempts, performing recovery step");
             
@@ -126,7 +118,7 @@ public abstract class NavigateToHotspotTask implements Task {
                 }
             }
             
-            // If still stuck, try minimap with larger jitter
+            // If still stuck, try minimap with larger jitter and a small offset step (no camera movement)
             ctx.logger.warn("[Nav] All recovery routes failed, trying minimap with large jitter");
             double largeJitter = Math.toRadians(ThreadLocalRandom.current().nextDouble(-45.0, 45.0));
             MinimapPathing.stepTowards(ctx, target, largeJitter);
@@ -239,5 +231,3 @@ public abstract class NavigateToHotspotTask implements Task {
 
     
 }
-
-

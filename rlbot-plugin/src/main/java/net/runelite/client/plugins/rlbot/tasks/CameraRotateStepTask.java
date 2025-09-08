@@ -1,49 +1,54 @@
 package net.runelite.client.plugins.rlbot.tasks;
 
+/**
+ * Single small camera step in a specified direction.
+ */
 public class CameraRotateStepTask implements Task {
-	public enum Direction { LEFT, RIGHT, UP, DOWN }
-	private final Direction direction;
-	private final int yawDelta;
-	private final int pitchDelta;
+    public enum Direction { LEFT, RIGHT, UP, DOWN, NONE }
 
-	public CameraRotateStepTask(Direction direction) {
-		this.direction = direction;
-		// Fixed per-step amounts for consistency
-		switch (direction) {
-			case LEFT:
-				yawDelta = -96; pitchDelta = 0; break;
-			case RIGHT:
-				yawDelta = 96; pitchDelta = 0; break;
-			case UP:
-				yawDelta = 0; pitchDelta = -16; break;
-			case DOWN:
-				yawDelta = 0; pitchDelta = 16; break;
-			default:
-				yawDelta = 0; pitchDelta = 0; break;
-		}
-	}
+    private final Direction direction;
 
-	@Override
-	public boolean shouldRun(TaskContext ctx) { return true; }
+    public CameraRotateStepTask(Direction direction) {
+        this.direction = direction != null ? direction : Direction.LEFT;
+    }
 
-	@Override
-	public void run(TaskContext ctx) {
-		UiHelper.closeObstructions(ctx);
-		ctx.clientThread.invoke(() -> {
-			try {
-				ctx.client.setCameraPitchRelaxerEnabled(true);
-				int yaw = ctx.client.getCameraYawTarget();
-				int pitch = ctx.client.getCameraPitchTarget();
-				int newYaw = (yaw + yawDelta) & 0x7FF;
-				int newPitch = Math.max(128, Math.min(512, pitch + pitchDelta));
-				ctx.client.setCameraYawTarget(newYaw);
-				ctx.client.setCameraPitchTarget(newPitch);
-			} catch (Throwable t) {
-				int dx = (direction == Direction.LEFT ? -48 : direction == Direction.RIGHT ? 48 : 0);
-				int dy = (direction == Direction.UP ? -12 : direction == Direction.DOWN ? 12 : 0);
-				ctx.input.rotateCameraSafe(dx, dy);
-			}
-		});
-		ctx.setBusyForMs(100);
-	}
+    @Override
+    public boolean shouldRun(TaskContext ctx) {
+        return true;
+    }
+
+    @Override
+    public void run(TaskContext ctx) {
+        try {
+            ctx.client.setCameraPitchRelaxerEnabled(true);
+            int yaw = ctx.client.getCameraYawTarget();
+            int pitch = ctx.client.getCameraPitchTarget();
+            int dyaw = 0;
+            int dpitch = 0;
+            switch (direction) {
+                case LEFT: dyaw = -96; break;    // ~17 degrees
+                case RIGHT: dyaw = 96; break;
+                case UP: dpitch = -16; break;    // small tilt up
+                case DOWN: dpitch = 16; break;   // small tilt down
+                case NONE: default: break;
+            }
+            int newYaw = (yaw + dyaw) & 0x7FF; // 0..2047
+            int newPitch = Math.max(128, Math.min(512, pitch + dpitch));
+            ctx.client.setCameraYawTarget(newYaw);
+            ctx.client.setCameraPitchTarget(newPitch);
+            ctx.setBusyForMs(150);
+        } catch (Throwable t) {
+            int dx = 0, dy = 0;
+            switch (direction) {
+                case LEFT: dx = -120; break;
+                case RIGHT: dx = 120; break;
+                case UP: dy = -40; break;
+                case DOWN: dy = 40; break;
+                case NONE: default: break;
+            }
+            ctx.input.rotateCameraSafe(dx, dy);
+            ctx.setBusyForMs(150);
+        }
+    }
 }
+

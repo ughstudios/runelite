@@ -270,3 +270,4 @@ public class CameraRotateTask implements Task {
 		}
 	}
 }
+

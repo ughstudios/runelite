@@ -110,41 +110,7 @@ public class TreeClicker {
      * Attempts camera adjustments to make tree clickable.
      */
     public static boolean adjustCameraForTree(TaskContext context, GameObject tree) {
-        if (tree == null) return false;
-        
-        int adjustmentAttempts = TreeDiscovery.getCameraAdjustmentAttempts(tree.getWorldLocation());
-        if (adjustmentAttempts >= 5) {
-            context.logger.warn("[TreeClicker] Too many camera adjustment attempts");
-            return false;
-        }
-        
-        TreeDiscovery.incrementCameraAdjustmentAttempts(tree.getWorldLocation());
-        context.logger.info("[TreeClicker] Camera adjustment attempt " + (adjustmentAttempts + 1) + "/5");
-        
-        switch (adjustmentAttempts) {
-            case 0:
-                context.logger.info("[TreeClicker] Rotating camera right");
-                context.input.rotateCameraRightSmall();
-                break;
-            case 1:
-                context.logger.info("[TreeClicker] Rotating camera left");
-                context.input.rotateCameraLeftSmall();
-                break;
-            case 2:
-                context.logger.info("[TreeClicker] Tilting camera up");
-                context.input.tiltCameraUpSmall();
-                break;
-            case 3:
-                context.logger.info("[TreeClicker] Tilting camera down");
-                context.input.tiltCameraDownSmall();
-                break;
-            default:
-                context.logger.info("[TreeClicker] Zooming out");
-                context.input.zoomOutSmall();
-                break;
-        }
-        
-        context.setBusyForMs(500);
-        return true;
+        // Do not perform camera movements in non-camera tasks
+        return false;
     }
 }

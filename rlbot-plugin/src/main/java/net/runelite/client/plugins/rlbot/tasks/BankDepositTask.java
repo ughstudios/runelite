@@ -249,12 +249,9 @@ public class BankDepositTask implements Task {
                 context.logger.info("[BankDeposit] Bank opened successfully!");
                 if (context.telemetry != null) context.telemetry.addReward(15);
             } else {
-                context.logger.warn("[BankDeposit] Bank click validated but UI not open - applying camera nudge and retry");
-                // Nudge camera and retry once at a higher click point to avoid occluders
-                CameraHelper.sweepYawSmall(context, 6);
-                context.input.tiltCameraUpSmall();
+                context.logger.warn("[BankDeposit] Bank click validated but UI not open - retrying without camera movement");
                 context.setBusyForMs(200);
-                // Retry using BankClicker again
+                // Retry using BankClicker again (no camera changes)
                 if (BankClicker.clickBank(context, bankInteractable)) {
                     context.setBusyForMs(200);
                     if (isBankOpen(context)) {
@@ -305,22 +302,26 @@ public class BankDepositTask implements Task {
             // Project bank to canvas 
             java.awt.Point proj = ObjectFinder.projectToClickablePoint(context, best);
             if (proj == null) {
-                final net.runelite.api.GameObject bestFinal = best;
-                // If we're already within 6 tiles, do not navigate; only try to reveal via camera
+                // If not visible, navigate closer instead of moving the camera
                 int distTiles = -1;
                 try {
                     net.runelite.api.Player meP = context.client.getLocalPlayer();
-                    if (meP != null) distTiles = meP.getWorldLocation().distanceTo(bestFinal.getWorldLocation());
+                    if (meP != null) distTiles = meP.getWorldLocation().distanceTo(best.getWorldLocation());
                 } catch (Exception ignored) {}
-                boolean visible = CameraHelper.sweepUntilVisible(context, () -> ObjectFinder.projectToCanvas(context, bestFinal) != null, 6);
-                if (!visible && (distTiles < 0 || distTiles > 6)) {
-                    context.logger.info("[BankDeposit] Bank not visible, navigating closer");
-                    WorldPathing.clickStepToward(context, best.getWorldLocation(), 6);
-                    context.setBusyForMs(300);
+                if (distTiles < 0 || distTiles > 3) {
+                    context.logger.info("[BankDeposit] Bank not visible, stepping closer");
+                    boolean worldClicked2 = WorldPathing.clickStepToward(context, best.getWorldLocation(), 8);
+                    if (!worldClicked2) {
+                        boolean visible2 = WorldPathing.clickStepToward(context, best.getWorldLocation(), 0);
+                        if (!visible2) {
+                            MinimapPathing.stepTowards(context, best.getWorldLocation(), 0.0);
+                        }
+                    }
+                    context.setBusyForMs(400);
                 }
                 return;
             } else {
-                context.logger.warn("[BankDeposit] Bank is visible but ObjectClicker failed - may be action mismatch or occlusion");
+                context.logger.warn("[BankDeposit] Bank is visible but click failed - will retry soon");
                 context.setBusyForMs(300);
             }
             return;
@@ -512,5 +513,4 @@ public class BankDepositTask implements Task {
         }
     }
 }
-
 

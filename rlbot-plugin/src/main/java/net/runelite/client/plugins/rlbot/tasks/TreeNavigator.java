@@ -78,8 +78,6 @@ public class TreeNavigator {
     public static void performRecoveryMovement(TaskContext context) {
         context.logger.info("[TreeNavigator] Performing recovery movement");
         
-        CameraHelper.sweepYawSmall(context, 12);
-        
         WorldPoint playerPos = context.client.getLocalPlayer() != null ? 
             context.client.getLocalPlayer().getWorldLocation() : null;
             

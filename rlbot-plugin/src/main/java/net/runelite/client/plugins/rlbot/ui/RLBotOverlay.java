@@ -103,20 +103,11 @@ public class RLBotOverlay extends OverlayPanel {
         panelComponent.getChildren().clear();
         
         // Main title with status indicator
-        String statusText = "RLBot - Learning";
-        Color statusColor = Color.GREEN;
-        if (agent != null && config.enableRLAgent()) {
-            int epsilonPct = agent.getLastEpsilonPct();
-            if (epsilonPct > 80) {
-                statusText = "RLBot - Exploring";
-                statusColor = Color.YELLOW;
-            } else if (epsilonPct > 50) {
-                statusText = "RLBot - Learning";
-                statusColor = Color.ORANGE;
-            } else {
-                statusText = "RLBot - Exploiting";
-                statusColor = Color.GREEN;
-            }
+        String statusText = "RLBot - External Control";
+        Color statusColor = Color.CYAN;
+        if (agent != null && config.enableGymControl()) {
+            statusText = "RLBot - External Control";
+            statusColor = Color.CYAN;
         }
         
         panelComponent.getChildren().add(TitleComponent.builder()
@@ -125,7 +116,7 @@ public class RLBotOverlay extends OverlayPanel {
             .build());
         
         // Learning Progress Section (Most Important)
-        if (agent != null && config.enableRLAgent()) {
+        if (agent != null && config.enableGymControl()) {
             renderLearningProgress();
         }
         
@@ -190,47 +181,18 @@ public class RLBotOverlay extends OverlayPanel {
      * Render a wide, compact visualization of the agent's latest Q-values in 2 columns.
      */
     private void renderQValues() {
-        if (agent == null || !config.enableRLAgent()) return;
-        // Use real-time Q prediction to avoid overlay staleness
-        float[] q = agent.predictQNowSafe();
-        if (q == null || q.length == 0) return;
-
+        if (agent == null || !config.enableGymControl()) return;
         panelComponent.getChildren().add(TitleComponent.builder()
-            .text("Policy")
+            .text("Actions")
             .color(new Color(180, 120, 255))
             .build());
-
-        // Compute normalization range
-        float min = q[0], max = q[0];
-        for (float v : q) { if (v < min) min = v; if (v > max) max = v; }
-        float range = Math.max(1e-6f, max - min);
-
-        // Sort indices by descending Q and show ALL actions
-        java.util.List<Integer> idx = new java.util.ArrayList<>();
-        for (int i = 0; i < q.length; i++) idx.add(i);
-        idx.sort((a,b) -> Float.compare(q[b], q[a]));
+        int num = agent.getNumActions();
         int chosen = agent.getLastChosenAction();
-        boolean wasExplore = agent.wasLastActionExploratory();
-
-        // Render as a single, readable column to avoid overlap
-        for (int k = 0; k < idx.size(); k++) {
-            int i = idx.get(k);
-            float norm = (q[i] - min) / range;
+        for (int i = 0; i < num; i++) {
             String name = shortActionName(agent.getActionName(i));
-            // Fixed widths: name(10) bar(12) q(>=5)
-            String line = String.format("%-10s %.2f", name, q[i]);
             panelComponent.getChildren().add(LineComponent.builder()
-                .left(line)
+                .left(name)
                 .leftColor(getActionColor(chosen, i))
-                .build());
-        }
-
-        // Show chosen and last actions
-        if (chosen >= 0) {
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Current:")
-                .right(shortActionName(agent.getActionName(chosen)) + (wasExplore ? " (explore)" : " (greedy)"))
-                .rightColor(wasExplore ? Color.ORANGE : Color.CYAN)
                 .build());
         }
         String lastAction = getLastExecutedAction();
@@ -338,39 +300,7 @@ public class RLBotOverlay extends OverlayPanel {
             .rightColor(rewardColor)
             .build());
         
-        // Learning Phase (Exploration vs Exploitation)
-        int epsilonPct = agent.getLastEpsilonPct();
-        String phaseText;
-        Color phaseColor;
-        if (epsilonPct > 80) {
-            phaseText = "Exploring (" + epsilonPct + "%)";
-            phaseColor = Color.YELLOW;
-        } else if (epsilonPct > 50) {
-            phaseText = "Learning (" + epsilonPct + "%)";
-            phaseColor = Color.ORANGE;
-        } else {
-            phaseText = "Using Knowledge (" + epsilonPct + "%)";
-            phaseColor = Color.GREEN;
-        }
-        
-        panelComponent.getChildren().add(LineComponent.builder()
-            .left("Phase:")
-            .right(phaseText)
-            .rightColor(phaseColor)
-            .build());
-        
-        // Training Progress
-        Float trainLoss = agent.getLastTrainLoss();
-        if (trainLoss != null) {
-            String lossText = String.format("%.3f", trainLoss);
-            Color lossColor = trainLoss < 0.1 ? Color.GREEN : (trainLoss < 0.5 ? Color.YELLOW : Color.RED);
-            
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Learning:")
-                .right(lossText)
-                .rightColor(lossColor)
-                .build());
-        }
+        // Phase/Learning metrics not available in current agent; omit for now
         
         // Episode Duration
         long episodeStartMs = agent.getEpisodeStartMs();
@@ -465,7 +395,7 @@ public class RLBotOverlay extends OverlayPanel {
             .build());
         
         // Performance indicator
-        if (agent != null && config.enableRLAgent()) {
+        if (agent != null && config.enableGymControl()) {
             double stepsPerSecond = agent.getStepsPerSecond();
             String perfText = String.format("%.1f", stepsPerSecond) + "/sec";
             Color perfColor = stepsPerSecond > 1.0 ? Color.GREEN : Color.YELLOW;
