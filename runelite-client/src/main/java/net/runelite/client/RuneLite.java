@@ -173,19 +173,6 @@ public class RuneLite
 	{
 		Locale.setDefault(Locale.ENGLISH);
 
-		// Add assertion check and enable
-		boolean assertionsEnabled = false;
-		assert assertionsEnabled = true;
-		if (!assertionsEnabled) {
-			// Enable assertions programmatically
-			try {
-				Class.forName("net.runelite.client.RuneLite").getClassLoader()
-					.setDefaultAssertionStatus(true);
-			} catch (Exception e) {
-				log.error("Failed to enable assertions programmatically", e);
-			}
-		}
-
 		final OptionParser parser = new OptionParser(false);
 		parser.accepts("developer-mode", "Enable developer tools");
 		parser.accepts("debug", "Show extra debugging output");
@@ -246,7 +233,7 @@ public class RuneLite
 				ClassPreloader.preload();
 			}, "Preloader").start();
 
-			final boolean developerMode = true; //options.has("developer-mode") && RuneLiteProperties.getLauncherVersion() == null;
+			final boolean developerMode = options.has("developer-mode") && RuneLiteProperties.getLauncherVersion() == null;
 
 			if (developerMode)
 			{

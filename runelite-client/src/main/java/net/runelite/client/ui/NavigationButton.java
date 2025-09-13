@@ -26,10 +26,8 @@
 package net.runelite.client.ui;
 
 import java.awt.image.BufferedImage;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
-import javax.swing.JPanel;
 import lombok.Builder;
 import lombok.Value;
 
@@ -37,122 +35,40 @@ import lombok.Value;
  * UI navigation button.
  */
 @Value
-@Builder(toBuilder = true)
+@Builder
 public class NavigationButton
 {
 	static final Comparator<NavigationButton> COMPARATOR = Comparator.comparing(NavigationButton::getPriority)
 		.thenComparing(NavigationButton::getTooltip);
 
 	/**
-	 * Tooltip to show when hovered.
-	 */
-	String tooltip;
-
-	/**
 	 * Icon of button.
 	 */
-	BufferedImage icon;
+	private final BufferedImage icon;
 
 	/**
-	 * The order in which the button should be displayed in the side bar (from lower to higher).
+	 * Tooltip to show when hovered.
 	 */
 	@Builder.Default
-	int priority = 0;
-
-	/**
-	 * Plugin panel, used when expanding and contracting sidebar.
-	 * This can be null for buttons that perform an onClick action without showing a panel.
-	 */
-	PluginPanel panel;
+	private final String tooltip = "";
 
 	/**
 	 * On click action of the button.
 	 */
-	@Builder.Default
-	Runnable onClick = null;
+	private final Runnable onClick;
 
 	/**
-	 * Map of key-value pairs for setting the popup menu.
+	 * Plugin panel, used when expanding and contracting sidebar.
 	 */
-	@Builder.Default
-	Map<String, Runnable> popup = Collections.emptyMap();
+	private final PluginPanel panel;
 
-	public String getTooltip()
-	{
-		return tooltip;
-	}
+	/**
+	 * The order in which the button should be displayed in the side bar. (from lower to higher)
+	 */
+	private final int priority;
 
-	public BufferedImage getIcon()
-	{
-		return icon;
-	}
-
-	public int getPriority()
-	{
-		return priority;
-	}
-
-	public PluginPanel getPanel()
-	{
-		return panel;
-	}
-
-	// Static builder method that DevToolsPlugin (and elsewhere) can use.
-	public static Builder builder()
-	{
-		return new Builder();
-	}
-
-	// Custom Builder inner class (optional)
-	// Remove this inner class if you want Lombok to generate the builder automatically.
-	public static class Builder
-	{
-		private String tooltip;
-		private BufferedImage icon;
-		private int priority;
-		private PluginPanel panel;
-		private Runnable onClick = null;
-		private Map<String, Runnable> popup = Collections.emptyMap();
-
-		public Builder tooltip(String tooltip)
-		{
-			this.tooltip = tooltip;
-			return this;
-		}
-
-		public Builder icon(BufferedImage icon)
-		{
-			this.icon = icon;
-			return this;
-		}
-
-		public Builder priority(int priority)
-		{
-			this.priority = priority;
-			return this;
-		}
-
-		public Builder panel(PluginPanel panel)
-		{
-			this.panel = panel;
-			return this;
-		}
-
-		public Builder onClick(Runnable onClick)
-		{
-			this.onClick = onClick;
-			return this;
-		}
-
-		public Builder popup(Map<String, Runnable> popup)
-		{
-			this.popup = popup;
-			return this;
-		}
-
-		public NavigationButton build()
-		{
-			return new NavigationButton(tooltip, icon, priority, panel, onClick, popup);
-		}
-	}
+	/**
+	 * Map of key-value pairs for setting the popup menu
+	 */
+	private final Map<String, Runnable> popup;
 }

@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>net.runelite</groupId>
 		<artifactId>runelite-parent</artifactId>
-		<version>1.11.16-SNAPSHOT</version>
+		<version>1.11.17-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>runelite-maven-plugin</artifactId>
@@ -44,13 +44,6 @@
 		<dependency>
 			<groupId>net.runelite</groupId>
 			<artifactId>cache</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>net.runelite</groupId>
-			<artifactId>injected-client</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

@@ -24,7 +24,8 @@
  */
 package net.runelite.client.util;
 
-import java.awt.Taskbar;
+import com.apple.eawt.Application;
+import com.apple.eawt.FullScreenUtilities;
 import javax.swing.JFrame;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,6 +45,7 @@ public class OSXUtil
 		if (OSType.getOSType() == OSType.MacOS)
 		{
 			OSXFullScreenAdapter.install(gui);
+			FullScreenUtilities.setWindowCanFullScreen(gui, true);
 			log.debug("Enabled fullscreen on macOS");
 		}
 	}
@@ -53,15 +55,9 @@ public class OSXUtil
 	 */
 	public static void requestUserAttention()
 	{
-		if (OSType.getOSType() == OSType.MacOS)
-		{
-			Taskbar taskbar = Taskbar.getTaskbar();
-			if (taskbar.isSupported(Taskbar.Feature.USER_ATTENTION))
-			{
-				taskbar.requestUserAttention(true, false);
-				log.debug("Requested user attention on macOS");
-			}
-		}
+		Application app = Application.getApplication();
+		app.requestUserAttention(true);
+		log.debug("Requested user attention on macOS");
 	}
 
 	/**
@@ -69,14 +65,8 @@ public class OSXUtil
 	 */
 	public static void requestForeground()
 	{
-		if (OSType.getOSType() == OSType.MacOS)
-		{
-			Taskbar taskbar = Taskbar.getTaskbar();
-			if (taskbar.isSupported(Taskbar.Feature.USER_ATTENTION))
-			{
-				taskbar.requestUserAttention(true, true);
-				log.debug("Forced focus on macOS");
-			}
-		}
+		Application app = Application.getApplication();
+		app.requestForeground(true);
+		log.debug("Forced focus on macOS");
 	}
 }

@@ -10,6 +10,4 @@ project.properties
 .classpath
 .vscode
 .factorypath
-.DS_Storedependency-reduced-pom.xml
-dependency-reduced-pom.xml
 .DS_Store

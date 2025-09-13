@@ -28,7 +28,6 @@ package net.runelite.client.plugins.devtools;
 import com.formdev.flatlaf.extras.FlatUIDefaultsInspector;
 import com.google.inject.ProvisionException;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;

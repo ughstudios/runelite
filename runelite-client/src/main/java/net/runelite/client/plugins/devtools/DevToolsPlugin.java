@@ -28,36 +28,31 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.formdev.flatlaf.extras.FlatInspector;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
 import com.google.inject.Provides;
 import java.awt.AWTEvent;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.AWTEventListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import static java.lang.Math.min;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.Builder;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.Experience;
 import net.runelite.api.IndexedSprite;
-import net.runelite.api.ItemID;
 import net.runelite.api.Menu;
 import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
@@ -73,6 +68,7 @@ import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.ScriptCallbackEvent;
 import net.runelite.api.events.StatChanged;
 import net.runelite.api.events.VarbitChanged;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.api.kit.KitType;
 import net.runelite.client.chat.ChatMessageBuilder;
 import net.runelite.client.chat.ChatMessageManager;
@@ -85,14 +81,11 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.JagexColors;
 import net.runelite.client.ui.NavigationButton;
-import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ColorUtil;
 import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.ImageUtil;
 import org.slf4j.LoggerFactory;
-import com.google.common.collect.ImmutableMap;
-import javax.swing.SwingUtilities;
 
 @Slf4j
 @PluginDescriptor(
@@ -147,7 +140,6 @@ public class DevToolsPlugin extends Plugin
 
 	@Inject
 	private DevToolsConfig config;
-
 
 	private DevToolsButton players;
 	private DevToolsButton npcs;
@@ -219,29 +211,6 @@ public class DevToolsPlugin extends Plugin
 		}
 	};
 
-	// Utility used by VarInspector/InventoryInspector to map ID constants to names
-	public static Map<Integer, String> loadFieldNames(Class<?> constantsClass)
-	{
-		Map<Integer, String> names = new HashMap<>();
-		for (Field f : constantsClass.getDeclaredFields())
-		{
-			int mods = f.getModifiers();
-			if (Modifier.isPublic(mods) && Modifier.isStatic(mods) && f.getType() == int.class)
-			{
-				try
-				{
-					int value = f.getInt(null);
-					names.put(value, f.getName());
-				}
-				catch (IllegalAccessException ignored)
-				{
-					// ignore inaccessible fields
-				}
-			}
-		}
-		return names;
-	}
-
 	private final AWTEventListener swingInspectorKeyListener = rawEv ->
 	{
 		if (rawEv instanceof KeyEvent)
@@ -262,17 +231,6 @@ public class DevToolsPlugin extends Plugin
 	DevToolsConfig provideConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(DevToolsConfig.class);
-	}
-
-	// RLBot integration removed from DevTools to avoid hard dependency on RLBot classes.
-
-	private NavigationButton createNavigationButton(String tooltip, BufferedImage icon, PluginPanel panel, int priority) {
-		return NavigationButton.builder()
-			.tooltip(tooltip)
-			.icon(icon)
-			.priority(priority)
-			.panel(panel)
-			.build();
 	}
 
 	@Override
@@ -314,6 +272,7 @@ public class DevToolsPlugin extends Plugin
 		tileFlags = new DevToolsButton("Tile flags");
 		shell = new DevToolsButton("Shell");
 		menus = new DevToolsButton("Menus");
+
 		uiDefaultsInspector = new DevToolsButton("Swing Defaults");
 
 		overlayManager.add(overlay);
@@ -510,24 +469,24 @@ public class DevToolsPlugin extends Plugin
 			case "tex":
 			{
 				Player player = client.getLocalPlayer();
-				player.getPlayerComposition().getEquipmentIds()[KitType.CAPE.getIndex()] = ItemID.FIRE_CAPE + PlayerComposition.ITEM_OFFSET;
-				player.getPlayerComposition().getEquipmentIds()[KitType.SHIELD.getIndex()] = ItemID.MIRROR_SHIELD + PlayerComposition.ITEM_OFFSET;
+				player.getPlayerComposition().getEquipmentIds()[KitType.CAPE.getIndex()] = ItemID.TZHAAR_CAPE_FIRE + PlayerComposition.ITEM_OFFSET;
+				player.getPlayerComposition().getEquipmentIds()[KitType.SHIELD.getIndex()] = ItemID.SLAYER_MIRROR_SHIELD + PlayerComposition.ITEM_OFFSET;
 				player.getPlayerComposition().setHash();
 				break;
 			}
 			case "alpha":
 			{
 				Player player = client.getLocalPlayer();
-				player.getPlayerComposition().getEquipmentIds()[KitType.HEAD.getIndex()] = ItemID.GHOSTLY_HOOD + PlayerComposition.ITEM_OFFSET;
-				player.getPlayerComposition().getEquipmentIds()[KitType.AMULET.getIndex()] = ItemID.AMULET_OF_TORTURE_OR + PlayerComposition.ITEM_OFFSET;
-				player.getPlayerComposition().getEquipmentIds()[KitType.CAPE.getIndex()] = ItemID.GHOSTLY_CLOAK + PlayerComposition.ITEM_OFFSET;
-				player.getPlayerComposition().getEquipmentIds()[KitType.TORSO.getIndex()] = ItemID.GHOSTLY_ROBE + PlayerComposition.ITEM_OFFSET;
-				player.getPlayerComposition().getEquipmentIds()[KitType.SHIELD.getIndex()] = ItemID.ELYSIAN_SPIRIT_SHIELD + PlayerComposition.ITEM_OFFSET;
+				player.getPlayerComposition().getEquipmentIds()[KitType.HEAD.getIndex()] = ItemID.SECRET_GHOST_HAT + PlayerComposition.ITEM_OFFSET;
+				player.getPlayerComposition().getEquipmentIds()[KitType.AMULET.getIndex()] = ItemID.ZENYTE_AMULET_ORNAMENT + PlayerComposition.ITEM_OFFSET;
+				player.getPlayerComposition().getEquipmentIds()[KitType.CAPE.getIndex()] = ItemID.SECRET_GHOST_CLOAK + PlayerComposition.ITEM_OFFSET;
+				player.getPlayerComposition().getEquipmentIds()[KitType.TORSO.getIndex()] = ItemID.SECRET_GHOST_TOP + PlayerComposition.ITEM_OFFSET;
+				player.getPlayerComposition().getEquipmentIds()[KitType.SHIELD.getIndex()] = ItemID.ELYSIAN + PlayerComposition.ITEM_OFFSET;
 				player.getPlayerComposition().getEquipmentIds()[KitType.ARMS.getIndex()] = -1;
-				player.getPlayerComposition().getEquipmentIds()[KitType.LEGS.getIndex()] = ItemID.GHOSTLY_ROBE_6108 + PlayerComposition.ITEM_OFFSET;
+				player.getPlayerComposition().getEquipmentIds()[KitType.LEGS.getIndex()] = ItemID.SECRET_GHOST_BOTTOM + PlayerComposition.ITEM_OFFSET;
 				player.getPlayerComposition().getEquipmentIds()[KitType.HAIR.getIndex()] = -1;
-				player.getPlayerComposition().getEquipmentIds()[KitType.HANDS.getIndex()] = ItemID.GHOSTLY_GLOVES + PlayerComposition.ITEM_OFFSET;
-				player.getPlayerComposition().getEquipmentIds()[KitType.BOOTS.getIndex()] = ItemID.GHOSTLY_BOOTS + PlayerComposition.ITEM_OFFSET;
+				player.getPlayerComposition().getEquipmentIds()[KitType.HANDS.getIndex()] = ItemID.SECRET_GHOST_GLOVES + PlayerComposition.ITEM_OFFSET;
+				player.getPlayerComposition().getEquipmentIds()[KitType.BOOTS.getIndex()] = ItemID.SECRET_GHOST_BOOTS + PlayerComposition.ITEM_OFFSET;
 				player.getPlayerComposition().setHash();
 				break;
 			}
@@ -690,5 +649,23 @@ public class DevToolsPlugin extends Plugin
 					.onClick(c -> client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "menu " + i_, null));
 			}
 		}
+	}
+
+	static Map<Integer, String> loadFieldNames(Class<?> clazz)
+	{
+		var map = ImmutableMap.<Integer, String>builder();
+		try
+		{
+			for (Field f : clazz.getDeclaredFields())
+			{
+				map.put(f.getInt(null), f.getName());
+			}
+		}
+		catch (ReflectiveOperationException e)
+		{
+			log.debug("Failed to load fields", e);
+		}
+
+		return map.build();
 	}
 }
