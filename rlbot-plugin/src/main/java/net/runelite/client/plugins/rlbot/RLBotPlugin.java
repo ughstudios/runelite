@@ -428,7 +428,6 @@ public class RLBotPlugin extends Plugin implements KeyListener {
                         }
 
                         if (client.getGameState() != GameState.LOGGED_IN) {
-                            logger.error("Client not logged in. Current state: " + client.getGameState());
                             isGeneratingState = false;
                             return;
                         }
