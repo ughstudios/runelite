@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Adam <Adam@sigterm.info>
+ * Copyright (c) 2025, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,51 +22,71 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.util;
+package net.runelite.client.plugins.gpu;
 
-import com.apple.eawt.Application;
-import com.apple.eawt.FullScreenUtilities;
-import javax.swing.JFrame;
-import lombok.extern.slf4j.Slf4j;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import static org.lwjgl.opengl.GL33C.*;
 
-/**
- * A class with OSX-specific functions to improve integration.
- */
-@Slf4j
-public class OSXUtil
+class VBO
 {
-	/**
-	 * Enables the osx native fullscreen if running on a Mac.
-	 *
-	 * @param gui The gui to enable the fullscreen on.
-	 */
-	public static void tryEnableFullscreen(JFrame gui)
+	final int size;
+	int bufId;
+	private ByteBuffer buffer;
+	IntBuffer vb;
+	int len;
+	boolean mapped;
+
+	VBO(int size)
 	{
-		if (OSType.getOSType() == OSType.MacOS)
+		this.size = size;
+	}
+
+	void init(int usage)
+	{
+		bufId = glGenBuffers();
+
+		glBindBuffer(GL_ARRAY_BUFFER, bufId);
+		glBufferData(GL_ARRAY_BUFFER, size, usage);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	void destroy()
+	{
+		if (mapped)
 		{
-			OSXFullScreenAdapter.install(gui);
-			FullScreenUtilities.setWindowCanFullScreen(gui, true);
-			log.debug("Enabled fullscreen on macOS");
+			glBindBuffer(GL_ARRAY_BUFFER, bufId);
+			glUnmapBuffer(GL_ARRAY_BUFFER);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			mapped = false;
 		}
+		glDeleteBuffers(bufId);
+		bufId = 0;
 	}
 
-	/**
-	 * Request user attention on macOS
-	 */
-	public static void requestUserAttention()
+	void map()
 	{
-		Application app = Application.getApplication();
-		app.requestUserAttention(true);
-		log.debug("Requested user attention on macOS");
+		assert !mapped;
+		glBindBuffer(GL_ARRAY_BUFFER, bufId);
+		buffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY, buffer);
+		if (buffer == null)
+		{
+			throw new RuntimeException("unable to map GL buffer " + bufId + " size " + size);
+		}
+		this.vb = buffer.asIntBuffer();
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		mapped = true;
 	}
 
-	/**
-	 * Requests the foreground in a macOS friendly way.
-	 */
-	public static void requestForeground()
+	void unmap()
 	{
-		Application app = Application.getApplication();
-		app.requestForeground(true);
-		log.debug("Forced focus on macOS");
+		assert mapped;
+		len = vb.position();
+		vb = null;
+
+		glBindBuffer(GL_ARRAY_BUFFER, bufId);
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		mapped = false;
 	}
 }

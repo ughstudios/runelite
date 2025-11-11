@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Adam <Adam@sigterm.info>
+ * Copyright (c) 2025, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,40 +22,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.runelite.api.events;
 
-struct uniform {
-  float cameraYaw;
-  float cameraPitch;
-  int centerX;
-  int centerY;
-  int zoom;
-  float cameraX;
-  float cameraY;
-  float cameraZ;
-};
+import lombok.Value;
+import net.runelite.api.WorldEntity;
 
-struct shared_data {
-  int totalNum[12];        // number of faces with a given priority
-  int totalDistance[12];   // sum of distances to faces of a given priority
-  int totalMappedNum[18];  // number of faces with a given adjusted priority
-  int min10;               // minimum distance to a face of priority 10
-  int renderPris[0];       // priority for face draw order
-};
-
-struct modelinfo {
-  int offset;   // offset into vertex buffer
-  int toffset;  // offset into texture buffer
-  int size;     // length in faces
-  int idx;      // write idx in target buffer
-  int flags;    // buffer, hillskew, plane, orientation
-  int x;        // scene position x
-  int y;        // scene position y
-  int z;        // scene position z
-};
-
-struct vert {
-  float x;
-  float y;
-  float z;
-  int ahsl;
-};
+/**
+ * Called when a world entity spawns
+ *
+ * This is called when the world entity spawns, but before the WorldView has been loaded.
+ * @see WorldViewLoaded
+ */
+@Value
+public class WorldEntitySpawned
+{
+	WorldEntity worldEntity;
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Adam <Adam@sigterm.info>
+ * Copyright (c) 2025, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,26 +22,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.runelite.api.events;
 
-/*
- * Convert a vertex to screen space
+import lombok.Value;
+import net.runelite.api.WorldEntity;
+
+/**
+ * Called when a world entity despawns
  */
-vec3 toScreen(vec3 vertex, float cameraYaw, float cameraPitch, int centerX, int centerY, int zoom) {
-  float yawSin = sin(cameraYaw);
-  float yawCos = cos(cameraYaw);
-
-  float pitchSin = sin(cameraPitch);
-  float pitchCos = cos(cameraPitch);
-
-  float rotatedX = (vertex.z * yawSin) + (vertex.x * yawCos);
-  float rotatedZ = (vertex.z * yawCos) - (vertex.x * yawSin);
-
-  float var13 = (vertex.y * pitchCos) - (rotatedZ * pitchSin);
-  float var12 = (vertex.y * pitchSin) + (rotatedZ * pitchCos);
-
-  float x = rotatedX * zoom / var12 + centerX;
-  float y = var13 * zoom / var12 + centerY;
-  float z = -var12;  // in OpenGL depth is negative
-
-  return vec3(x, y, z);
+@Value
+public class WorldEntityDespawned
+{
+	WorldEntity worldEntity;
 }
