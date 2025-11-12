@@ -5,23 +5,22 @@ import java.util.concurrent.ThreadLocalRandom;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
 import net.runelite.api.coords.WorldPoint;
- 
 
 /**
  * Base navigation task that steps toward a target hotspot on the minimap.
+ * For RL-driven control, activation is unconditional; the task self-regulates in run().
  */
 public abstract class NavigateToHotspotTask implements Task {
     protected abstract List<WorldPoint> hotspots(TaskContext ctx);
-    protected abstract boolean shouldBeActive(TaskContext ctx);
 
     @Override
     public boolean shouldRun(TaskContext context) {
-        return shouldBeActive(context);
+        // Unconditionally eligible for RL exploration; run() contains defensive checks.
+        return true;
     }
 
     @Override
     public void run(TaskContext ctx) {
-        UiHelper.closeObstructions(ctx);
         if (ctx.isBusy() && !ctx.timedOutSince(1500)) {
             return;
         }
@@ -35,7 +34,7 @@ public abstract class NavigateToHotspotTask implements Task {
         
         if (availableHotspots.isEmpty()) {
             // No discovered hotspots - explore randomly to find objects
-            ctx.logger.info("[Nav] No hotspots discovered yet, exploring randomly");
+            ctx.logger.debug("[Nav] No hotspots discovered yet, exploring randomly");
             exploreRandomly(ctx, myWp);
             return;
         }
@@ -58,16 +57,16 @@ public abstract class NavigateToHotspotTask implements Task {
             ctx.telemetry.setTargetName("(" + target.getX() + "," + target.getY() + ")");
             ctx.telemetry.setDistanceTiles(distance);
         }
-        ctx.logger.info("[Nav] targetWP=(" + target.getX() + "," + target.getY() + ") distTiles=" + distance +
+        ctx.logger.debug("[Nav] targetWP=(" + target.getX() + "," + target.getY() + ") distTiles=" + distance +
             " navNoProgressCount=" + ctx.getNavNoProgressCount());
-        if (distance <= Math.max(5, ctx.config.nearHotspotTiles())) {
+        if (distance <= Math.max(5, net.runelite.client.plugins.rlbot.RLBotConstants.NEAR_HOTSPOT_TILES)) {
             // Try a world click step when near to increase precision
             boolean clicked = WorldPathing.clickStepToward(ctx, target, Math.max(2, Math.min(6, distance)));
             if (clicked) {
                 ctx.setBusyForMs(500);
                 return;
             }
-            ctx.logger.info("[Nav] Near target (" + distance + " tiles). Precise world click failed, trying minimap.");
+            ctx.logger.debug("[Nav] Near target (" + distance + " tiles). Precise world click failed, trying minimap.");
             MinimapPathing.stepTowards(ctx, target, 0.0);
             ctx.setBusyForMs(500);
             return;
@@ -87,13 +86,13 @@ public abstract class NavigateToHotspotTask implements Task {
         }
 
         int busyMs = ThreadLocalRandom.current().nextInt(
-            Math.max(200, ctx.config.navMinimapClickMsMin()),
-            Math.max(ctx.config.navMinimapClickMsMin() + 1, ctx.config.navMinimapClickMsMax() + 1)
+            Math.max(200, net.runelite.client.plugins.rlbot.RLBotConstants.NAV_MINIMAP_CLICK_MS_MIN),
+            Math.max(net.runelite.client.plugins.rlbot.RLBotConstants.NAV_MINIMAP_CLICK_MS_MIN + 1, net.runelite.client.plugins.rlbot.RLBotConstants.NAV_MINIMAP_CLICK_MS_MAX + 1)
         );
         ctx.setBusyForMs(busyMs);
 
         // Stuck detection and recovery: after several no-progress windows, try different routes (movement only)
-        if (ctx.getNavNoProgressCount() >= Math.max(1, ctx.config.stuckRetries())) {
+        if (ctx.getNavNoProgressCount() >= Math.max(1, net.runelite.client.plugins.rlbot.RLBotConstants.STUCK_RETRIES)) {
             ctx.logger.warn("[Nav] No progress for " + ctx.getNavNoProgressCount() + " attempts, performing recovery step");
             
             // Try multiple alternative routes to get around obstacles
@@ -112,7 +111,7 @@ public abstract class NavigateToHotspotTask implements Task {
             for (WorldPoint recoveryTarget : recoveryTargets) {
                 boolean recoveryClicked = WorldPathing.clickStepToward(ctx, recoveryTarget, 8);
                 if (recoveryClicked) {
-                    ctx.logger.info("[Nav] Using recovery route via: " + recoveryTarget);
+                    ctx.logger.debug("[Nav] Using recovery route via: " + recoveryTarget);
                     ctx.setBusyForMs(800);
                     return;
                 }
@@ -209,7 +208,7 @@ public abstract class NavigateToHotspotTask implements Task {
             myWp.getPlane()
         );
         
-        ctx.logger.info("[Nav] Exploring toward (" + exploreTarget.getX() + "," + exploreTarget.getY() + ")");
+        ctx.logger.debug("[Nav] Exploring toward (" + exploreTarget.getX() + "," + exploreTarget.getY() + ")");
         
         // Use the same navigation logic as normal hotspot navigation
         RunHelper.ensureRunOn(ctx);
@@ -223,11 +222,11 @@ public abstract class NavigateToHotspotTask implements Task {
         }
         
         int busyMs = ThreadLocalRandom.current().nextInt(
-            Math.max(200, ctx.config.navMinimapClickMsMin()),
-            Math.max(ctx.config.navMinimapClickMsMin() + 1, ctx.config.navMinimapClickMsMax() + 1)
+            Math.max(200, net.runelite.client.plugins.rlbot.RLBotConstants.NAV_MINIMAP_CLICK_MS_MIN),
+            Math.max(net.runelite.client.plugins.rlbot.RLBotConstants.NAV_MINIMAP_CLICK_MS_MIN + 1, net.runelite.client.plugins.rlbot.RLBotConstants.NAV_MINIMAP_CLICK_MS_MAX + 1)
         );
         ctx.setBusyForMs(busyMs);
     }
 
-    
+
 }

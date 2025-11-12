@@ -62,46 +62,7 @@ public class NavigateToBankHotspotTask extends NavigateToHotspotTask {
 
     // Note: Reachability precheck removed; NavigateToHotspotTask.ensurePathable handles collision checks.
 
-    @Override
-    protected boolean shouldBeActive(TaskContext ctx) {
-        boolean inventoryFull = ctx.isInventoryFull();
-        boolean inventoryNearFull = ctx.isInventoryNearFull();
-        boolean bankOpen = isBankOpen(ctx);
-        int freeSlots = ctx.getInventoryFreeSlots();
-        
-        ctx.logger.info("[BankNav] shouldBeActive: full=" + inventoryFull + 
-                       " nearFull=" + inventoryNearFull + " freeSlots=" + freeSlots + " bankOpen=" + bankOpen);
-        
-        // Be more aggressive - navigate to bank when inventory is full OR nearly full
-        if (!inventoryFull && !inventoryNearFull) {
-            ctx.logger.info("[BankNav] Inventory has plenty of space, not navigating to bank");
-            return false;
-        }
-
-        // If a usable, non-blacklisted bank object is currently visible, let BankDepositTask handle it
-        try {
-            final net.runelite.api.GameObject visibleBank = ObjectFinder.findNearestBankInteractable(ctx);
-            if (visibleBank != null) {
-                java.awt.Point p = ObjectFinder.projectToCanvas(ctx, visibleBank);
-                boolean blacklisted = BankDiscovery.isBlacklisted(visibleBank.getWorldLocation());
-                if (p != null && !blacklisted) {
-                    // Check if we're close enough to the bank to interact with it
-                    net.runelite.api.Player me = ctx.client.getLocalPlayer();
-                    if (me != null) {
-                        int distance = me.getWorldLocation().distanceTo(visibleBank.getWorldLocation());
-                        if (distance <= 2) {
-                            ctx.logger.info("[BankNav] Very close to usable bank; deferring to BankDepositTask");
-                            return false;
-                        }
-                    }
-                    ctx.logger.info("[BankNav] Usable bank visible on-screen but not close enough; continuing navigation");
-                }
-            }
-        } catch (Exception ignored) {}
-
-        // Always navigate to bank when inventory is full/near full and bank is not open
-        return !bankOpen;
-    }
+    // Activation gating removed for RL-driven exploration (always eligible).
 
     private static boolean isBankOpen(TaskContext ctx) {
         try {

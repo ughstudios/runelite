@@ -1,0 +1,22 @@
+{
+  "last_action_name": "IdleTask",
+  "state": [
+    6.5,
+    0.0,
+    0.0,
+    0.033333335,
+    0.16666667
+  ],
+  "last_reward": -0.01,
+  "state_names": [
+    "inventory_free_slots_bucket",
+    "bank_open",
+    "is_woodcutting",
+    "tree_distance_norm",
+    "bank_distance_norm"
+  ],
+  "last_action_index": 4,
+  "done": false,
+  "seq": 165,
+  "timestamp": 1762912526203
+}

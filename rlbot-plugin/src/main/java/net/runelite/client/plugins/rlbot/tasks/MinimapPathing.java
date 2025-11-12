@@ -59,8 +59,8 @@ final class MinimapPathing {
             boolean clicked = WorldPathing.clickStepToward(ctx, stepTargetFinal, Math.max(3, Math.min(stepLen, 12)));
             lastStepWp = stepTargetFinal;
             if (!clicked) {
-                // If world click fails (projection/obstruction), attempt real minimap click toward the original target
-                clickMinimapTowards(ctx, target);
+                // If world click fails (projection/obstruction), click the minimap toward the nearby step target
+                clickMinimapTowards(ctx, stepTargetFinal);
             }
         } catch (Exception e) {
             ctx.logger.error("[Pathing] Error in stepTowards: " + e.getMessage());
@@ -89,5 +89,4 @@ final class MinimapPathing {
         }
     }
 }
-
 

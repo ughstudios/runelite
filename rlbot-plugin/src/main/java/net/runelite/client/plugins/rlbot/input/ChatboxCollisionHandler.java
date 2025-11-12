@@ -77,7 +77,16 @@ public class ChatboxCollisionHandler {
         }
         
         // Try to resolve the collision by adjusting the camera
-        boolean resolved = resolveCollisionWithCameraAdjustment(canvasPoint, targetObject, expectedAction);
+        boolean resolved = ChatboxAdjuster.resolve(
+            client,
+            inputHandler,
+            logger,
+            consecutiveCollisions,
+            canvasPoint,
+            targetObject,
+            expectedAction,
+            this::isInChatArea
+        );
         
         if (resolved) {
             logger.info("[CHATBOX_COLLISION] Successfully resolved collision with camera adjustment");
@@ -118,131 +127,29 @@ public class ChatboxCollisionHandler {
      * Attempt to resolve the chatbox collision by adjusting the camera.
      * Uses different strategies based on the collision count and object position.
      */
-    private boolean resolveCollisionWithCameraAdjustment(Point canvasPoint, GameObject targetObject, String expectedAction) {
-        AdjustmentStrategy strategy = selectAdjustmentStrategy(canvasPoint, targetObject);
-        
-        logger.info("[CHATBOX_COLLISION] Attempting resolution with strategy: " + strategy);
-        
-        try {
-            switch (strategy) {
-                case ZOOM_OUT:
-                    // Zoom out to make the chatbox cover less of the screen
-                    for (int i = 0; i < 3; i++) {
-                        inputHandler.zoomOutSmall();
-                    }
-                    break;
-                    
-                case ROTATE_LEFT:
-                    // Rotate camera left to move the object away from chatbox area
-                    inputHandler.rotateCameraSafe(-120, 0);
-                    break;
-                    
-                case ROTATE_RIGHT:
-                    // Rotate camera right to move the object away from chatbox area
-                    inputHandler.rotateCameraSafe(120, 0);
-                    break;
-                    
-                case TILT_UP:
-                    // Tilt camera up to change the perspective
-                    inputHandler.rotateCameraSafe(0, -60);
-                    break;
-                    
-                case COMBINED_ROTATE_ZOOM:
-                    // Combine rotation and zoom for stubborn cases
-                    inputHandler.rotateCameraSafe(90, -30);
-                    inputHandler.zoomOutSmall();
-                    inputHandler.zoomOutSmall();
-                    break;
-            }
-            
-            // Give the camera adjustment time to take effect
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            
-            // Check if the adjustment resolved the collision
-            Point newProjection = null;
-            if (targetObject != null) {
-                LocalPoint localPoint = LocalPoint.fromWorld(client.getTopLevelWorldView(), targetObject.getWorldLocation());
-                if (localPoint != null) {
-                    net.runelite.api.Point apiPoint = Perspective.localToCanvas(client, localPoint, targetObject.getPlane());
-                    if (apiPoint != null) {
-                        newProjection = new Point(apiPoint.getX(), apiPoint.getY());
-                    }
-                }
-            }
-            
-            if (newProjection != null && !isInChatArea(newProjection)) {
-                logger.info("[CHATBOX_COLLISION] Camera adjustment successful - object now at " + newProjection);
-                return true;
-            } else {
-                logger.warn("[CHATBOX_COLLISION] Camera adjustment did not resolve collision");
-                return false;
-            }
-            
-        } catch (Exception e) {
-            logger.error("[CHATBOX_COLLISION] Error during camera adjustment: " + e.getMessage());
-            return false;
-        }
-    }
+    // Resolution logic moved to ChatboxAdjuster
     
     /**
      * Select the best adjustment strategy based on the collision context.
      */
     private AdjustmentStrategy selectAdjustmentStrategy(Point canvasPoint, GameObject targetObject) {
-        // Strategy selection based on collision count and object position
-        switch (consecutiveCollisions) {
-            case 1:
-                // First collision: try simple zoom out
-                return AdjustmentStrategy.ZOOM_OUT;
-                
-            case 2:
-                // Second collision: try rotation based on object position
-                if (targetObject != null) {
-                    return selectRotationStrategy(targetObject);
-                } else {
-                    return AdjustmentStrategy.ROTATE_LEFT;
-                }
-                
-            case 3:
-                // Third collision: try tilt adjustment
-                return AdjustmentStrategy.TILT_UP;
-                
-            default:
-                // Last resort: combined approach
-                return AdjustmentStrategy.COMBINED_ROTATE_ZOOM;
-        }
+        // Logic moved to ChatboxAdjuster; keep compatibility by mapping result
+        boolean right = false;
+        try {
+            if (client.getLocalPlayer() != null && targetObject != null) {
+                right = targetObject.getWorldLocation().getX() - client.getLocalPlayer().getWorldLocation().getX() > 0;
+            }
+        } catch (Exception ignored) {}
+        if (consecutiveCollisions == 1) return AdjustmentStrategy.ZOOM_OUT;
+        if (consecutiveCollisions == 2) return right ? AdjustmentStrategy.ROTATE_RIGHT : AdjustmentStrategy.ROTATE_LEFT;
+        if (consecutiveCollisions == 3) return AdjustmentStrategy.TILT_UP;
+        return AdjustmentStrategy.COMBINED_ROTATE_ZOOM;
     }
     
     /**
      * Select rotation strategy based on object's world position relative to player.
      */
-    private AdjustmentStrategy selectRotationStrategy(GameObject targetObject) {
-        try {
-            WorldPoint playerPos = client.getLocalPlayer().getWorldLocation();
-            WorldPoint objectPos = targetObject.getWorldLocation();
-            
-            if (playerPos != null && objectPos != null) {
-                int deltaX = objectPos.getX() - playerPos.getX();
-                // int deltaY = objectPos.getY() - playerPos.getY(); // Not used currently
-                
-                // If object is more to the east, rotate right to move it left (away from chatbox)
-                // If object is more to the west, rotate left to move it right (away from chatbox)
-                if (deltaX > 0) {
-                    return AdjustmentStrategy.ROTATE_RIGHT;
-                } else {
-                    return AdjustmentStrategy.ROTATE_LEFT;
-                }
-            }
-        } catch (Exception e) {
-            logger.warn("[CHATBOX_COLLISION] Error determining rotation strategy: " + e.getMessage());
-        }
-        
-        // Default to left rotation
-        return AdjustmentStrategy.ROTATE_LEFT;
-    }
+    private AdjustmentStrategy selectRotationStrategy(GameObject targetObject) { return AdjustmentStrategy.ROTATE_LEFT; }
     
     /**
      * Update the collision counter and timestamp.

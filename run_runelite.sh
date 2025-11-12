@@ -20,6 +20,28 @@ RUNELITE_HOME="$HOME/.runelite"
 SIDELOAD_DIR="$RUNELITE_HOME/sideloaded-plugins"
 mkdir -p "$SIDELOAD_DIR"
 
+cleanup_rlbot_sideloads() {
+  local target_dir="$1"
+  if [ -d "$target_dir" ]; then
+    find "$target_dir" -maxdepth 1 -type f \
+      \( -name 'rlbot-plugin-*.jar' -o -name 'rlbot-macro-plugin-*.jar' \) \
+      -print -delete 2>/dev/null || true
+  fi
+}
+
+cleanup_rlbot_sideloads "$SIDELOAD_DIR"
+cleanup_rlbot_sideloads "$SCRIPT_DIR/runelite/sideloaded-plugins"
+
+# Copy latest rlbot-plugin jar into sideload dir
+PLUGIN_JAR=$(ls -t "$SCRIPT_DIR/rlbot-plugin/target"/rlbot-plugin-*-shaded.jar 2>/dev/null | head -n1 || true)
+if [ -z "$PLUGIN_JAR" ]; then
+  PLUGIN_JAR=$(ls -t "$SCRIPT_DIR/rlbot-plugin/target"/rlbot-plugin-*.jar 2>/dev/null | head -n1 || true)
+fi
+if [ -n "$PLUGIN_JAR" ]; then
+  echo "Copying RLBot plugin jar to $SIDELOAD_DIR"
+  cp -f "$PLUGIN_JAR" "$SIDELOAD_DIR/"
+fi
+
 # Locate the shaded client jar (prefer upstream under runelite/, fallback to local module)
 JAR=""
 SEARCH_DIRS=(
@@ -59,9 +81,10 @@ fi
 
 # macOS fullscreen adapter requires apple eawt package access on newer JDKs
 exec java \
+  -Drlbot.gymIpcDir="$SCRIPT_DIR/rlbot-ipc" \
   --add-exports java.desktop/com.apple.eawt=ALL-UNNAMED \
   --add-exports java.desktop/com.apple.eawt.event=ALL-UNNAMED \
   --add-opens java.desktop/com.apple.eawt=ALL-UNNAMED \
   --add-opens java.desktop/com.apple.eawt.event=ALL-UNNAMED \
   -ea \
-  -jar "$JAR"
+  -jar "$JAR" --developer-mode --debug

@@ -1,0 +1,4 @@
+# Minimal dependencies for the RLBot Gym environment
+gymnasium
+numpy
+

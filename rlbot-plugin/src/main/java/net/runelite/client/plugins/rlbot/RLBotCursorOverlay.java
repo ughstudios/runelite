@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.LinkedList;
 import javax.inject.Inject;
+import net.runelite.api.Client;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -15,6 +16,7 @@ public class RLBotCursorOverlay extends Overlay
 {
     private final RLBotConfig config;
     private final RLBotPlugin plugin;
+    private final Client client;
     private static final int TRAIL_LENGTH = 50; // Increased trail length
     private static final int TRAIL_FADE_DURATION = 500; // Increased fade duration in milliseconds
     private final LinkedList<TrailPoint> trail;
@@ -31,7 +33,7 @@ public class RLBotCursorOverlay extends Overlay
     }
 
     @Inject
-    private RLBotCursorOverlay(RLBotConfig config, RLBotPlugin plugin)
+    private RLBotCursorOverlay(RLBotConfig config, RLBotPlugin plugin, Client client)
     {
         super(plugin);
         setPosition(OverlayPosition.DYNAMIC);
@@ -39,18 +41,44 @@ public class RLBotCursorOverlay extends Overlay
         setPriority(OverlayPriority.HIGH);
         this.config = config;
         this.plugin = plugin;
+        this.client = client;
         this.trail = new LinkedList<>();
     }
 
     @Override
     public Dimension render(Graphics2D graphics)
     {
-        if (!config.showCursorOverlay())
+        if (!config.showOverlay())
         {
             return null;
         }
 
-        Point mousePos = plugin.getLastMouseLocation();
+        Point mousePos = null;
+        try
+        {
+            net.runelite.api.Point p = client.getMouseCanvasPosition();
+            if (p != null)
+            {
+                mousePos = new Point(p.getX(), p.getY());
+            }
+        }
+        catch (Exception ignored)
+        {
+        }
+
+        if (mousePos == null)
+        {
+            mousePos = plugin.getLastMouseLocation();
+        }
+        if (mousePos == null) {
+            try {
+                java.awt.PointerInfo info = java.awt.MouseInfo.getPointerInfo();
+                if (info != null) {
+                    mousePos = info.getLocation();
+                }
+            } catch (Exception ignored) {
+            }
+        }
         if (mousePos != null)
         {
             lastKnownPosition = mousePos;

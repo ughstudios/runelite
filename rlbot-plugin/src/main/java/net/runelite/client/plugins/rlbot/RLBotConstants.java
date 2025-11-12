@@ -77,6 +77,16 @@ public final class RLBotConstants {
     public static final String TARGET_OBJECT = "object";
     public static final String TARGET_GROUND_ITEM = "ground_item";
     
+    // === Simplified defaults to avoid config bloat ===
+    public static final int DEFAULT_RNG_SEED = 1337;
+    public static final int NAV_MINIMAP_CLICK_MS_MIN = 450;
+    public static final int NAV_MINIMAP_CLICK_MS_MAX = 800;
+    public static final int NEAR_HOTSPOT_TILES = 15;
+    public static final int STUCK_NO_PROGRESS_WINDOW_MS = 8000;
+    public static final int STUCK_RETRIES = 3;
+    public static final int MOUSE_MOVE_INTERPOLATION_PX = 20;
+    public static final int EPISODE_MAX_MS = 300_000; // 5 minutes
+    public static final boolean EPISODE_END_ON_BANK_DEPOSIT = true;
     /**
      * Private constructor to prevent instantiation.
      */

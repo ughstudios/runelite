@@ -15,216 +15,19 @@ import java.awt.Rectangle;
 public final class ObjectFinder {
     private ObjectFinder() {}
 
-    public static GameObject findNearestByAction(TaskContext ctx, String requiredAction) {
-        if (ctx == null || requiredAction == null) return null;
-        Player me = ctx.client.getLocalPlayer();
-        if (me == null) return null;
-        WorldPoint myWp = me.getWorldLocation();
-        if (myWp == null) return null;
-        
-        GameObject best = null;
-        int bestDist = Integer.MAX_VALUE;
-        
-        Scene scene = ctx.client.getScene();
-        if (scene != null) {
-            Tile[][][] tiles = scene.getTiles();
-            for (int z = 0; z < tiles.length; z++) {
-                for (int x = 0; x < tiles[z].length; x++) {
-                    for (int y = 0; y < tiles[z][x].length; y++) {
-                        Tile tile = tiles[z][x][y];
-                        if (tile == null) continue;
-                        
-                        for (GameObject go : tile.getGameObjects()) {
-                            if (go == null) continue;
-                            
-                            // Check if this object has the required action
-                            ObjectComposition comp = ctx.client.getObjectDefinition(go.getId());
-                            if (comp == null || comp.getActions() == null) continue;
-                            
-                            // Skip bank tables - they're decorative and don't have real banking functionality
-                            if (isBankTable(comp)) {
-                                ctx.logger.info("[ObjectFinder] Skipping bank table: id=" + go.getId() + ", name='" + comp.getName() + "'");
-                                continue;
-                            }
-                            
-                            // Check if this object is banned
-                            if (net.runelite.client.plugins.rlbot.config.RLBotConfigManager.isObjectBanned(go.getId())) {
-                                ctx.logger.info("[ObjectFinder] Skipping banned object: id=" + go.getId() + ", name='" + comp.getName() + "'");
-                                continue;
-                            }
-                            
-                            // If we're looking for a bank action, skip blacklisted bank world points entirely
-                            if (requiredAction != null && requiredAction.equalsIgnoreCase("Bank")) {
-                                WorldPoint wp = go.getWorldLocation();
-                                if (wp != null && BankDiscovery.isBlacklisted(wp)) {
-                                    ctx.logger.info("[ObjectFinder] Skipping blacklisted bank at " + wp);
-                                    continue;
-                                }
-                            }
-                            
-                            boolean hasAction = false;
-                            for (String action : comp.getActions()) {
-                                if (action != null && action.equals(requiredAction)) {
-                                    hasAction = true;
-                                    break;
-                                }
-                            }
-                            
-                            if (hasAction) {
-                                ctx.logger.info("[ObjectFinder] Found object with '" + requiredAction + "' action: id=" + go.getId() + ", name='" + comp.getName() + "' at " + tile.getWorldLocation());
-                                // Prefer objects whose convex hull is on-screen
-                                java.awt.Point proj = projectToCanvas(ctx, go);
-                                if (proj == null) continue;
-                                int d = tile.getWorldLocation().distanceTo(myWp);
-                                if (d >= 0 && d < bestDist) { 
-                                    bestDist = d; 
-                                    best = go; 
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return best;
-    }
+    public static GameObject findNearestByAction(TaskContext ctx, String requiredAction) { return ObjectScanner.nearestByAction(ctx, requiredAction); }
 
-    public static GameObject findNearestByNames(TaskContext ctx, String[] nameSubstrings, String requiredAction) {
-        Client client = ctx.client;
-        Player me = client.getLocalPlayer();
-        if (me == null) return null;
-        WorldPoint myWp = me.getWorldLocation();
-        Scene scene = client.getScene();
-        Tile[][][] tiles = scene.getTiles();
-        int bestDist = Integer.MAX_VALUE;
-        GameObject best = null;
-        for (int z = 0; z < tiles.length; z++) {
-            for (int x = 0; x < tiles[z].length; x++) {
-                for (int y = 0; y < tiles[z][x].length; y++) {
-                    Tile tile = tiles[z][x][y];
-                    if (tile == null) continue;
-                    for (GameObject go : tile.getGameObjects()) {
-                        if (go == null) continue;
-                        ObjectComposition comp = client.getObjectDefinition(go.getId());
-                        if (comp == null) continue;
-                        String name = comp.getName();
-                        if (name == null) continue;
-                        String lower = name.toLowerCase();
-                        boolean nameOk = false;
-                        for (String s : nameSubstrings) {
-                            // FIXED: More precise tree name matching to prevent "tree" from matching "yew tree"
-                            if (s.equals("tree")) {
-                                // For generic "tree", only match if it's exactly "tree" or "dead tree", not "yew tree", "oak tree", etc.
-                                if (lower.equals("tree") || lower.equals("dead tree")) {
-                                    nameOk = true;
-                                    break;
-                                }
-                            } else {
-                                // For specific trees like "oak", "willow", "yew", match if the name contains the substring
-                                if (lower.contains(s)) { 
-                                    nameOk = true; 
-                                    break; 
-                                }
-                            }
-                        }
-                        if (!nameOk) continue;
-                        
-                        // Check if this object is banned
-                        if (net.runelite.client.plugins.rlbot.config.RLBotConfigManager.isObjectBanned(go.getId())) {
-                            ctx.logger.info("[ObjectFinder] Skipping banned object: id=" + go.getId() + ", name='" + comp.getName() + "'");
-                            continue;
-                        }
-                        
-                        // Check if this tree is depleted (stump)
-                        if (TreeDiscovery.isDepleted(tile.getWorldLocation())) {
-                            ctx.logger.info("[ObjectFinder] Skipping depleted tree at " + tile.getWorldLocation());
-                            continue;
-                        }
-                        // If searching for banks, skip blacklisted world points
-                        if (requiredAction != null && requiredAction.equalsIgnoreCase("Bank")) {
-                            WorldPoint wp = go.getWorldLocation();
-                            if (wp != null && BankDiscovery.isBlacklisted(wp)) {
-                                ctx.logger.info("[ObjectFinder] Skipping blacklisted bank at " + wp);
-                                continue;
-                            }
-                        }
-                        
-                        if (requiredAction != null) {
-                            boolean ok = false;
-                            String[] acts = comp.getActions();
-                            if (acts != null) {
-                                for (String a : acts) {
-                                    if (a != null && (a.equalsIgnoreCase(requiredAction) || a.toLowerCase().contains(requiredAction.toLowerCase()))) { 
-                                        ok = true; 
-                                        break; 
-                                    }
-                                }
-                            }
-                            if (!ok) continue;
-                        }
-                        int d = tile.getWorldLocation().distanceTo(myWp);
-                        if (d >= 0 && d < bestDist) { bestDist = d; best = go; }
-                    }
-                }
-            }
-        }
-        return best;
-    }
+        public static GameObject findNearestByNames(TaskContext ctx, String[] nameSubstrings, String requiredAction) { return ObjectScanner.nearestByNames(ctx, nameSubstrings, requiredAction); }
+
+
 
     /**
      * Find nearest bank-interactable object (booth, chest, deposit box).
      * Accepts actions such as "Bank", "Use", "Open", "Deposit".
      */
-    public static GameObject findNearestBankInteractable(TaskContext ctx) {
-        Client client = ctx.client;
-        Player me = client.getLocalPlayer();
-        if (me == null) return null;
-        WorldPoint myWp = me.getWorldLocation();
-        Scene scene = client.getScene();
-        Tile[][][] tiles = scene.getTiles();
-        int bestDist = Integer.MAX_VALUE;
-        GameObject best = null;
-        for (int z = 0; z < tiles.length; z++) {
-            for (int x = 0; x < tiles[z].length; x++) {
-                for (int y = 0; y < tiles[z][x].length; y++) {
-                    Tile tile = tiles[z][x][y];
-                    if (tile == null) continue;
-                    for (GameObject go : tile.getGameObjects()) {
-                        if (go == null) continue;
-                        ObjectComposition comp = client.getObjectDefinition(go.getId());
-                        if (comp == null) continue;
-                        // Name filter
-                        String name = comp.getName();
-                        if (name == null) continue;
-                        String lower = name.toLowerCase();
-                        boolean looksBank = lower.contains("bank booth") || lower.contains("bank chest") || lower.contains("bank deposit") || lower.equals("bank") || lower.contains("deposit box");
-                        if (!looksBank) continue;
-                        if (isBankTable(comp)) continue;
-                        // Action filter
-                        boolean actionOk = false;
-                        String[] actions = comp.getActions();
-                        if (actions != null) {
-                            for (String a : actions) {
-                                if (a == null) continue;
-                                String al = a.toLowerCase();
-                                if (al.contains("bank") || al.contains("use") || al.contains("open") || al.contains("deposit")) { actionOk = true; break; }
-                            }
-                        }
-                        if (!actionOk) continue;
-                        // Projection/viewport gate
-                        java.awt.Point proj = projectToCanvas(ctx, go);
-                        if (proj == null) continue;
-                        // Distance gate & blacklist
-                        WorldPoint wp = go.getWorldLocation();
-                        if (wp != null && BankDiscovery.isBlacklisted(wp)) continue;
-                        int d = tile.getWorldLocation().distanceTo(myWp);
-                        if (d >= 0 && d < bestDist) { bestDist = d; best = go; }
-                    }
-                }
-            }
-        }
-        return best;
-    }
+        public static GameObject findNearestBankInteractable(TaskContext ctx) { return ObjectScanner.nearestBankInteractable(ctx); }
+
+
 
     public static java.awt.Point projectToCanvas(TaskContext ctx, GameObject go) {
         return projectToCanvasWithDiagnostics(ctx, go, false);
@@ -358,7 +161,7 @@ public final class ObjectFinder {
     /**
      * Check if an object is a bank table (decorative object that looks like a bank but has no banking functionality)
      */
-    private static boolean isBankTable(ObjectComposition comp) {
+    static boolean isBankTable(ObjectComposition comp) {
         if (comp == null || comp.getName() == null) return false;
         
         String name = comp.getName().toLowerCase();
@@ -392,5 +195,3 @@ public final class ObjectFinder {
         return false;
     }
 }
-
-

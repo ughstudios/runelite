@@ -2,6 +2,16 @@
 # Build the standalone RLBot plugin JAR using Maven, and copy to RuneLite sideloaded-plugins
 set -e
 
+cleanup_stale_jars() {
+  # Remove stale sideloaded plugin variants we no longer support
+  local target_dir="$1"
+  if [ -d "$target_dir" ]; then
+    find "$target_dir" -maxdepth 1 -type f \
+      \( -name 'rlbot-macro-plugin-*.jar' -o -name 'rlbot-macro-plugin-*.jar.backup' \) \
+      -print -delete 2>/dev/null || true
+  fi
+}
+
 echo "🔨 Building RLBot plugin JAR (standalone)..."
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -19,16 +29,21 @@ echo "Using JAVA_HOME=$JAVA_HOME"
 RL_ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 RL_CLIENT_SHADED="$RL_ROOT_DIR/runelite/runelite-client/target/client-1.11.16-SNAPSHOT-shaded.jar"
 RL_API_JAR="$RL_ROOT_DIR/runelite-api/target/runelite-api-1.11.16-SNAPSHOT.jar"
+# Install shaded client if present; skip noisy build attempts when project is absent
 if [ -f "$RL_CLIENT_SHADED" ]; then
   echo "Installing local RuneLite shaded client to Maven repo: $RL_CLIENT_SHADED"
   mvn -q install:install-file -Dfile="$RL_CLIENT_SHADED" -DgroupId=net.runelite -DartifactId=client -Dversion=1.11.16-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
 else
-  echo "⚠️  Shaded client jar not found at $RL_CLIENT_SHADED; attempting to build it..."
-  (cd "$RL_ROOT_DIR/runelite/runelite-client" && mvn -q -DskipTests -Dmaven.compiler.failOnError=false -Pshade clean package) || true
-  if [ -f "$RL_CLIENT_SHADED" ]; then
-    mvn -q install:install-file -Dfile="$RL_CLIENT_SHADED" -DgroupId=net.runelite -DartifactId=client -Dversion=1.11.16-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+  if [ -f "$RL_ROOT_DIR/runelite/runelite-client/pom.xml" ]; then
+    echo "⚠️  Shaded client jar not found; building in runelite-client ..."
+    (cd "$RL_ROOT_DIR/runelite/runelite-client" && mvn -q -DskipTests -Dmaven.compiler.failOnError=false -Pshade clean package) || true
+    if [ -f "$RL_CLIENT_SHADED" ]; then
+      mvn -q install:install-file -Dfile="$RL_CLIENT_SHADED" -DgroupId=net.runelite -DartifactId=client -Dversion=1.11.16-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+    else
+      echo "ℹ️  Shaded client still not found; proceeding (will resolve client from Maven)."
+    fi
   else
-    echo "❌ Could not locate or build RuneLite shaded client jar; plugin build may fail."
+    echo "ℹ️  No runelite-client project found; skipping shaded build and relying on Maven resolution."
   fi
 fi
 
@@ -37,7 +52,17 @@ if [ -f "$RL_API_JAR" ]; then
   echo "Installing local RuneLite API to Maven repo: $RL_API_JAR"
   mvn -q install:install-file -Dfile="$RL_API_JAR" -DgroupId=net.runelite -DartifactId=runelite-api -Dversion=1.11.16-SNAPSHOT -Dpackaging=jar -DgeneratePom=true || true
 else
-  echo "ℹ️  RuneLite API jar not found at $RL_API_JAR; assuming it exists in local Maven or will resolve remotely."
+  if [ -f "$RL_ROOT_DIR/runelite-api/pom.xml" ]; then
+    echo "ℹ️  runelite-api project present but jar missing; building briefly ..."
+    (cd "$RL_ROOT_DIR/runelite-api" && mvn -q -DskipTests package) || true
+    if [ -f "$RL_API_JAR" ]; then
+      mvn -q install:install-file -Dfile="$RL_API_JAR" -DgroupId=net.runelite -DartifactId=runelite-api -Dversion=1.11.16-SNAPSHOT -Dpackaging=jar -DgeneratePom=true || true
+    else
+      echo "ℹ️  API jar still not found; proceeding with Maven resolution."
+    fi
+  else
+    echo "ℹ️  No runelite-api project found; relying on Maven resolution."
+  fi
 fi
 
 # Build the rlbot-plugin with Maven (ensure correct working directory)
@@ -49,6 +74,10 @@ fi
 # Copy to user sideload dir (~/.runelite/sideloaded-plugins)
 LOCAL_SIDELOAD_DIR="$HOME/.runelite/sideloaded-plugins"
 mkdir -p "$LOCAL_SIDELOAD_DIR"
+cleanup_stale_jars "$LOCAL_SIDELOAD_DIR"
+
+REPO_SIDELOAD_DIR="$RL_ROOT_DIR/runelite/sideloaded-plugins"
+cleanup_stale_jars "$REPO_SIDELOAD_DIR"
 
 # Optional backup of previous jar
 if [ -f "$LOCAL_SIDELOAD_DIR/rlbot-plugin-1.0.0.jar" ]; then

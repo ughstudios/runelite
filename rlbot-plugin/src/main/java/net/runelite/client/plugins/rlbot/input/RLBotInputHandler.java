@@ -467,10 +467,7 @@ public class RLBotInputHandler {
             }
             
             // Enhanced mouse movement with trailing behavior
-            int px = 20;
-            try {
-                px = ((net.runelite.client.plugins.rlbot.RLBotConfig)net.runelite.client.RuneLite.getInjector().getInstance(net.runelite.client.plugins.rlbot.RLBotConfig.class)).mouseMoveInterpolationPx();
-            } catch (Throwable ignore) {}
+            int px = net.runelite.client.plugins.rlbot.RLBotConstants.MOUSE_MOVE_INTERPOLATION_PX;
             
             double dx = canvasPoint.x - start.x;
             double dy = canvasPoint.y - start.y;
@@ -562,7 +559,7 @@ public class RLBotInputHandler {
         
         // Update the plugin's mouse location with canvas coordinates (overlay expects canvas space)
         if (plugin != null) {
-            plugin.updateLastMouseLocation(point);
+            plugin.updateLastSyntheticMouseLocation(point);
         }
         
         long when = System.currentTimeMillis();
@@ -945,7 +942,7 @@ public class RLBotInputHandler {
         
         // Update the plugin's mouse location with canvas coordinates (overlay expects canvas space)
         if (plugin != null) {
-            plugin.updateLastMouseLocation(point);
+            plugin.updateLastSyntheticMouseLocation(point);
         }
         
         long when = System.currentTimeMillis();

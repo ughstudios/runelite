@@ -60,52 +60,5 @@ public class NavigateToTreeHotspotTask extends NavigateToHotspotTask {
         return List.of();
     }
 
-    @Override
-    protected boolean shouldBeActive(TaskContext ctx) {
-        if (ctx.isInventoryNearFull()) {
-            return false;
-        }
-        try {
-            // If any choppable tree is visible or very near, do not navigate (let Chop task handle it)
-            int wc = 1; try { wc = ctx.client.getRealSkillLevel(net.runelite.api.Skill.WOODCUTTING); } catch (Exception ignored) {}
-            String[] allowed = TreeDiscovery.allowedTreeNamesForLevel(wc);
-            net.runelite.api.GameObject vis = ObjectFinder.findNearestByNames(ctx, allowed, "Chop down");
-            if (vis != null) {
-                java.awt.Point proj = ObjectFinder.projectToCanvas(ctx, vis);
-                if (proj != null) {
-                    ctx.logger.info("[NavigateToTree] Visible tree found; skipping navigation");
-                    return false;
-                }
-                // Not visible; if very near, also skip navigation
-                net.runelite.api.Player me = ctx.client.getLocalPlayer();
-                if (me != null) {
-                    int dist = me.getWorldLocation().distanceTo(vis.getWorldLocation());
-                    if (dist >= 0 && dist <= 8) {
-                        ctx.logger.info("[NavigateToTree] Near tree (" + dist + " tiles); skipping navigation");
-                        return false;
-                    }
-                }
-            }
-            // Fallback distance check using discovered trees
-            net.runelite.api.Player me = ctx.client.getLocalPlayer();
-            if (me != null) {
-                net.runelite.api.coords.WorldPoint myWp = me.getWorldLocation();
-                java.util.List<net.runelite.api.coords.WorldPoint> available = TreeDiscovery.getAvailableTrees();
-                if (myWp != null && !available.isEmpty()) {
-                    int nearest = Integer.MAX_VALUE;
-                    for (net.runelite.api.coords.WorldPoint wp : available) {
-                        if (wp == null) continue;
-                        int d = myWp.distanceTo(wp);
-                        if (d >= 0 && d < nearest) nearest = d;
-                    }
-                    if (nearest <= 15) {
-                        ctx.logger.info("[NavigateToTree] Within " + nearest + " tiles of a tree; skipping navigation task");
-                        return false;
-                    }
-                }
-            }
-        } catch (Exception ignored) {}
-        return true;
-    }
+    // Activation gating removed for RL-driven exploration (always eligible).
 }
-

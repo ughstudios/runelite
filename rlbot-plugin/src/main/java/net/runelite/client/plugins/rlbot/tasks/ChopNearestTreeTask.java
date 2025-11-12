@@ -6,57 +6,13 @@ import net.runelite.api.GameObject;
  * Orchestrates tree chopping by delegating to specialized classes.
  */
 public class ChopNearestTreeTask implements Task {
-    
     private static long lastInvokeMs = 0L;
     private static int recentInvokeFailures = 0;
-    
+
     @Override
     public boolean shouldRun(TaskContext context) {
-        context.logger.info("[ChopTask] shouldRun() - ENTRY");
-        
-        if (context.isInventoryFull()) {
-            context.logger.info("[ChopTask] shouldRun() = false (inventory full)");
-            return false;
-        }
-        
-        if (context.isWoodcuttingAnim()) {
-            context.logger.info("[ChopTask] shouldRun() = false (already woodcutting)");
-            return false;
-        }
-        
-        TreeDiscovery.scanAndDiscoverTrees(context);
-        
-        int wcLevel = getWoodcuttingLevel(context);
-        String[] allowedTrees = TreeDiscovery.allowedTreeNamesForLevel(wcLevel);
-        context.logger.info("[ChopTask] WC level: " + wcLevel + ", allowed trees: " + java.util.Arrays.toString(allowedTrees));
-        
-        GameObject candidate = findValidTree(context, allowedTrees);
-        
-        if (candidate == null) {
-            boolean hasDiscovered = !TreeDiscovery.getDiscoveredTrees().isEmpty();
-            if (!hasDiscovered) {
-                TreeDiscovery.scanAndDiscoverTrees(context);
-                hasDiscovered = !TreeDiscovery.getDiscoveredTrees().isEmpty();
-            }
-            context.logger.info("[ChopTask] shouldRun() = " + hasDiscovered + " (discovered trees: " + TreeDiscovery.getDiscoveredTrees().size() + ")");
-            return hasDiscovered;
-        }
-        
-        if (!TreeValidator.isValidTree(context, candidate, wcLevel)) {
-            context.logger.info("[ChopTask] shouldRun() = false (invalid tree)");
-            TreeDiscovery.markDepleted(candidate.getWorldLocation());
-            return false;
-        }
-        
-        if (TreeValidator.isWildernessConflict(context, candidate)) {
-            context.logger.info("[ChopTask] shouldRun() = false (wilderness conflict)");
-            return false;
-        }
-        
-        boolean canSeeTree = ObjectFinder.projectToCanvas(context, candidate) != null;
-        context.logger.info("[ChopTask] shouldRun() = " + canSeeTree + " (can see tree)");
-        
-        return canSeeTree;
+        // Unconditionally eligible for RL exploration; run() contains defensive checks.
+        return true;
     }
     
     @Override
@@ -64,7 +20,6 @@ public class ChopNearestTreeTask implements Task {
         context.logger.info("[ChopTask] run() - ENTRY");
         
         lastInvokeMs = System.currentTimeMillis();
-        UiHelper.closeObstructions(context);
         
         if (context.isBusy() && !context.timedOutSince(4000)) {
             context.logger.info("[ChopTask] run() - EXIT (busy)");

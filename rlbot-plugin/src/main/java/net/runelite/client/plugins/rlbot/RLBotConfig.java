@@ -3,179 +3,76 @@ package net.runelite.client.plugins.rlbot;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.ConfigSection;
 import net.runelite.client.config.Range;
 
-/**
- * Configuration interface for the RLBot plugin.
- */
 @ConfigGroup("rlbot")
 public interface RLBotConfig extends Config {
 
-    /**
-     * Whether to save screenshots.
-     */
-    @ConfigItem(
-        keyName = "saveScreenshots",
-        name = "Save Screenshots",
-        description = "Save screenshots to disk"
+    // Keep only the essentials for a simple learning setup
+    @ConfigSection(
+        name = "Core",
+        description = "Minimal controls for Gym",
+        position = 0,
+        closedByDefault = false
     )
-    default boolean saveScreenshots() {
-        return false;
-    }
-    
-    /**
-     * The interval at which to send game state updates.
-     */
-    @ConfigItem(
-        keyName = "updateInterval",
-        name = "Update Interval (ms)",
-        description = "The interval in milliseconds at which to send game state updates"
-    )
-    @Range(
-        min = 50,
-        max = 1000
-    )
-    default int updateInterval() {
-        return 100;
-    }
-    
-    /**
-     * Whether to enable debug logging.
-     */
-    @ConfigItem(
-        keyName = "debugLogging",
-        name = "Debug Logging",
-        description = "Enable debug logging"
-    )
-    default boolean debugLogging() {
-        return true;
-    }
+    String coreSection = "coreSection";
 
-    @ConfigItem(
-        keyName = "quietLogging",
-        name = "Quiet Logging (suppress info)",
-        description = "When enabled, suppress most info-level logs to reduce I/O"
+    @ConfigSection(
+        name = "Logging",
+        description = "Verbosity of RLBot logs",
+        position = 1,
+        closedByDefault = true
     )
-    default boolean quietLogging() { return true; }
+    String loggingSection = "loggingSection";
 
+    // Core
     @ConfigItem(
-        keyName = "perfLogging",
-        name = "Performance Logging",
-        description = "Log per-task and input timing measurements"
-    )
-    default boolean perfLogging() { return true; }
-
-    @ConfigItem(
-        keyName = "mouseMoveInterpolationPx",
-        name = "Mouse move interpolation (px/step)",
-        description = "Lower = smoother moves; higher = fewer steps"
-    )
-    @Range(min = 5, max = 60)
-    default int mouseMoveInterpolationPx() { return 20; }
-    
-    /**
-     * Whether to show the current action in the overlay.
-     */
-    @ConfigItem(
-        keyName = "showOverlay",
-        name = "Show Overlay",
-        description = "Show the RLBot overlay"
-    )
-    default boolean showOverlay() {
-        return true;
-    }
-    
-    /**
-     * Whether to show the cursor overlay.
-     */
-    @ConfigItem(
-        keyName = "showCursorOverlay",
-        name = "Show Cursor Overlay",
-        description = "Shows a visual overlay of the cursor position",
-        position = 99
-    )
-    default boolean showCursorOverlay()
-    {
-        return true;
-    }
-
-    @ConfigItem(
+        section = coreSection,
         keyName = "enableGymControl",
         name = "Enable Gym Control",
-        description = "Drive actions from a Gym controller via file-based IPC"
+        description = "Drive actions from a Gym controller via file-based IPC",
+        position = 0
     )
     default boolean enableGymControl() { return true; }
 
     @ConfigItem(
+        section = coreSection,
         keyName = "gymIpcDir",
         name = "Gym IPC Dir",
-        description = "Directory for IPC files with the Gym controller"
+        description = "Directory for IPC files with the Gym controller",
+        position = 1
     )
     default String gymIpcDir() { return "rlbot-ipc"; }
 
     @ConfigItem(
+        section = coreSection,
         keyName = "gymStepIntervalMs",
         name = "Gym Step Interval (ms)",
-        description = "How often to exchange observation/action with Gym"
+        description = "How often to exchange observation/action with Gym",
+        position = 2
     )
     @Range(min = 50, max = 2000)
     default int gymStepIntervalMs() { return 250; }
 
     @ConfigItem(
-        keyName = "inventoryFreeSlotsToBank",
-        name = "Inventory Free Slots To Bank",
-        description = "When free slots are at or below this, navigate to bank"
+        section = coreSection,
+        keyName = "showOverlay",
+        name = "Show Overlay",
+        description = "Show the RLBot overlay",
+        position = 3
     )
-    @Range(min = 0, max = 28)
-    default int inventoryFreeSlotsToBank() {
-        return 0; // bank only when inventory is full
-    }
+    default boolean showOverlay() { return true; }
+
+    // Logging
+    enum LoggingLevel { QUIET, NORMAL, VERBOSE }
 
     @ConfigItem(
-        keyName = "navMinimapClickMsMin",
-        name = "Nav Minimap Click Min (ms)",
-        description = "Minimum busy time after a minimap step"
+        section = loggingSection,
+        keyName = "logLevel",
+        name = "Log Level",
+        description = "Verbosity of RLBot logging",
+        position = 0
     )
-    @Range(min = 200, max = 1500)
-    default int navMinimapClickMsMin() { return 450; }
-
-    @ConfigItem(
-        keyName = "navMinimapClickMsMax",
-        name = "Nav Minimap Click Max (ms)",
-        description = "Maximum busy time after a minimap step"
-    )
-    @Range(min = 300, max = 2000)
-    default int navMinimapClickMsMax() { return 800; }
-
-    @ConfigItem(
-        keyName = "nearHotspotTiles",
-        name = "Near Hotspot (tiles)",
-        description = "Stop nav steps when this close to hotspot"
-    )
-    @Range(min = 5, max = 30)
-    default int nearHotspotTiles() { return 15; }
-
-    @ConfigItem(
-        keyName = "stuckNoProgressWindowMs",
-        name = "Stuck Window (ms)",
-        description = "Window for considering nav no-progress"
-    )
-    @Range(min = 3000, max = 15000)
-    default int stuckNoProgressWindowMs() { return 8000; }
-
-    @ConfigItem(
-        keyName = "stuckRetries",
-        name = "Stuck Retries",
-        description = "How many no-progress windows before recovery"
-    )
-    @Range(min = 1, max = 5)
-    default int stuckRetries() { return 3; }
-
-    @ConfigItem(
-        keyName = "rngSeed",
-        name = "RNG Seed",
-        description = "Seed for deterministic decisions (same seed → same behavior)"
-    )
-    @Range(min = 0, max = 1_000_000_000)
-    default int rngSeed() { return 1337; }
+    default LoggingLevel logLevel() { return LoggingLevel.NORMAL; }
 }
