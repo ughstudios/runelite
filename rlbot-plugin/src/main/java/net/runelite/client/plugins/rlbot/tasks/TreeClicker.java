@@ -6,9 +6,7 @@ import net.runelite.api.GameObject;
  * Handles clicking on trees for woodcutting.
  */
 public class TreeClicker {
-    
-    private static final String[] CHOP_ACTIONS = {"Chop down", "Chop", "Cut", "Cut down"};
-    
+        
     /**
      * Clicks a tree using the same simple approach as manual clicks (client thread + moveAndClickWithValidation).
      */

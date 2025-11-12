@@ -10,12 +10,6 @@ public class ChopNearestTreeTask implements Task {
     private static int recentInvokeFailures = 0;
 
     @Override
-    public boolean shouldRun(TaskContext context) {
-        // Unconditionally eligible for RL exploration; run() contains defensive checks.
-        return true;
-    }
-    
-    @Override
     public void run(TaskContext context) {
         context.logger.info("[ChopTask] run() - ENTRY");
         

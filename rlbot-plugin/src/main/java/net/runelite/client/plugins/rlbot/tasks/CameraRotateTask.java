@@ -15,12 +15,6 @@ abstract class CameraRotateTask implements Task
     }
 
     @Override
-    public boolean shouldRun(TaskContext context)
-    {
-        return true;
-    }
-
-    @Override
     public void run(TaskContext context)
     {
         context.input.rotateCameraSafe(deltaX, deltaY);

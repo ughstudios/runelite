@@ -6,12 +6,6 @@ package net.runelite.client.plugins.rlbot.tasks;
  */
 public class IdleTask implements Task {
     @Override
-    public boolean shouldRun(TaskContext context) {
-        // Always eligible; caller/policy should gate when appropriate
-        return true;
-    }
-
-    @Override
     public void run(TaskContext context) {
         // If currently woodcutting animation is playing, prefer a longer idle
         boolean cutting = context.isWoodcuttingAnim();
@@ -20,5 +14,4 @@ public class IdleTask implements Task {
         context.setBusyForMs(ms);
     }
 }
-
 

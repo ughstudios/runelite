@@ -15,9 +15,6 @@ import net.runelite.api.widgets.WidgetInfo;
 public class BankDepositTask implements Task
 {
     @Override
-    public boolean shouldRun(TaskContext context) { return true; }
-
-    @Override
     public void run(TaskContext context)
     {
         if (context.isBusy() && !context.timedOutSince(3000))

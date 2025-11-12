@@ -116,3 +116,1446 @@
 2025-11-12 09:43:05.296 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=19 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
 2025-11-12 09:43:05.842 DEBUG [Client] RLBotLogger - [IPC] No action pending
 2025-11-12 09:43:05.844 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=20 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:55:58.011 INFO  [main] RLBotLogger - RLBot logger initialized at: 2025-11-12T09:55:58.010880
+2025-11-12 09:55:59.635 INFO  [AWT-EventQueue-0] RLBotLogger - Initializing RLBot input handler
+2025-11-12 09:55:59.635 INFO  [AWT-EventQueue-0] RLBotLogger - Canvas exists but not yet showing - will be available later
+2025-11-12 09:55:59.635 INFO  [AWT-EventQueue-0] RLBotLogger - RLBot input handler initialization complete
+2025-11-12 09:56:27.704 DEBUG [Client] RLBotLogger - [Context] Inventory: occupied=1, free=27
+2025-11-12 09:56:27.706 DEBUG [Client] RLBotLogger - [Context] isInventoryFull changed: freeSlots=27, full=false
+2025-11-12 09:56:27.706 DEBUG [Client] RLBotLogger - [Context] isInventoryNearFull changed: freeSlots=27, nearFull=false
+2025-11-12 09:56:27.730 INFO  [Client] RLBotLogger - [IPC] Wrote action_space.json with 9 actions, stateDim=5
+2025-11-12 09:56:27.732 INFO  [Client] RLBotLogger - [IPC] Read action seq=536 -> action=5 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 09:56:27.738 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=1 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:28.231 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:28.232 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=2 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:28.770 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:28.771 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=3 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:29.370 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:29.370 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=4 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:29.991 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:29.991 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=5 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:30.570 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:30.571 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=6 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:31.169 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:31.170 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=7 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:31.769 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:31.769 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=8 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:32.429 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:32.430 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=9 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:32.969 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:32.970 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=10 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:33.591 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:33.592 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=11 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:34.169 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:34.170 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=12 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:34.770 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:34.771 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=13 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:35.369 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:35.370 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=14 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:36.187 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:36.188 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=15 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:36.633 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:36.636 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=16 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:37.180 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:37.181 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=17 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:37.772 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:37.773 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=18 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:38.393 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:38.394 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=19 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:38.986 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:38.986 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=20 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:39.587 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:39.588 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=21 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:40.167 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:40.168 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=22 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:40.772 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:40.773 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=23 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 09:56:41.368 INFO  [Client] RLBotLogger - [IPC] Read action seq=537 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 09:56:41.368 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 09:56:41.369 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3180, y=3457, plane=0)
+2025-11-12 09:56:41.370 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 09:56:41.370 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 09:56:41.370 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3180, y=3457, plane=0)
+2025-11-12 09:56:41.370 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 09:56:41.374 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=204, y=115, w=312, h=398
+2025-11-12 09:56:41.374 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (360,247)
+2025-11-12 09:56:41.374 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 09:56:41.375 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (360,247) with action: Chop down
+2025-11-12 09:56:41.378 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=360,y=247] for action: Chop down
+2025-11-12 09:56:41.378 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 360,247
+2025-11-12 09:56:41.388 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 691,404 (transformed: 691,404)
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 646,383 (transformed: 646,383)
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 605,364 (transformed: 605,364)
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 567,346 (transformed: 567,346)
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 536,330 (transformed: 536,330)
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 506,318 (transformed: 506,318)
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 480,305 (transformed: 480,305)
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.389 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 458,293 (transformed: 458,293)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 439,284 (transformed: 439,284)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 422,277 (transformed: 422,277)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 407,270 (transformed: 407,270)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 395,264 (transformed: 395,264)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 385,260 (transformed: 385,260)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 379,255 (transformed: 379,255)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 371,253 (transformed: 371,253)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 368,251 (transformed: 368,251)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 365,250 (transformed: 365,250)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 362,249 (transformed: 362,249)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 362,247 (transformed: 362,247)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 361,248 (transformed: 361,248)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 360,246 (transformed: 360,246)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 360,246 (transformed: 360,246)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 360,247 (transformed: 360,247)
+2025-11-12 09:56:41.390 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.391 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 09:56:41.408 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=360,y=247]: Tree with action 'Chop down'
+2025-11-12 09:56:41.410 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 15 ms, validated=true
+2025-11-12 09:56:41.487 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=360,y=247]: Tree with action 'Chop down'
+2025-11-12 09:56:41.488 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 09:56:41.488 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 09:56:41.498 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 09:56:41.498 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 360,247 (transformed: 360,247)
+2025-11-12 09:56:41.498 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:41.498 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 10 ms
+2025-11-12 09:56:41.498 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 09:56:41.498 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 09:56:41.498 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 360,247 (transformed: 360,247)
+2025-11-12 09:56:41.499 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 09:56:41.499 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=24 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:41.974 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:41.978 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=25 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:42.576 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:42.577 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=26 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:43.166 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:43.167 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=27 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 09:56:43.766 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:43.767 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=28 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 09:56:44.356 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:44.359 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=29 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:44.987 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:44.988 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=30 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:45.574 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:45.575 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=31 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:46.178 INFO  [Client] RLBotLogger - [IPC] Read action seq=538 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 09:56:46.178 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 09:56:46.179 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3178, y=3463, plane=0)
+2025-11-12 09:56:46.179 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 09:56:46.179 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 09:56:46.179 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3178, y=3463, plane=0)
+2025-11-12 09:56:46.179 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 09:56:46.179 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=-287, y=183, w=501, h=585
+2025-11-12 09:56:46.179 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (-37,378)
+2025-11-12 09:56:46.179 WARN  [Client] RLBotLogger - [PROJECTION] Candidate point outside viewport
+2025-11-12 09:56:46.179 INFO  [Client] RLBotLogger - [PROJECTION] Using hull center fallback: (-37,475)
+2025-11-12 09:56:46.180 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (26,718) with action: Chop down
+2025-11-12 09:56:46.180 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=26,y=718] for action: Chop down
+2025-11-12 09:56:46.180 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 26,718
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 687,451 (transformed: 687,451)
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 636,470 (transformed: 636,470)
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 588,489 (transformed: 588,489)
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 542,509 (transformed: 542,509)
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 499,526 (transformed: 499,526)
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 459,543 (transformed: 459,543)
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 420,557 (transformed: 420,557)
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 384,573 (transformed: 384,573)
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 351,587 (transformed: 351,587)
+2025-11-12 09:56:46.184 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 319,598 (transformed: 319,598)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 291,611 (transformed: 291,611)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 264,621 (transformed: 264,621)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 237,632 (transformed: 237,632)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 214,641 (transformed: 214,641)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 193,650 (transformed: 193,650)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 173,659 (transformed: 173,659)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 154,666 (transformed: 154,666)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 137,672 (transformed: 137,672)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 122,679 (transformed: 122,679)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 108,684 (transformed: 108,684)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 96,690 (transformed: 96,690)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 85,694 (transformed: 85,694)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 74,698 (transformed: 74,698)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 66,702 (transformed: 66,702)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 59,705 (transformed: 59,705)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 53,707 (transformed: 53,707)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 46,709 (transformed: 46,709)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 42,711 (transformed: 42,711)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 39,713 (transformed: 39,713)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 34,714 (transformed: 34,714)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 33,715 (transformed: 33,715)
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.185 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 30,717 (transformed: 30,717)
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 29,717 (transformed: 29,717)
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 27,718 (transformed: 27,718)
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,717 (transformed: 26,717)
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,718 (transformed: 26,718)
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,718 (transformed: 26,718)
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,718 (transformed: 26,718)
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,719 (transformed: 26,719)
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,718 (transformed: 26,718)
+2025-11-12 09:56:46.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.186 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 09:56:46.195 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=26,y=718]: Tree with action 'Chop down'
+2025-11-12 09:56:46.195 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 8 ms, validated=true
+2025-11-12 09:56:46.243 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=26,y=718]: Tree with action 'Chop down'
+2025-11-12 09:56:46.243 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 09:56:46.243 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 09:56:46.243 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 09:56:46.243 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 09:56:46.243 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,718 (transformed: 26,718)
+2025-11-12 09:56:46.243 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 09:56:46.243 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 09:56:46.243 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:46.244 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 26,718 (transformed: 26,718)
+2025-11-12 09:56:46.244 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 09:56:46.244 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=32 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:46.795 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:46.796 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=33 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:47.367 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:47.368 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=34 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:47.969 INFO  [Client] RLBotLogger - [IPC] Read action seq=539 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 09:56:47.969 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 09:56:47.969 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3178, y=3463, plane=0)
+2025-11-12 09:56:47.969 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 09:56:47.969 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 09:56:47.969 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3178, y=3463, plane=0)
+2025-11-12 09:56:47.969 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 09:56:47.969 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=-287, y=183, w=501, h=586
+2025-11-12 09:56:47.969 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (-37,378)
+2025-11-12 09:56:47.970 WARN  [Client] RLBotLogger - [PROJECTION] Candidate point outside viewport
+2025-11-12 09:56:47.970 INFO  [Client] RLBotLogger - [PROJECTION] Using hull center fallback: (-37,476)
+2025-11-12 09:56:47.970 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (26,719) with action: Chop down
+2025-11-12 09:56:47.970 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=26,y=719] for action: Chop down
+2025-11-12 09:56:47.970 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 26,719
+2025-11-12 09:56:47.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 687,450 (transformed: 687,450)
+2025-11-12 09:56:47.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 635,470 (transformed: 635,470)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 588,490 (transformed: 588,490)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 543,508 (transformed: 543,508)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 499,526 (transformed: 499,526)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 459,542 (transformed: 459,542)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 420,559 (transformed: 420,559)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 384,573 (transformed: 384,573)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 350,587 (transformed: 350,587)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 319,598 (transformed: 319,598)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 291,612 (transformed: 291,612)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 264,621 (transformed: 264,621)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 237,633 (transformed: 237,633)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 213,643 (transformed: 213,643)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 192,652 (transformed: 192,652)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 171,659 (transformed: 171,659)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 154,666 (transformed: 154,666)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 137,673 (transformed: 137,673)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 123,680 (transformed: 123,680)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 109,686 (transformed: 109,686)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 97,691 (transformed: 97,691)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 84,695 (transformed: 84,695)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 76,698 (transformed: 76,698)
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.974 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 66,702 (transformed: 66,702)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 60,705 (transformed: 60,705)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 53,709 (transformed: 53,709)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 48,710 (transformed: 48,710)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 43,713 (transformed: 43,713)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 39,714 (transformed: 39,714)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 34,715 (transformed: 34,715)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 32,716 (transformed: 32,716)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 31,718 (transformed: 31,718)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 28,719 (transformed: 28,719)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 28,718 (transformed: 28,718)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,718 (transformed: 26,718)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,720 (transformed: 26,720)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 27,719 (transformed: 27,719)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,719 (transformed: 26,719)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 25,719 (transformed: 25,719)
+2025-11-12 09:56:47.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.976 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,719 (transformed: 26,719)
+2025-11-12 09:56:47.976 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:47.976 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 09:56:47.979 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=26,y=719]: Tree with action 'Chop down'
+2025-11-12 09:56:47.980 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 1 ms, validated=true
+2025-11-12 09:56:48.002 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=26,y=719]: Tree with action 'Chop down'
+2025-11-12 09:56:48.002 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 09:56:48.002 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 09:56:48.002 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 09:56:48.002 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 26,719 (transformed: 26,719)
+2025-11-12 09:56:48.003 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:48.003 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 09:56:48.003 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 26,719 (transformed: 26,719)
+2025-11-12 09:56:48.003 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 09:56:48.003 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 09:56:48.003 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 09:56:48.003 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=35 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:48.587 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:48.587 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=36 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:49.172 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:49.173 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=37 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:49.773 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:49.773 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=38 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:50.370 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:50.371 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=39 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:50.986 INFO  [Client] RLBotLogger - [IPC] Read action seq=540 -> action=6 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 09:56:50.989 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=40 lastIdx=6 (CameraRotateRightTask) r=-0.01, done=false
+2025-11-12 09:56:51.571 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:51.572 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=41 lastIdx=6 (CameraRotateRightTask) r=-0.01, done=false
+2025-11-12 09:56:52.187 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:52.188 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=42 lastIdx=6 (CameraRotateRightTask) r=-0.01, done=false
+2025-11-12 09:56:52.786 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:52.787 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=43 lastIdx=6 (CameraRotateRightTask) r=-0.01, done=false
+2025-11-12 09:56:53.374 INFO  [Client] RLBotLogger - [IPC] Read action seq=541 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 09:56:53.375 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 09:56:53.376 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3178, y=3463, plane=0)
+2025-11-12 09:56:53.376 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 09:56:53.376 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 09:56:53.376 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3178, y=3463, plane=0)
+2025-11-12 09:56:53.376 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 09:56:53.376 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=-264, y=145, w=443, h=530
+2025-11-12 09:56:53.376 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (-43,321)
+2025-11-12 09:56:53.376 WARN  [Client] RLBotLogger - [PROJECTION] Candidate point outside viewport
+2025-11-12 09:56:53.376 INFO  [Client] RLBotLogger - [PROJECTION] Using hull center fallback: (-43,410)
+2025-11-12 09:56:53.376 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (21,635) with action: Chop down
+2025-11-12 09:56:53.376 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=21,y=635] for action: Chop down
+2025-11-12 09:56:53.376 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 21,635
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 685,445 (transformed: 685,445)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 631,459 (transformed: 631,459)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 583,473 (transformed: 583,473)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 537,486 (transformed: 537,486)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 491,500 (transformed: 491,500)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 450,512 (transformed: 450,512)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 411,522 (transformed: 411,522)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 374,532 (transformed: 374,532)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 341,544 (transformed: 341,544)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 308,552 (transformed: 308,552)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 279,561 (transformed: 279,561)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 251,569 (transformed: 251,569)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 226,576 (transformed: 226,576)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 202,583 (transformed: 202,583)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 180,589 (transformed: 180,589)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 161,596 (transformed: 161,596)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 142,600 (transformed: 142,600)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 126,605 (transformed: 126,605)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 111,608 (transformed: 111,608)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 96,613 (transformed: 96,613)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 84,616 (transformed: 84,616)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 74,620 (transformed: 74,620)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 66,623 (transformed: 66,623)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 57,624 (transformed: 57,624)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 49,627 (transformed: 49,627)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 44,629 (transformed: 44,629)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 39,630 (transformed: 39,630)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 33,632 (transformed: 33,632)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 30,632 (transformed: 30,632)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 28,633 (transformed: 28,633)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 25,633 (transformed: 25,633)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 24,633 (transformed: 24,633)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 23,635 (transformed: 23,635)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 22,635 (transformed: 22,635)
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.378 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 22,635 (transformed: 22,635)
+2025-11-12 09:56:53.379 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.379 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 22,635 (transformed: 22,635)
+2025-11-12 09:56:53.379 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.379 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 21,635 (transformed: 21,635)
+2025-11-12 09:56:53.379 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.379 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 21,635 (transformed: 21,635)
+2025-11-12 09:56:53.379 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.379 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 21,635 (transformed: 21,635)
+2025-11-12 09:56:53.379 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.379 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 09:56:53.382 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=21,y=635]: Tree with action 'Chop down'
+2025-11-12 09:56:53.382 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 2 ms, validated=true
+2025-11-12 09:56:53.407 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=21,y=635]: Tree with action 'Chop down'
+2025-11-12 09:56:53.407 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 09:56:53.407 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 09:56:53.407 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 09:56:53.407 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 09:56:53.407 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 21,635 (transformed: 21,635)
+2025-11-12 09:56:53.408 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 09:56:53.408 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 09:56:53.408 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:53.408 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 21,635 (transformed: 21,635)
+2025-11-12 09:56:53.408 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 09:56:53.409 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=44 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:54.008 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:54.009 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=45 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 09:56:54.571 INFO  [Client] RLBotLogger - [IPC] Read action seq=542 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 09:56:54.571 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 09:56:54.571 INFO  [Client] RLBotLogger - [ChopTask] run() - EXIT (busy)
+2025-11-12 09:56:54.572 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=46 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 09:56:55.167 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:55.168 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=47 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:55.767 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:55.767 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=48 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:56.368 INFO  [Client] RLBotLogger - [IPC] Read action seq=543 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 09:56:56.368 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 09:56:56.368 INFO  [Client] RLBotLogger - [ChopTask] run() - EXIT (busy)
+2025-11-12 09:56:56.369 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=49 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:56.987 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:56.988 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=50 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:57.567 INFO  [Client] RLBotLogger - [IPC] Read action seq=544 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 09:56:57.567 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 09:56:57.568 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3178, y=3463, plane=0)
+2025-11-12 09:56:57.568 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 09:56:57.568 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 09:56:57.568 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3178, y=3463, plane=0)
+2025-11-12 09:56:57.568 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 09:56:57.568 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=561, y=19, w=296, h=402
+2025-11-12 09:56:57.568 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (709,153)
+2025-11-12 09:56:57.568 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 09:56:57.568 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (709,153) with action: Chop down
+2025-11-12 09:56:57.568 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=709,y=153] for action: Chop down
+2025-11-12 09:56:57.568 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 709,153
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 734,373 (transformed: 734,373)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 729,326 (transformed: 729,326)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 723,286 (transformed: 723,286)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 720,254 (transformed: 720,254)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 717,226 (transformed: 717,226)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 714,203 (transformed: 714,203)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 713,188 (transformed: 713,188)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 711,175 (transformed: 711,175)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 710,166 (transformed: 710,166)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 711,160 (transformed: 711,160)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 710,156 (transformed: 710,156)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 709,155 (transformed: 709,155)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 709,154 (transformed: 709,154)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 709,153 (transformed: 709,153)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 709,153 (transformed: 709,153)
+2025-11-12 09:56:57.570 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.570 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 09:56:57.573 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=709,y=153]: Tree with action 'Chop down'
+2025-11-12 09:56:57.573 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 1 ms, validated=true
+2025-11-12 09:56:57.589 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=709,y=153]: Tree with action 'Chop down'
+2025-11-12 09:56:57.589 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 09:56:57.589 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 09:56:57.589 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 09:56:57.589 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 709,153 (transformed: 709,153)
+2025-11-12 09:56:57.589 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 09:56:57.590 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 09:56:57.590 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 09:56:57.590 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 09:56:57.590 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 709,153 (transformed: 709,153)
+2025-11-12 09:56:57.590 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 09:56:57.590 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=51 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 09:56:58.174 INFO  [Client] RLBotLogger - [IPC] Read action seq=545 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 09:56:58.174 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 09:56:58.174 INFO  [Client] RLBotLogger - [ChopTask] run() - EXIT (busy)
+2025-11-12 09:56:58.175 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=52 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 09:56:58.790 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:58.791 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=53 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 09:56:59.390 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:59.391 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=54 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 09:56:59.984 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:56:59.984 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=55 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 09:57:00.608 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:57:00.610 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=56 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 09:57:01.331 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:57:01.332 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=57 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 09:57:01.790 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 09:57:01.790 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=58 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:12.089 INFO  [main] RLBotLogger - RLBot logger initialized at: 2025-11-12T10:16:12.088582
+2025-11-12 10:16:14.200 INFO  [AWT-EventQueue-0] RLBotLogger - Initializing RLBot input handler
+2025-11-12 10:16:14.200 INFO  [AWT-EventQueue-0] RLBotLogger - Canvas exists but not yet showing - will be available later
+2025-11-12 10:16:14.200 INFO  [AWT-EventQueue-0] RLBotLogger - RLBot input handler initialization complete
+2025-11-12 10:16:25.048 DEBUG [Client] RLBotLogger - [Context] Inventory: occupied=1, free=27
+2025-11-12 10:16:25.050 DEBUG [Client] RLBotLogger - [Context] isInventoryFull changed: freeSlots=27, full=false
+2025-11-12 10:16:25.050 DEBUG [Client] RLBotLogger - [Context] isInventoryNearFull changed: freeSlots=27, nearFull=false
+2025-11-12 10:16:25.077 INFO  [Client] RLBotLogger - [IPC] Wrote action_space.json with 9 actions, stateDim=5
+2025-11-12 10:16:25.078 INFO  [Client] RLBotLogger - [IPC] Read action seq=545 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:16:25.079 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:16:25.081 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3187, y=3478, plane=0)
+2025-11-12 10:16:25.081 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:16:25.081 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:16:25.081 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3187, y=3478, plane=0)
+2025-11-12 10:16:25.081 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:16:25.082 WARN  [Client] RLBotLogger - [PROJECTION] Hull bounds invalid: w=0 h=0
+2025-11-12 10:16:25.082 WARN  [Client] RLBotLogger - [TreeClicker] Cannot project tree to canvas
+2025-11-12 10:16:25.082 WARN  [Client] RLBotLogger - [ChopTask] run() - PATH: Mark tree as depleted
+2025-11-12 10:16:25.084 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=1 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:25.333 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:25.334 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=2 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:16:25.932 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:25.933 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=3 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:26.766 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:26.766 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=4 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:27.136 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:27.137 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=5 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:27.745 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:27.746 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=6 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:28.340 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:28.341 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=7 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:28.938 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:28.939 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=8 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:29.540 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:29.541 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=9 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:30.165 INFO  [Client] RLBotLogger - [IPC] Read action seq=546 -> action=5 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:16:30.171 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=10 lastIdx=5 (CameraRotateLeftTask) r=0.29000002, done=false
+2025-11-12 10:16:30.789 INFO  [Client] RLBotLogger - [IPC] Read action seq=547 -> action=5 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:16:30.792 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=11 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 10:16:31.347 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:31.348 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=12 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 10:16:31.946 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:31.947 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=13 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 10:16:32.569 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:32.570 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=14 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 10:16:33.143 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:33.144 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=15 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 10:16:33.829 INFO  [Client] RLBotLogger - [IPC] Read action seq=548 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:16:33.830 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:16:33.834 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3187, y=3478, plane=0)
+2025-11-12 10:16:33.834 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:16:33.835 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:16:33.835 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3187, y=3478, plane=0)
+2025-11-12 10:16:33.835 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:16:33.845 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=850, y=-54, w=208, h=281
+2025-11-12 10:16:33.845 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (954,39)
+2025-11-12 10:16:33.845 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 10:16:33.853 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (947,219) with action: Chop down
+2025-11-12 10:16:33.866 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=947,y=219] for action: Chop down
+2025-11-12 10:16:33.867 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 947,219
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 779,388 (transformed: 779,388)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 812,355 (transformed: 812,355)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 840,326 (transformed: 840,326)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 865,301 (transformed: 865,301)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 885,280 (transformed: 885,280)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 903,265 (transformed: 903,265)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 916,250 (transformed: 916,250)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 926,240 (transformed: 926,240)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 933,231 (transformed: 933,231)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 938,226 (transformed: 938,226)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 943,223 (transformed: 943,223)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 946,221 (transformed: 946,221)
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.870 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 947,220 (transformed: 947,220)
+2025-11-12 10:16:33.871 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.871 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 948,219 (transformed: 948,219)
+2025-11-12 10:16:33.871 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.871 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 947,220 (transformed: 947,220)
+2025-11-12 10:16:33.871 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.871 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 947,219 (transformed: 947,219)
+2025-11-12 10:16:33.871 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:33.871 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 10:16:33.916 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=947,y=219]: Tree with action 'Chop down'
+2025-11-12 10:16:33.919 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 39 ms, validated=true
+2025-11-12 10:16:34.045 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=947,y=219]: Tree with action 'Chop down'
+2025-11-12 10:16:34.045 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 10:16:34.045 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 10:16:34.046 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 10:16:34.046 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 947,219 (transformed: 947,219)
+2025-11-12 10:16:34.046 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:34.046 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 10:16:34.046 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 10:16:34.046 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 10:16:34.047 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 947,219 (transformed: 947,219)
+2025-11-12 10:16:34.047 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 10:16:34.047 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=16 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:34.336 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:34.337 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=17 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:16:34.930 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:34.931 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=18 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:35.519 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:35.522 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=19 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:36.129 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:36.131 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=20 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:36.744 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:36.745 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=21 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:37.359 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:37.360 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=22 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:37.968 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:37.976 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=23 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:38.523 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:38.527 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=24 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:39.128 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:39.131 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=25 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:16:39.780 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:39.781 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=26 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:16:40.348 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:40.349 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=27 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:40.946 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:40.946 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=28 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:41.547 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:41.548 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=29 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:16:42.143 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:42.144 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=30 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:16:42.745 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:42.746 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=31 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:16:43.346 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:43.347 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=32 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:16:43.943 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:43.943 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=33 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:16:44.546 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:44.546 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=34 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:16:45.145 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:45.146 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=35 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:45.743 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:45.743 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=36 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:16:46.343 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:46.344 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=37 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:46.923 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:46.923 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=38 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:16:47.542 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:47.543 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=39 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:16:48.144 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:48.144 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=40 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:16:48.727 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:48.728 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=41 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:49.344 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:49.347 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=42 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:16:49.944 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:49.945 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=43 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:50.543 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:50.544 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=44 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:51.123 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:51.123 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=45 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:51.744 INFO  [Client] RLBotLogger - [IPC] Read action seq=549 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:16:51.744 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:16:51.747 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3154, y=3457, plane=0)
+2025-11-12 10:16:51.748 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:16:51.748 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:16:51.748 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3154, y=3457, plane=0)
+2025-11-12 10:16:51.748 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:16:51.748 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=755, y=289, w=93, h=132
+2025-11-12 10:16:51.748 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (801,333)
+2025-11-12 10:16:51.748 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 10:16:51.748 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (797,417) with action: Chop down
+2025-11-12 10:16:51.748 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=797,y=417] for action: Chop down
+2025-11-12 10:16:51.748 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 797,417
+2025-11-12 10:16:51.750 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 780,421 (transformed: 780,421)
+2025-11-12 10:16:51.751 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:51.751 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 796,416 (transformed: 796,416)
+2025-11-12 10:16:51.751 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:51.751 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 796,417 (transformed: 796,417)
+2025-11-12 10:16:51.751 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:51.751 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 797,417 (transformed: 797,417)
+2025-11-12 10:16:51.751 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:51.751 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 10:16:51.757 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=797,y=417]: Tree with action 'Chop down'
+2025-11-12 10:16:51.757 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 5 ms, validated=true
+2025-11-12 10:16:51.835 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=797,y=417]: Tree with action 'Chop down'
+2025-11-12 10:16:51.835 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 10:16:51.835 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 10:16:51.836 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 10:16:51.836 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 10:16:51.836 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 797,417 (transformed: 797,417)
+2025-11-12 10:16:51.836 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 10:16:51.836 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:51.836 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 797,417 (transformed: 797,417)
+2025-11-12 10:16:51.836 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 10:16:51.844 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 10:16:51.844 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=46 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:52.344 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:52.344 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=47 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:52.944 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:52.945 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=48 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:53.551 INFO  [Client] RLBotLogger - [IPC] Read action seq=550 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:16:53.551 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:16:53.551 INFO  [Client] RLBotLogger - [ChopTask] run() - EXIT (busy)
+2025-11-12 10:16:53.551 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=49 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:54.145 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:54.146 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=50 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:54.749 INFO  [Client] RLBotLogger - [IPC] Read action seq=551 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:16:54.749 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:16:54.750 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3154, y=3457, plane=0)
+2025-11-12 10:16:54.750 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:16:54.750 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:16:54.750 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3154, y=3457, plane=0)
+2025-11-12 10:16:54.750 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:16:54.750 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=764, y=289, w=103, h=145
+2025-11-12 10:16:54.750 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (815,337)
+2025-11-12 10:16:54.750 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 10:16:54.750 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (809,428) with action: Chop down
+2025-11-12 10:16:54.750 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=809,y=428] for action: Chop down
+2025-11-12 10:16:54.750 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 809,428
+2025-11-12 10:16:54.752 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 780,428 (transformed: 780,428)
+2025-11-12 10:16:54.752 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:54.752 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 801,427 (transformed: 801,427)
+2025-11-12 10:16:54.752 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:54.752 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 807,427 (transformed: 807,427)
+2025-11-12 10:16:54.752 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:54.752 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 809,428 (transformed: 809,428)
+2025-11-12 10:16:54.752 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:54.752 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 809,428 (transformed: 809,428)
+2025-11-12 10:16:54.752 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:54.752 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 10:16:54.754 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=809,y=428]: Tree with action 'Chop down'
+2025-11-12 10:16:54.755 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 1 ms, validated=true
+2025-11-12 10:16:54.775 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=809,y=428]: Tree with action 'Chop down'
+2025-11-12 10:16:54.775 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 10:16:54.775 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 10:16:54.775 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 10:16:54.775 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 10:16:54.775 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 10:16:54.775 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 10:16:54.775 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 809,428 (transformed: 809,428)
+2025-11-12 10:16:54.778 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:54.778 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 809,428 (transformed: 809,428)
+2025-11-12 10:16:54.778 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 10:16:54.778 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=51 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:55.342 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:55.343 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=52 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:55.943 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:55.944 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=53 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:56.544 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:56.545 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=54 lastIdx=2 (ChopNearestTreeTask) r=1.69, done=false
+2025-11-12 10:16:57.144 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:57.144 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=55 lastIdx=2 (ChopNearestTreeTask) r=0.19, done=false
+2025-11-12 10:16:57.736 DEBUG [Client] RLBotLogger - [Context] Inventory: occupied=2, free=26
+2025-11-12 10:16:57.745 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:57.746 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=56 lastIdx=2 (ChopNearestTreeTask) r=2.24, done=false
+2025-11-12 10:16:58.326 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:58.327 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=57 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:58.961 INFO  [Client] RLBotLogger - [IPC] Read action seq=552 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:16:58.963 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:16:58.965 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3154, y=3457, plane=0)
+2025-11-12 10:16:58.965 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:16:58.965 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:16:58.965 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3154, y=3457, plane=0)
+2025-11-12 10:16:58.965 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:16:58.965 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=763, y=289, w=94, h=132
+2025-11-12 10:16:58.966 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (810,333)
+2025-11-12 10:16:58.966 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 10:16:58.966 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (804,417) with action: Chop down
+2025-11-12 10:16:58.966 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=804,y=417] for action: Chop down
+2025-11-12 10:16:58.966 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 804,417
+2025-11-12 10:16:58.972 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 777,423 (transformed: 777,423)
+2025-11-12 10:16:58.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:58.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 796,418 (transformed: 796,418)
+2025-11-12 10:16:58.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:58.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 804,417 (transformed: 804,417)
+2025-11-12 10:16:58.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:58.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 804,417 (transformed: 804,417)
+2025-11-12 10:16:58.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:58.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 804,417 (transformed: 804,417)
+2025-11-12 10:16:58.973 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:58.973 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 10:16:58.978 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=804,y=417]: Tree with action 'Chop down'
+2025-11-12 10:16:58.979 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 4 ms, validated=true
+2025-11-12 10:16:59.024 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=804,y=417]: Tree with action 'Chop down'
+2025-11-12 10:16:59.024 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 10:16:59.024 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 10:16:59.024 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 10:16:59.024 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 10:16:59.024 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 10:16:59.024 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 10:16:59.024 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 804,417 (transformed: 804,417)
+2025-11-12 10:16:59.025 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:16:59.025 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 804,417 (transformed: 804,417)
+2025-11-12 10:16:59.025 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 10:16:59.026 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=58 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:16:59.555 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:16:59.556 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=59 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:17:00.145 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:00.146 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=60 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:17:00.744 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:00.744 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=61 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:17:01.350 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:01.354 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=62 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:17:01.944 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:01.950 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=63 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:17:02.548 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:02.548 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=64 lastIdx=2 (ChopNearestTreeTask) r=1.69, done=false
+2025-11-12 10:17:03.144 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:03.145 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=65 lastIdx=2 (ChopNearestTreeTask) r=0.19, done=false
+2025-11-12 10:17:03.732 DEBUG [Client] RLBotLogger - [Context] Inventory: occupied=3, free=25
+2025-11-12 10:17:03.743 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:03.744 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=66 lastIdx=2 (ChopNearestTreeTask) r=2.24, done=false
+2025-11-12 10:17:04.388 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:04.388 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=67 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:17:04.957 INFO  [Client] RLBotLogger - [IPC] Read action seq=553 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:17:04.957 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:17:04.972 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3148, y=3457, plane=0)
+2025-11-12 10:17:04.972 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:17:04.972 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:17:04.973 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3148, y=3457, plane=0)
+2025-11-12 10:17:04.973 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:17:04.973 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=579, y=302, w=69, h=88
+2025-11-12 10:17:04.973 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (613,331)
+2025-11-12 10:17:04.973 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 10:17:04.973 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (613,331) with action: Chop down
+2025-11-12 10:17:04.973 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=613,y=331] for action: Chop down
+2025-11-12 10:17:04.973 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 613,331
+2025-11-12 10:17:04.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 697,396 (transformed: 697,396)
+2025-11-12 10:17:04.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:17:04.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 666,372 (transformed: 666,372)
+2025-11-12 10:17:04.975 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:17:04.977 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 643,355 (transformed: 643,355)
+2025-11-12 10:17:04.977 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:17:04.977 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 629,343 (transformed: 629,343)
+2025-11-12 10:17:04.977 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:17:04.977 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 619,336 (transformed: 619,336)
+2025-11-12 10:17:04.977 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:17:04.977 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 616,332 (transformed: 616,332)
+2025-11-12 10:17:04.978 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:17:04.978 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 614,332 (transformed: 614,332)
+2025-11-12 10:17:04.979 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:17:04.979 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 613,331 (transformed: 613,331)
+2025-11-12 10:17:04.979 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:17:04.979 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 613,331 (transformed: 613,331)
+2025-11-12 10:17:04.979 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:17:04.979 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 10:17:04.987 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=613,y=331]: Tree with action 'Chop down'
+2025-11-12 10:17:04.987 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 5 ms, validated=true
+2025-11-12 10:17:05.050 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=613,y=331]: Tree with action 'Chop down'
+2025-11-12 10:17:05.061 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 10:17:05.061 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 10:17:05.061 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 10:17:05.061 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 10:17:05.061 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 613,331 (transformed: 613,331)
+2025-11-12 10:17:05.061 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 10:17:05.061 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 10:17:05.061 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:17:05.061 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 613,331 (transformed: 613,331)
+2025-11-12 10:17:05.061 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 10:17:05.062 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=68 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:17:05.543 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:05.544 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=69 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:17:06.143 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:06.144 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=70 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:17:06.744 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:06.745 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=71 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:17:07.347 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:07.348 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=72 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:17:07.944 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:07.944 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=73 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:17:08.579 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:08.582 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=74 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:17:09.144 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:09.145 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=75 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:17:09.744 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:09.744 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=76 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:17:10.346 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:10.347 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=77 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:17:11.002 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:17:11.003 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=78 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:22:55.367 INFO  [main] RLBotLogger - RLBot logger initialized at: 2025-11-12T10:22:55.366295
+2025-11-12 10:22:58.284 INFO  [AWT-EventQueue-0] RLBotLogger - Initializing RLBot input handler
+2025-11-12 10:22:58.284 INFO  [AWT-EventQueue-0] RLBotLogger - Canvas exists but not yet showing - will be available later
+2025-11-12 10:22:58.284 INFO  [AWT-EventQueue-0] RLBotLogger - RLBot input handler initialization complete
+2025-11-12 10:23:38.935 DEBUG [Client] RLBotLogger - [Context] Inventory: occupied=3, free=25
+2025-11-12 10:23:38.942 DEBUG [Client] RLBotLogger - [Context] isInventoryFull changed: freeSlots=25, full=false
+2025-11-12 10:23:38.943 DEBUG [Client] RLBotLogger - [Context] isInventoryNearFull changed: freeSlots=25, nearFull=false
+2025-11-12 10:23:38.968 INFO  [Client] RLBotLogger - [IPC] Wrote action_space.json with 9 actions, stateDim=5
+2025-11-12 10:23:38.970 INFO  [Client] RLBotLogger - [IPC] Read action seq=553 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:23:38.970 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:23:38.973 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3145, y=3458, plane=0)
+2025-11-12 10:23:38.973 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:23:38.973 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:23:38.973 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3145, y=3458, plane=0)
+2025-11-12 10:23:38.974 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:23:38.976 WARN  [Client] RLBotLogger - [PROJECTION] Hull bounds invalid: w=0 h=0
+2025-11-12 10:23:38.976 WARN  [Client] RLBotLogger - [TreeClicker] Cannot project tree to canvas
+2025-11-12 10:23:38.976 WARN  [Client] RLBotLogger - [ChopTask] run() - PATH: Mark tree as depleted
+2025-11-12 10:23:38.979 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=1 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:39.216 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:39.217 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=2 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:39.793 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:39.794 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=3 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:40.378 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:40.378 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=4 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:41.153 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:41.157 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=5 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:41.588 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:41.589 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=6 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:42.193 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:42.194 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=7 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:42.787 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:42.788 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=8 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:43.387 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:43.389 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=9 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:44.223 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:44.223 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=10 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:44.596 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:44.598 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=11 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:45.185 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:45.186 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=12 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:45.801 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:45.802 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=13 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:46.399 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:46.401 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=14 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:46.978 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:46.979 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=15 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:47.573 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:47.573 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=16 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:48.227 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:48.230 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=17 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:48.764 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:48.765 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=18 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:49.399 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:49.401 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=19 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:49.980 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:49.981 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=20 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:50.583 INFO  [Client] RLBotLogger - [IPC] Read action seq=554 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:23:50.583 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:23:50.584 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3153, y=3470, plane=0)
+2025-11-12 10:23:50.584 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:23:50.584 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:23:50.584 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3153, y=3470, plane=0)
+2025-11-12 10:23:50.584 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:23:50.589 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=973, y=297, w=60, h=83
+2025-11-12 10:23:50.590 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (1003,324)
+2025-11-12 10:23:50.590 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 10:23:50.591 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (991,377) with action: Chop down
+2025-11-12 10:23:50.594 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=991,y=377] for action: Chop down
+2025-11-12 10:23:50.594 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 991,377
+2025-11-12 10:23:50.596 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 793,417 (transformed: 793,417)
+2025-11-12 10:23:50.598 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 839,408 (transformed: 839,408)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 877,399 (transformed: 877,399)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 907,393 (transformed: 907,393)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 933,388 (transformed: 933,388)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 952,386 (transformed: 952,386)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 966,382 (transformed: 966,382)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 977,379 (transformed: 977,379)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 983,379 (transformed: 983,379)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 987,378 (transformed: 987,378)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 990,377 (transformed: 990,377)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 991,376 (transformed: 991,376)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 990,377 (transformed: 990,377)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 991,377 (transformed: 991,377)
+2025-11-12 10:23:50.599 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.599 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 10:23:50.619 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=991,y=377]: Tree with action 'Chop down'
+2025-11-12 10:23:50.621 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 19 ms, validated=true
+2025-11-12 10:23:50.657 INFO  [Client] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 740,428 (transformed: 740,428)
+2025-11-12 10:23:50.657 INFO  [Client] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.658 INFO  [Client] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 740,428 (transformed: 740,428)
+2025-11-12 10:23:50.658 INFO  [Client] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.690 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=991,y=377]: Tree with action 'Chop down'
+2025-11-12 10:23:50.691 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 10:23:50.691 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 10:23:50.691 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 10:23:50.691 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 991,377 (transformed: 991,377)
+2025-11-12 10:23:50.691 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:23:50.692 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 10:23:50.692 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 10:23:50.692 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 991,377 (transformed: 991,377)
+2025-11-12 10:23:50.692 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 10:23:50.692 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 10:23:50.692 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=21 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:51.233 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:51.235 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=22 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:23:51.813 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:51.814 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=23 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:52.404 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:52.405 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=24 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:52.981 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:52.982 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=25 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:53.577 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:53.579 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=26 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:54.198 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:54.200 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=27 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:23:54.780 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:54.781 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=28 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:23:55.388 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:55.389 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=29 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:55.990 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:55.991 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=30 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:56.617 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:56.617 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=31 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:57.183 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:57.184 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=32 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:57.794 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:57.794 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=33 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:23:58.385 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:58.385 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=34 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:23:58.982 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:58.983 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=35 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:23:59.581 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:23:59.582 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=36 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:24:00.242 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:00.247 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=37 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:24:00.793 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:00.794 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=38 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:24:01.391 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:01.392 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=39 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:01.982 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:01.982 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=40 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:02.581 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:02.582 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=41 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:03.181 INFO  [Client] RLBotLogger - [IPC] Read action seq=555 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:24:03.181 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:24:03.182 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3128, y=3454, plane=0)
+2025-11-12 10:24:03.182 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:24:03.182 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:24:03.182 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3128, y=3454, plane=0)
+2025-11-12 10:24:03.182 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:24:03.182 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=666, y=460, w=100, h=94
+2025-11-12 10:24:03.182 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (716,491)
+2025-11-12 10:24:03.182 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 10:24:03.182 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (716,491) with action: Chop down
+2025-11-12 10:24:03.182 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=716,y=491] for action: Chop down
+2025-11-12 10:24:03.182 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 716,491
+2025-11-12 10:24:03.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 726,465 (transformed: 726,465)
+2025-11-12 10:24:03.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:24:03.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 719,484 (transformed: 719,484)
+2025-11-12 10:24:03.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:24:03.186 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 717,491 (transformed: 717,491)
+2025-11-12 10:24:03.187 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:24:03.187 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 716,490 (transformed: 716,490)
+2025-11-12 10:24:03.187 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:24:03.188 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 716,491 (transformed: 716,491)
+2025-11-12 10:24:03.188 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:24:03.188 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 10:24:03.196 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=716,y=491]: Tree with action 'Chop down'
+2025-11-12 10:24:03.197 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 7 ms, validated=true
+2025-11-12 10:24:03.245 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=716,y=491]: Tree with action 'Chop down'
+2025-11-12 10:24:03.245 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 10:24:03.245 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 10:24:03.246 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 10:24:03.246 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 10:24:03.246 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 10:24:03.246 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 10:24:03.246 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 716,491 (transformed: 716,491)
+2025-11-12 10:24:03.246 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:24:03.246 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 716,491 (transformed: 716,491)
+2025-11-12 10:24:03.246 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 10:24:03.246 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=42 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:03.780 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:03.781 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=43 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:24:04.384 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:04.384 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=44 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:04.992 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:04.994 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=45 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:05.581 INFO  [Client] RLBotLogger - [IPC] Read action seq=556 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:24:05.581 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:24:05.581 INFO  [Client] RLBotLogger - [ChopTask] run() - EXIT (busy)
+2025-11-12 10:24:05.581 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=46 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:06.182 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:06.183 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=47 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:06.779 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:06.780 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=48 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:07.384 INFO  [Client] RLBotLogger - [IPC] Read action seq=557 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:24:07.385 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:24:07.385 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3128, y=3454, plane=0)
+2025-11-12 10:24:07.385 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:24:07.385 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:24:07.385 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3128, y=3454, plane=0)
+2025-11-12 10:24:07.386 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:24:07.386 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=715, y=399, w=88, h=88
+2025-11-12 10:24:07.386 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (759,428)
+2025-11-12 10:24:07.386 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 10:24:07.386 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (759,428) with action: Chop down
+2025-11-12 10:24:07.386 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN moveAndClickWithValidation at java.awt.Point[x=759,y=428] for action: Chop down
+2025-11-12 10:24:07.386 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN smoothMouseMove to canvas point: 759,428
+2025-11-12 10:24:07.388 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 752,427 (transformed: 752,427)
+2025-11-12 10:24:07.388 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:24:07.388 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 758,427 (transformed: 758,427)
+2025-11-12 10:24:07.388 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:24:07.388 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 760,428 (transformed: 760,428)
+2025-11-12 10:24:07.388 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:24:07.388 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 759,428 (transformed: 759,428)
+2025-11-12 10:24:07.388 INFO  [rlbot-mouse-move] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:24:07.388 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END smoothMouseMove (completed)
+2025-11-12 10:24:07.391 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=759,y=428]: Tree with action 'Chop down'
+2025-11-12 10:24:07.391 INFO  [Client] RLBotLogger - [PERF] [RLBOT_INPUT] Hover-settle validation took 1 ms, validated=true
+2025-11-12 10:24:07.402 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] ConvexHull match at java.awt.Point[x=759,y=428]: Tree with action 'Chop down'
+2025-11-12 10:24:07.402 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] Target validation passed, proceeding with click
+2025-11-12 10:24:07.402 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] BEGIN click at current mouse position
+2025-11-12 10:24:07.403 DEBUG [Client] RLBotLogger - [RLBOT_INPUT] END click (completed)
+2025-11-12 10:24:07.403 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseMoveEvent to: 759,428 (transformed: 759,428)
+2025-11-12 10:24:07.403 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseMoveEvent
+2025-11-12 10:24:07.403 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] BEGIN dispatchMouseClickEvent at: 759,428 (transformed: 759,428)
+2025-11-12 10:24:07.403 INFO  [rlbot-click] RLBotLogger - [RLBOT_INPUT] END dispatchMouseClickEvent
+2025-11-12 10:24:07.404 INFO  [Client] RLBotLogger - [PERF] Input.moveAndClick validated click took 0 ms
+2025-11-12 10:24:07.404 INFO  [Client] RLBotLogger - [TreeClicker] Successfully clicked tree
+2025-11-12 10:24:07.404 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 10:24:07.405 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=49 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:07.981 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:07.981 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=50 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:24:08.580 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:08.581 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=51 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:09.180 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:09.181 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=52 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:09.806 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:09.807 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=53 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:24:10.380 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:24:10.381 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=54 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:00.577 INFO  [main] RLBotLogger - RLBot logger initialized at: 2025-11-12T10:36:00.576664
+2025-11-12 10:36:13.144 DEBUG [Client] RLBotLogger - [Context] Inventory: occupied=3, free=25
+2025-11-12 10:36:13.146 DEBUG [Client] RLBotLogger - [Context] isInventoryFull changed: freeSlots=25, full=false
+2025-11-12 10:36:13.146 DEBUG [Client] RLBotLogger - [Context] isInventoryNearFull changed: freeSlots=25, nearFull=false
+2025-11-12 10:36:13.173 INFO  [Client] RLBotLogger - [IPC] Wrote action_space.json with 9 actions, stateDim=5
+2025-11-12 10:36:13.174 INFO  [Client] RLBotLogger - [IPC] Read action seq=557 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:36:13.174 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:36:13.176 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3128, y=3454, plane=0)
+2025-11-12 10:36:13.177 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:36:13.177 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:36:13.177 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3128, y=3454, plane=0)
+2025-11-12 10:36:13.177 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:36:13.178 WARN  [Client] RLBotLogger - [PROJECTION] Hull bounds invalid: w=0 h=0
+2025-11-12 10:36:13.178 WARN  [Client] RLBotLogger - [TreeClicker] Cannot project tree to canvas
+2025-11-12 10:36:13.178 WARN  [Client] RLBotLogger - [ChopTask] run() - PATH: Mark tree as depleted
+2025-11-12 10:36:13.180 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=1 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:13.491 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:13.491 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=2 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:36:14.075 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:14.076 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=3 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:14.668 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:14.669 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=4 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:15.269 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:15.270 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=5 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:15.995 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:15.996 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=6 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:16.508 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:16.513 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=7 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:17.100 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:17.100 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=8 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:17.677 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:17.678 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=9 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:18.268 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:18.269 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=10 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:36:18.868 INFO  [Client] RLBotLogger - [IPC] Read action seq=558 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:36:18.868 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:36:18.869 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3128, y=3454, plane=0)
+2025-11-12 10:36:18.869 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:36:18.869 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:36:18.869 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3128, y=3454, plane=0)
+2025-11-12 10:36:18.869 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:36:18.871 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=768, y=299, w=129, h=180
+2025-11-12 10:36:18.871 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (832,359)
+2025-11-12 10:36:18.871 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 10:36:18.872 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (824,467) with action: Chop down
+2025-11-12 10:36:18.873 WARN  [Client] RLBotLogger - [TreeClicker] Click validation failed
+2025-11-12 10:36:18.873 WARN  [Client] RLBotLogger - [ChopTask] run() - PATH: Mark tree as depleted
+2025-11-12 10:36:18.874 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=11 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:19.466 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:19.468 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=12 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:36:20.087 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:20.088 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=13 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:20.707 INFO  [Client] RLBotLogger - [IPC] Read action seq=559 -> action=5 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:36:20.711 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=14 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 10:36:21.268 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:21.268 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=15 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 10:36:21.867 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:21.867 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=16 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 10:36:22.469 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:22.470 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=17 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 10:36:23.067 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:23.068 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=18 lastIdx=5 (CameraRotateLeftTask) r=-0.01, done=false
+2025-11-12 10:36:23.690 INFO  [Client] RLBotLogger - [IPC] Read action seq=560 -> action=6 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:36:23.697 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=19 lastIdx=6 (CameraRotateRightTask) r=-0.01, done=false
+2025-11-12 10:36:24.269 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:24.270 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=20 lastIdx=6 (CameraRotateRightTask) r=0.29000002, done=false
+2025-11-12 10:36:24.878 INFO  [Client] RLBotLogger - [IPC] Read action seq=561 -> action=7 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:36:24.882 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=21 lastIdx=7 (CameraZoomInTask) r=-0.01, done=false
+2025-11-12 10:36:25.468 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:25.468 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=22 lastIdx=7 (CameraZoomInTask) r=-0.01, done=false
+2025-11-12 10:36:26.070 INFO  [Client] RLBotLogger - [IPC] Read action seq=562 -> action=8 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:36:26.072 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=23 lastIdx=8 (CameraZoomOutTask) r=-0.01, done=false
+2025-11-12 10:36:26.668 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:26.670 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=24 lastIdx=8 (CameraZoomOutTask) r=-0.01, done=false
+2025-11-12 10:36:27.267 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:27.268 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=25 lastIdx=8 (CameraZoomOutTask) r=-0.01, done=false
+2025-11-12 10:36:27.867 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:27.867 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=26 lastIdx=8 (CameraZoomOutTask) r=-0.01, done=false
+2025-11-12 10:36:28.467 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:28.467 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=27 lastIdx=8 (CameraZoomOutTask) r=-0.01, done=false
+2025-11-12 10:36:29.067 INFO  [Client] RLBotLogger - [IPC] Read action seq=563 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 10:36:29.067 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 10:36:29.067 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3128, y=3454, plane=0)
+2025-11-12 10:36:29.067 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 10:36:29.067 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 10:36:29.068 INFO  [Client] RLBotLogger - [TreeClicker] Attempting to click tree at WorldPoint(x=3128, y=3454, plane=0)
+2025-11-12 10:36:29.068 INFO  [Client] RLBotLogger - [TreeClicker] Found chop action: Chop down at index 0
+2025-11-12 10:36:29.068 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=762, y=300, w=130, h=182
+2025-11-12 10:36:29.068 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (827,360)
+2025-11-12 10:36:29.068 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 10:36:29.068 INFO  [Client] RLBotLogger - [TreeClicker] Clicking at (818,470) with action: Chop down
+2025-11-12 10:36:29.068 WARN  [Client] RLBotLogger - [TreeClicker] Click validation failed
+2025-11-12 10:36:29.068 WARN  [Client] RLBotLogger - [ChopTask] run() - PATH: Mark tree as depleted
+2025-11-12 10:36:29.068 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Recovery movement
+2025-11-12 10:36:29.068 INFO  [Client] RLBotLogger - [TreeNavigator] Performing recovery movement
+2025-11-12 10:36:29.068 INFO  [Client] RLBotLogger - [TreeNavigator] Moving to recovery point: WorldPoint(x=3128, y=3456, plane=0)
+2025-11-12 10:36:29.069 INFO  [Client] RLBotLogger - [WorldPath] Step toward world (3131,3456)
+2025-11-12 10:36:29.070 INFO  [Client] RLBotLogger - [WorldPath] WALK to scene (59,48) for world (3131,3456) canvas(937,434)
+2025-11-12 10:36:29.071 DEBUG [Client] RLBotLogger - [Mouse] smoothMouseMove to java.awt.Point[x=937,y=434]
+2025-11-12 10:36:29.210 INFO  [Client] RLBotLogger - [PERF] WorldPath.move-to-walk took 139 ms
+2025-11-12 10:36:29.211 INFO  [Client] RLBotLogger - [WorldPath] WALK menuAction executed
+2025-11-12 10:36:29.212 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=28 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:29.677 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:29.677 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=29 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 10:36:30.270 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:30.270 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=30 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 10:36:30.869 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:30.869 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=31 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:31.472 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:31.473 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=32 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:32.080 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:32.081 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=33 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:32.666 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:32.667 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=34 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:33.274 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:33.275 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=35 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:33.867 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:33.867 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=36 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:34.466 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:34.466 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=37 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:35.067 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:35.067 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=38 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:35.667 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:35.667 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=39 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:36.266 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:36.267 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=40 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:36.867 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:36.867 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=41 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:37.466 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:37.467 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=42 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:38.067 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:38.067 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=43 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:38.667 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:38.667 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=44 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:39.267 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:39.267 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=45 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:39.867 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:39.868 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=46 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:40.467 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:40.467 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=47 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:41.066 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:41.067 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=48 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:41.677 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:41.678 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=49 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:42.270 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:42.271 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=50 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:42.871 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:42.872 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=51 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:43.525 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:43.526 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=52 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:44.067 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:44.068 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=53 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:44.687 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:44.688 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=54 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:45.267 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:45.267 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=55 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:45.867 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:45.868 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=56 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:46.467 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:46.468 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=57 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:47.065 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:47.066 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=58 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:47.666 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:47.667 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=59 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:48.310 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:48.313 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=60 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:48.869 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:48.870 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=61 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:49.466 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:49.467 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=62 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:50.067 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:50.068 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=63 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:50.667 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:50.667 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=64 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:51.266 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:51.266 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=65 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:51.867 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:51.867 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=66 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:52.468 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:52.469 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=67 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:53.067 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:53.067 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=68 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:53.667 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:53.667 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=69 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:54.331 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:54.334 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=70 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:54.887 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:54.888 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=71 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:55.477 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:55.478 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=72 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:56.088 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:56.089 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=73 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:56.763 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:56.766 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=74 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:57.286 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:57.287 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=75 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:57.868 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:57.869 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=76 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:58.466 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:58.467 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=77 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:59.067 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:59.068 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=78 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:36:59.666 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:36:59.667 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=79 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:37:00.268 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:37:00.268 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=80 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:37:00.887 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:37:00.888 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=81 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:37:01.467 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:37:01.467 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=82 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:37:02.070 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:37:02.071 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=83 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:37:02.668 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:37:02.669 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=84 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:37:03.267 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:37:03.267 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=85 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:37:03.867 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:37:03.868 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=86 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:37:04.465 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:37:04.466 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=87 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:37:05.067 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:37:05.067 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=88 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:37:05.692 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:37:05.693 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=89 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 10:37:06.269 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 10:37:06.269 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=90 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false

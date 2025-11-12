@@ -14,12 +14,6 @@ public abstract class NavigateToHotspotTask implements Task {
     protected abstract List<WorldPoint> hotspots(TaskContext ctx);
 
     @Override
-    public boolean shouldRun(TaskContext context) {
-        // Unconditionally eligible for RL exploration; run() contains defensive checks.
-        return true;
-    }
-
-    @Override
     public void run(TaskContext ctx) {
         if (ctx.isBusy() && !ctx.timedOutSince(1500)) {
             return;
