@@ -12,6 +12,10 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.plugins.rlbot.input.RLBotInputHandler;
 import net.runelite.client.plugins.rlbot.ipc.ExternalControlBridge;
 import net.runelite.client.plugins.rlbot.tasks.BankDepositTask;
+import net.runelite.client.plugins.rlbot.tasks.CameraRotateLeftTask;
+import net.runelite.client.plugins.rlbot.tasks.CameraRotateRightTask;
+import net.runelite.client.plugins.rlbot.tasks.CameraZoomInTask;
+import net.runelite.client.plugins.rlbot.tasks.CameraZoomOutTask;
 import net.runelite.client.plugins.rlbot.tasks.ChopNearestTreeTask;
 import net.runelite.client.plugins.rlbot.tasks.IdleTask;
 import net.runelite.client.plugins.rlbot.tasks.NavigateToBankHotspotTask;
@@ -71,6 +75,10 @@ public class RLBotAgent
         tasks.add(new ChopNearestTreeTask());
         tasks.add(new NavigateToTreeHotspotTask());
         tasks.add(new IdleTask());
+        tasks.add(new net.runelite.client.plugins.rlbot.tasks.CameraRotateLeftTask());
+        tasks.add(new net.runelite.client.plugins.rlbot.tasks.CameraRotateRightTask());
+        tasks.add(new net.runelite.client.plugins.rlbot.tasks.CameraZoomInTask());
+        tasks.add(new net.runelite.client.plugins.rlbot.tasks.CameraZoomOutTask());
         this.actionCounts = new int[tasks.size()];
         this.episodeStartMs = System.currentTimeMillis();
     }

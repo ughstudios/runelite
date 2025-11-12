@@ -10,9 +10,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.security.SecureRandom;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 import javax.swing.SwingUtilities;
 import net.runelite.api.Client;
@@ -501,13 +501,6 @@ public class RLBotInputHandler {
                 // Dispatch from this background thread; dispatchMouseMoveEvent will ensure EDT dispatching
                 dispatchMouseMoveEvent(canvas, stepPoint);
                 
-                // Add small delay between steps for more natural movement
-                try {
-                    Thread.sleep(8 + rand.nextInt(5)); // 8-12ms between steps
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
             }
             
             // Ensure we end exactly at the target point
@@ -624,9 +617,8 @@ public class RLBotInputHandler {
         // Allow hover-settle: repeatedly validate for a short window before clicking
         long hoverStart = System.nanoTime();
         boolean hoverValidated = false;
-        for (int i = 0; i < 4; i++) { // ~4 iterations over ~200ms
+        for (int i = 0; i < 4; i++) { // quick validation loop
             if (validateTargetAtPoint(canvasPoint, expectedAction)) { hoverValidated = true; break; }
-            try { Thread.sleep(50); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
         }
         long hoverEnd = System.nanoTime();
         logger.perf("[RLBOT_INPUT] Hover-settle validation took " + ((hoverEnd - hoverStart) / 1_000_000) + " ms, validated=" + hoverValidated);
@@ -1347,19 +1339,87 @@ public class RLBotInputHandler {
      * Uses middle-mouse drag when safe; otherwise falls back to arrow/page keys.
      */
     public void rotateCameraSafe(int dx, int dy) {
-        if (clickInProgress.get()) {
-            // Key-based rotation doesn't affect mouse position
-            int steps = Math.max(1, Math.min(3, Math.abs(dx) / 60));
-            for (int i = 0; i < steps; i++) {
-                if (dx > 0) rotateCameraRightSmall(); else if (dx < 0) rotateCameraLeftSmall();
-            }
-            if (dy != 0) {
-                int v = Math.max(1, Math.min(2, Math.abs(dy) / 40));
-                for (int i = 0; i < v; i++) { if (dy > 0) tiltCameraDownSmall(); else tiltCameraUpSmall(); }
-            }
-            return;
+        int horizontalSteps = Math.max(1, Math.abs(dx) / 30);
+        if (dx > 0) {
+            for (int i = 0; i < horizontalSteps; i++) holdKey(KeyEvent.VK_RIGHT, 120);
+        } else if (dx < 0) {
+            for (int i = 0; i < horizontalSteps; i++) holdKey(KeyEvent.VK_LEFT, 120);
         }
-        rotateCameraDrag(dx, dy);
+
+        int verticalSteps = Math.max(1, Math.abs(dy) / 30);
+        if (dy > 0) {
+            for (int i = 0; i < verticalSteps; i++) holdKey(KeyEvent.VK_DOWN, 120);
+        } else if (dy < 0) {
+            for (int i = 0; i < verticalSteps; i++) holdKey(KeyEvent.VK_UP, 120);
+        }
+    }
+
+    private void holdKey(int keyCode, long durationMs) {
+        // Acquire canvas on client thread, then dispatch key events via AWT without blocking the client thread
+        clientThread.invoke(() -> {
+            Canvas canvas = getCanvas();
+            if (canvas == null) {
+                logger.error("[RLBOT_INPUT] Canvas is null, cannot hold key");
+                return;
+            }
+            if (!canvas.isFocusOwner()) {
+                canvas.requestFocusInWindow();
+            }
+            dispatchKeyPressRelease(canvas, keyCode, durationMs);
+        });
+    }
+
+    private void dispatchKeyPressRelease(Component component, int keyCode, long durationMs) {
+        long when = System.currentTimeMillis();
+        int modifiers = 0;
+        try {
+            if (!component.isFocusOwner()) {
+                component.requestFocusInWindow();
+            }
+
+            KeyEvent pressEvent = new KeyEvent(
+                component,
+                KeyEvent.KEY_PRESSED,
+                when,
+                modifiers,
+                keyCode,
+                KeyEvent.CHAR_UNDEFINED
+            );
+
+            // Dispatch press to the canvas on the EDT and also through KeyManager for plugin hooks
+            SwingUtilities.invokeLater(() -> component.dispatchEvent(pressEvent));
+            try { keyManager.processKeyPressed(pressEvent); } catch (Exception ignored) {}
+
+            // Schedule release on a background thread to avoid blocking client thread
+            Thread releaser = new Thread(() -> {
+                try {
+                    Thread.sleep(Math.max(1, durationMs));
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+                KeyEvent releaseEvent = new KeyEvent(
+                    component,
+                    KeyEvent.KEY_RELEASED,
+                    System.currentTimeMillis(),
+                    modifiers,
+                    keyCode,
+                    KeyEvent.CHAR_UNDEFINED
+                );
+                SwingUtilities.invokeLater(() -> component.dispatchEvent(releaseEvent));
+                try { keyManager.processKeyReleased(releaseEvent); } catch (Exception ignored) {}
+            }, "rlbot-key-release");
+            releaser.setDaemon(true);
+            releaser.start();
+        } catch (Exception e) {
+            logger.error("[RLBOT_INPUT] Error holding key " + keyCode + ": " + e.getMessage());
+        }
+    }
+
+    private void busyWait(long durationMs) {
+        long end = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(durationMs);
+        while (System.nanoTime() < end) {
+            // busy spin to avoid sleeping
+        }
     }
 
     private void dispatchMiddleDrag(Component component, Point start, Point end) {
@@ -1430,22 +1490,17 @@ public class RLBotInputHandler {
         // sleepQuiet(20);
     }
 
-    private void sleepQuiet(long ms) {
-        // Removed global sleeps to avoid lag; kept method for compatibility
-        // try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-    }
-
     // Convenience camera controls
-    public void rotateCameraLeftSmall() { pressKey(KeyEvent.VK_LEFT); }
-    public void rotateCameraRightSmall() { pressKey(KeyEvent.VK_RIGHT); }
-    public void tiltCameraUpSmall() { pressKey(KeyEvent.VK_UP); }
-    public void tiltCameraDownSmall() { pressKey(KeyEvent.VK_DOWN); }
+    public void rotateCameraLeftSmall() { rotateCameraSafe(-80, 0); }
+    public void rotateCameraRightSmall() { rotateCameraSafe(80, 0); }
+    public void tiltCameraUpSmall() { rotateCameraSafe(0, -60); }
+    public void tiltCameraDownSmall() { rotateCameraSafe(0, 60); }
 
     /**
-     * Zoom using mouse wheel events without moving the cursor.
+     * Zoom using mouse-wheel events directly.
      */
-    public void zoomInSmall() { dispatchWheel(+1); }
-    public void zoomOutSmall() { dispatchWheel(-1); }
+    public void zoomInSmall() { dispatchWheel(-3); }
+    public void zoomOutSmall() { dispatchWheel(+3); }
 
     private void dispatchWheel(int wheelRotation) {
         clientThread.invoke(() -> {
@@ -1453,6 +1508,11 @@ public class RLBotInputHandler {
             if (canvas == null) return;
             try {
                 long when = System.currentTimeMillis();
+                java.awt.Point center = new java.awt.Point(
+                    Math.max(1, canvas.getWidth() / 2),
+                    Math.max(1, canvas.getHeight() / 2)
+                );
+                dispatchMouseMoveEvent(canvas, center);
                 java.awt.event.MouseWheelEvent wheel = new java.awt.event.MouseWheelEvent(
                     canvas,
                     java.awt.event.MouseEvent.MOUSE_WHEEL,
@@ -1466,11 +1526,12 @@ public class RLBotInputHandler {
                     1,
                     wheelRotation
                 );
+                canvas.requestFocus();
                 SwingUtilities.invokeLater(() -> canvas.dispatchEvent(wheel));
+                mouseManager.processMouseWheelMoved(wheel);
             } catch (Exception ignored) {}
         });
     }
-
     /** Expose click-in-progress flag for tasks. */
     public boolean isClickInProgress() { return clickInProgress.get(); }
     

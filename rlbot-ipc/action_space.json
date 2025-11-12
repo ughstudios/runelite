@@ -5,6 +5,10 @@
     "NavigateToBankHotspotTask",
     "ChopNearestTreeTask",
     "NavigateToTreeHotspotTask",
-    "IdleTask"
+    "IdleTask",
+    "CameraRotateLeftTask",
+    "CameraRotateRightTask",
+    "CameraZoomInTask",
+    "CameraZoomOutTask"
   ]
 }

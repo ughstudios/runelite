@@ -21,6 +21,10 @@ public final class BankDiscovery
 
     private static final Set<WorldPoint> discoveredBanks = ConcurrentHashMap.newKeySet();
     private static final Set<WorldPoint> blacklistedBanks = ConcurrentHashMap.newKeySet();
+    private static final Set<WorldPoint> excludedBanks = Set.of(
+        new WorldPoint(3148, 3449, 0), // cooking guild
+        new WorldPoint(3147, 3449, 0) // cooking guild
+    );
 
     private static volatile WorldPoint lastTargetedBank;
 
@@ -71,6 +75,10 @@ public final class BankDiscovery
                             WorldPoint wp = obj.getWorldLocation();
                             if (wp != null)
                             {
+                                if (obj.getId() == 10583 && excludedBanks.contains(wp))
+                                {
+                                    continue;
+                                }
                                 discoveredBanks.add(wp);
                             }
                         }

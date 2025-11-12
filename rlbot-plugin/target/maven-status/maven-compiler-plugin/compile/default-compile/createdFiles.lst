@@ -1,6 +1,7 @@
 net/runelite/client/plugins/rlbot/tasks/ChopNearestTreeTask.class
 net/runelite/client/plugins/rlbot/RLBotActionRunner.class
 net/runelite/client/plugins/rlbot/RLBotState$Snapshot.class
+net/runelite/client/plugins/rlbot/tasks/CameraZoomOutTask.class
 net/runelite/client/plugins/rlbot/tasks/TreeValidator.class
 net/runelite/client/plugins/rlbot/tasks/ObjectFinder.class
 net/runelite/client/plugins/rlbot/RLBotCursorOverlay$TrailPoint.class
@@ -20,17 +21,20 @@ net/runelite/client/plugins/rlbot/RLBotPlugin.class
 net/runelite/client/plugins/rlbot/tasks/NavigateToHotspotTask.class
 net/runelite/client/plugins/rlbot/input/ChatboxAdjuster.class
 net/runelite/client/plugins/rlbot/RLBotReward.class
+net/runelite/client/plugins/rlbot/tasks/CameraZoomInTask.class
 net/runelite/client/plugins/rlbot/tasks/context/NavTracker.class
 net/runelite/client/plugins/rlbot/tasks/TreeDiscovery.class
 net/runelite/client/plugins/rlbot/ipc/ExternalControlBridge.class
 net/runelite/client/plugins/rlbot/tasks/BankDepositTask.class
 net/runelite/client/plugins/rlbot/input/ChatboxCollisionHandler.class
+net/runelite/client/plugins/rlbot/tasks/CameraRotateRightTask.class
 net/runelite/client/plugins/rlbot/RLBotLogger.class
 net/runelite/client/plugins/rlbot/input/ChatboxAdjuster$Strategy.class
 net/runelite/client/plugins/rlbot/RLBotEpisode.class
 net/runelite/client/plugins/rlbot/tasks/TreeScanner.class
 net/runelite/client/plugins/rlbot/RLBotConstants.class
 net/runelite/client/plugins/rlbot/tasks/RunHelper.class
+net/runelite/client/plugins/rlbot/tasks/CameraRotateLeftTask.class
 net/runelite/client/plugins/rlbot/input/ChatboxCollisionHandler$AdjustmentStrategy.class
 net/runelite/client/plugins/rlbot/tasks/IdleTask.class
 net/runelite/client/plugins/rlbot/RLBotTelemetry.class
@@ -46,5 +50,6 @@ net/runelite/client/plugins/rlbot/tasks/NavigateToBankHotspotTask.class
 net/runelite/client/plugins/rlbot/tasks/TreeNavigator.class
 net/runelite/client/plugins/rlbot/tasks/BankClicker.class
 net/runelite/client/plugins/rlbot/input/RLBotInputHandler.class
+net/runelite/client/plugins/rlbot/tasks/CameraRotateTask.class
 net/runelite/client/plugins/rlbot/tasks/MinimapPathing.class
 net/runelite/client/plugins/rlbot/tasks/context/MovementAnalyzer.class

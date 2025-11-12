@@ -1,6 +1,9 @@
 package net.runelite.client.plugins.rlbot.input;
 
 import java.awt.Point;
+import java.util.concurrent.TimeUnit;
+
+import java.awt.Point;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
 import net.runelite.api.Perspective;
@@ -37,7 +40,10 @@ final class ChatboxAdjuster {
                     input.zoomOutSmall();
                     break;
             }
-            try { Thread.sleep(200); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+            long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(200);
+            while (System.nanoTime() < deadline) {
+                // busy wait to avoid blocking threads
+            }
 
             Point newProjection = null;
             if (targetObject != null) {
@@ -74,4 +80,3 @@ final class ChatboxAdjuster {
         }
     }
 }
-

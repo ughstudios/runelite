@@ -11,6 +11,7 @@
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/BankClicker.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/RunHelper.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/RLBotCursorOverlay.java
+/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/CameraRotateRightTask.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/RLBotActionRunner.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/TaskContext.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/context/NavTracker.java
@@ -24,6 +25,7 @@
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/ui/RLBotOverlay.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/RLBotState.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/BankDiscovery.java
+/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/CameraZoomOutTask.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/ChopNearestTreeTask.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/RLBotConfig.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/MinimapPathing.java
@@ -31,8 +33,11 @@
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/TreeScanner.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/input/ChatboxCollisionHandler.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/RLBotTelemetry.java
+/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/CameraRotateLeftTask.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/RLBotReward.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/TreeNavigator.java
+/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/CameraRotateTask.java
+/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/CameraZoomInTask.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/NavigateToBankHotspotTask.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/RLBotConstants.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/context/WidgetLoggerUtil.java
