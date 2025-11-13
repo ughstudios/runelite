@@ -45,19 +45,13 @@ public class ChopNearestTreeTask implements Task {
             context.logger.info("[ChopTask] run() - SUCCESS: Tree clicked");
             return;
         }
-        
-        if (clickResult == TreeClicker.Result.STAGED) {
-            return;
-        }
-        
+
         if (TreeClicker.adjustCameraForTree(context, tree)) {
             context.logger.info("[ChopTask] run() - PATH: Camera adjustment");
             return;
         }
 
-        if (clickResult == TreeClicker.Result.FAILED) {
-            context.logger.warn("[ChopTask] run() - PATH: Click validation failed");
-        }
+        context.logger.warn("[ChopTask] run() - PATH: Click validation failed");
     }
     
     private int getWoodcuttingLevel(TaskContext context) {

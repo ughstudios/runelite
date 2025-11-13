@@ -23735,3 +23735,259 @@
 2025-11-12 16:34:25.113 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=31 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
 2025-11-12 16:34:25.713 DEBUG [Client] RLBotLogger - [IPC] No action pending
 2025-11-12 16:34:25.714 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=32 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:01.392 INFO  [main] RLBotLogger - RLBot logger initialized at: 2025-11-12T16:41:01.391868
+2025-11-12 16:41:11.405 DEBUG [Client] RLBotLogger - [Context] Inventory: occupied=7, free=21
+2025-11-12 16:41:11.407 DEBUG [Client] RLBotLogger - [Context] isInventoryFull changed: freeSlots=21, full=false
+2025-11-12 16:41:11.407 DEBUG [Client] RLBotLogger - [Context] isInventoryNearFull changed: freeSlots=21, nearFull=false
+2025-11-12 16:41:11.424 INFO  [Client] RLBotLogger - [IPC] Wrote action_space.json with 9 actions, stateDim=5
+2025-11-12 16:41:11.426 INFO  [Client] RLBotLogger - [IPC] Read action seq=745 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 16:41:11.426 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 16:41:11.428 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3159, y=3458, plane=0)
+2025-11-12 16:41:11.429 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 16:41:11.429 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 16:41:11.429 WARN  [Client] RLBotLogger - [PROJECTION] Hull bounds invalid: w=0 h=0
+2025-11-12 16:41:11.430 WARN  [Client] RLBotLogger - [TreeClicker] Cannot project tree to canvas
+2025-11-12 16:41:11.430 WARN  [Client] RLBotLogger - [ChopTask] run() - PATH: Click validation failed
+2025-11-12 16:41:11.433 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=1 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:11.955 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:11.955 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=2 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:12.747 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:12.748 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=3 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:13.174 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:13.175 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=4 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:13.762 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:13.763 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=5 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:14.338 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:14.339 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=6 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:14.976 INFO  [Client] RLBotLogger - [IPC] Read action seq=746 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 16:41:14.978 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 16:41:14.980 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3159, y=3458, plane=0)
+2025-11-12 16:41:14.980 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 16:41:14.980 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 16:41:14.982 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=994, y=271, w=261, h=306
+2025-11-12 16:41:14.983 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (1124,373)
+2025-11-12 16:41:14.983 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 16:41:14.985 INFO  [Client] RLBotLogger - [TreeClicker] Hovering toward java.awt.Point[x=1124,y=373] for action="Chop down"
+2025-11-12 16:41:14.985 DEBUG [Client] RLBotLogger - [Mouse] smoothMouseMove to java.awt.Point[x=1124,y=373]
+2025-11-12 16:41:14.992 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 16:41:14.994 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=7 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:15.130 WARN  [rlbot-tree-clicker] RLBotLogger - [TreeClicker] Falling back to blind click at java.awt.Point[x=1124,y=373]
+2025-11-12 16:41:15.574 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:15.574 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=8 lastIdx=2 (ChopNearestTreeTask) r=0.29000002, done=false
+2025-11-12 16:41:16.152 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:16.152 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=9 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:16.785 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:16.786 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=10 lastIdx=2 (ChopNearestTreeTask) r=1.69, done=false
+2025-11-12 16:41:17.372 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:17.373 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=11 lastIdx=2 (ChopNearestTreeTask) r=0.19, done=false
+2025-11-12 16:41:17.946 DEBUG [Client] RLBotLogger - [Context] Inventory: occupied=8, free=20
+2025-11-12 16:41:17.958 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:17.959 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=12 lastIdx=2 (ChopNearestTreeTask) r=2.24, done=false
+2025-11-12 16:41:18.580 INFO  [Client] RLBotLogger - [IPC] Read action seq=747 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 16:41:18.580 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 16:41:18.580 INFO  [Client] RLBotLogger - [ChopTask] run() - EXIT (busy)
+2025-11-12 16:41:18.581 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=13 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:19.151 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:19.151 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=14 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:19.754 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:19.755 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=15 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:20.353 INFO  [Client] RLBotLogger - [IPC] Read action seq=748 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 16:41:20.353 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 16:41:20.353 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3155, y=3454, plane=0)
+2025-11-12 16:41:20.353 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 16:41:20.353 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 16:41:20.354 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=53, y=243, w=454, h=514
+2025-11-12 16:41:20.354 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (280,414)
+2025-11-12 16:41:20.354 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 16:41:20.354 INFO  [Client] RLBotLogger - [TreeClicker] Hovering toward java.awt.Point[x=280,y=414] for action="Chop down"
+2025-11-12 16:41:20.354 DEBUG [Client] RLBotLogger - [Mouse] smoothMouseMove to java.awt.Point[x=280,y=414]
+2025-11-12 16:41:20.357 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 16:41:20.357 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=16 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:20.508 WARN  [rlbot-tree-clicker] RLBotLogger - [TreeClicker] Falling back to blind click at java.awt.Point[x=280,y=414]
+2025-11-12 16:41:20.952 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:20.952 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=17 lastIdx=2 (ChopNearestTreeTask) r=-0.21000001, done=false
+2025-11-12 16:41:21.552 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:21.553 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=18 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:22.163 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:22.164 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=19 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:22.753 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:22.754 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=20 lastIdx=2 (ChopNearestTreeTask) r=1.69, done=false
+2025-11-12 16:41:23.352 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:23.353 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=21 lastIdx=2 (ChopNearestTreeTask) r=0.19, done=false
+2025-11-12 16:41:23.942 DEBUG [Client] RLBotLogger - [Context] Inventory: occupied=9, free=19
+2025-11-12 16:41:23.953 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:23.953 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=22 lastIdx=2 (ChopNearestTreeTask) r=2.24, done=false
+2025-11-12 16:41:24.561 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:24.563 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=23 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:25.182 INFO  [Client] RLBotLogger - [IPC] Read action seq=749 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 16:41:25.182 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 16:41:25.184 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3157, y=3454, plane=0)
+2025-11-12 16:41:25.184 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 16:41:25.184 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 16:41:25.184 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=791, y=219, w=241, h=318
+2025-11-12 16:41:25.184 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (911,325)
+2025-11-12 16:41:25.184 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 16:41:25.184 INFO  [Client] RLBotLogger - [TreeClicker] Hovering toward java.awt.Point[x=911,y=325] for action="Chop down"
+2025-11-12 16:41:25.184 DEBUG [Client] RLBotLogger - [Mouse] smoothMouseMove to java.awt.Point[x=911,y=325]
+2025-11-12 16:41:25.187 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 16:41:25.188 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=24 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:25.332 WARN  [rlbot-tree-clicker] RLBotLogger - [TreeClicker] Falling back to blind click at java.awt.Point[x=911,y=325]
+2025-11-12 16:41:25.771 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:25.771 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=25 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:26.352 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:26.353 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=26 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:26.953 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:26.954 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=27 lastIdx=2 (ChopNearestTreeTask) r=1.69, done=false
+2025-11-12 16:41:27.591 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:27.591 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=28 lastIdx=2 (ChopNearestTreeTask) r=0.19, done=false
+2025-11-12 16:41:28.179 DEBUG [Client] RLBotLogger - [Context] Inventory: occupied=10, free=18
+2025-11-12 16:41:28.270 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:28.272 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=29 lastIdx=2 (ChopNearestTreeTask) r=2.24, done=false
+2025-11-12 16:41:28.771 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:28.771 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=30 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:29.352 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:29.353 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=31 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:29.953 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:29.954 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=32 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:30.557 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:30.557 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=33 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:31.154 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:31.155 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=34 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:31.751 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:31.751 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=35 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:32.351 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:32.352 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=36 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:32.952 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:32.953 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=37 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:33.552 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:33.553 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=38 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:34.171 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:34.171 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=39 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:34.751 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:34.751 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=40 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:35.355 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:35.357 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=41 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:35.952 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:35.953 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=42 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:36.553 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:36.556 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=43 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:37.154 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:37.155 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=44 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:37.777 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:37.779 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=45 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:38.356 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:38.357 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=46 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:38.955 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:38.958 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=47 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:39.571 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:39.572 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=48 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:40.172 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:40.174 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=49 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:40.752 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:40.753 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=50 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:41.367 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:41.368 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=51 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:41.973 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:41.974 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=52 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:42.573 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:42.573 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=53 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:43.172 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:43.173 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=54 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:43.771 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:43.772 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=55 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:44.355 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:44.356 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=56 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:44.950 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:44.951 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=57 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:45.551 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:45.551 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=58 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:46.152 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:46.153 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=59 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:46.752 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:46.753 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=60 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:47.371 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:47.372 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=61 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:47.952 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:47.952 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=62 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:48.552 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:48.554 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=63 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:49.171 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:49.172 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=64 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:49.772 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:49.773 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=65 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:50.350 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:50.351 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=66 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:50.976 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:50.978 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=67 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:51.561 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:51.562 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=68 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:52.152 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:52.152 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=69 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:52.751 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:52.752 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=70 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:53.372 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:53.372 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=71 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:53.952 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:53.953 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=72 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:54.594 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:54.596 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=73 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:55.171 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:55.172 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=74 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:55.751 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:55.752 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=75 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:56.353 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:56.354 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=76 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:56.972 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:56.972 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=77 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:57.551 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:57.552 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=78 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:58.184 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:58.251 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=79 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:58.773 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:58.774 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=80 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:59.352 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:59.353 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=81 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:41:59.950 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:41:59.951 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=82 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:00.553 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:00.554 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=83 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:01.177 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:01.183 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=84 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:01.751 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:01.751 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=85 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:02.431 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:02.432 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=86 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:02.959 INFO  [Client] RLBotLogger - [IPC] Read action seq=750 -> action=2 (dir=/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-ipc)
+2025-11-12 16:42:02.959 INFO  [Client] RLBotLogger - [ChopTask] run() - ENTRY
+2025-11-12 16:42:02.960 INFO  [Client] RLBotLogger - [ChopTask] Found candidate tree with action 'Chop down' at WorldPoint(x=3155, y=3461, plane=0)
+2025-11-12 16:42:02.960 INFO  [Client] RLBotLogger - [TreeValidator] Found axe in weapon slot: Adamant axe
+2025-11-12 16:42:02.960 INFO  [Client] RLBotLogger - [ChopTask] run() - PATH: Attempt to click tree
+2025-11-12 16:42:02.960 INFO  [Client] RLBotLogger - [PROJECTION] Convex hull bounds: x=422, y=208, w=156, h=189
+2025-11-12 16:42:02.960 INFO  [Client] RLBotLogger - [PROJECTION] Candidate click point: (500,271)
+2025-11-12 16:42:02.960 INFO  [Client] RLBotLogger - [PROJECTION] Using candidate point (within viewport and hull)
+2025-11-12 16:42:02.960 INFO  [Client] RLBotLogger - [TreeClicker] Hovering toward java.awt.Point[x=500,y=271] for action="Chop down"
+2025-11-12 16:42:02.960 DEBUG [Client] RLBotLogger - [Mouse] smoothMouseMove to java.awt.Point[x=500,y=271]
+2025-11-12 16:42:02.962 INFO  [Client] RLBotLogger - [ChopTask] run() - SUCCESS: Tree clicked
+2025-11-12 16:42:02.963 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=87 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:03.110 WARN  [rlbot-tree-clicker] RLBotLogger - [TreeClicker] Falling back to blind click at java.awt.Point[x=500,y=271]
+2025-11-12 16:42:03.573 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:03.574 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=88 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:04.171 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:04.173 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=89 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:04.771 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:04.772 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=90 lastIdx=2 (ChopNearestTreeTask) r=1.69, done=false
+2025-11-12 16:42:05.365 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:05.368 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=91 lastIdx=2 (ChopNearestTreeTask) r=0.19, done=false
+2025-11-12 16:42:05.974 DEBUG [Client] RLBotLogger - [Context] Inventory: occupied=11, free=17
+2025-11-12 16:42:05.997 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:05.999 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=92 lastIdx=2 (ChopNearestTreeTask) r=2.24, done=false
+2025-11-12 16:42:06.585 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:06.586 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=93 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:07.178 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:07.179 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=94 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:07.874 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:07.876 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=95 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:08.370 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:08.371 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=96 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
+2025-11-12 16:42:08.950 DEBUG [Client] RLBotLogger - [IPC] No action pending
+2025-11-12 16:42:08.951 DEBUG [Client] RLBotLogger - [IPC] Published obs+done seq=97 lastIdx=2 (ChopNearestTreeTask) r=-0.01, done=false
