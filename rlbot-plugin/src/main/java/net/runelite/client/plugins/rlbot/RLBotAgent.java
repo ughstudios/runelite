@@ -137,9 +137,16 @@ public class RLBotAgent
         Integer requested = external.tryReadAction();
         if (requested == null)
         {
-            logger.debug("[IPC] No action pending");
+            // If no external action is requested, but we have a staged hover pending
+            // (e.g., bank click staged last tick), rerun the corresponding task
+            int bankIdx = indexOfTask(net.runelite.client.plugins.rlbot.tasks.BankDepositTask.class);
+            if (bankIdx >= 0 && net.runelite.client.plugins.rlbot.tasks.BankClicker.isPending())
+            {
+                requested = bankIdx;
+            }
         }
-        else
+
+        if (requested != null)
         {
             RLBotActionRunner.Result res = RLBotActionRunner.run(
                 tasks,
@@ -153,6 +160,10 @@ public class RLBotAgent
             {
                 addExternalPenalty(0.2f);
             }
+        }
+        else
+        {
+            logger.debug("[IPC] No action pending");
         }
 
         float reward = RLBotReward.compute(previousSnapshot, snapshot, previousWoodcutXp);
@@ -182,6 +193,18 @@ public class RLBotAgent
             // Clear last action to avoid leaking across episodes
             lastActionIndex = -1;
         }
+    }
+
+    private int indexOfTask(Class<? extends Task> cls)
+    {
+        for (int i = 0; i < tasks.size(); i++)
+        {
+            if (tasks.get(i).getClass() == cls)
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     // Action execution moved to RLBotActionRunner

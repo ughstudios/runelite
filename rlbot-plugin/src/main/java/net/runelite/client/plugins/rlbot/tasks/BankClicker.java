@@ -1,107 +1,169 @@
 package net.runelite.client.plugins.rlbot.tasks;
 
+import java.awt.Point;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import net.runelite.api.GameObject;
+import net.runelite.api.coords.WorldPoint;
 
 /**
- * Handles clicking on banks using the same simple approach as manual clicks (client thread + moveAndClickWithValidation).
+ * Hover-first, staged bank clicker mirroring TreeClicker.
  */
-public class BankClicker {
-    
-    private static final String[] BANK_ACTIONS = {"Bank", "Use", "Open", "Deposit"};
-    
-    /**
-     * Clicks a bank using the same simple approach as manual clicks (client thread + moveAndClickWithValidation).
-     */
-    public static boolean clickBank(TaskContext context, GameObject bank) {
-        if (bank == null) {
-            context.logger.info("[BankClicker] Bank is null, cannot click");
-            return false;
+public class BankClicker
+{
+    private static final String[] BANK_ACTIONS = {"Bank", "Open", "Use", "Deposit"};
+    private static final long HOVER_SETTLE_MS = 80L;
+    private static final long HOVER_TIMEOUT_MS = 2000L;
+
+    public enum Result { NONE, STAGED, CLICKED, FAILED }
+
+    private static Pending pending;
+
+    public static Result clickBank(TaskContext context, GameObject bank)
+    {
+        if (bank == null)
+        {
+            clear();
+            return Result.NONE;
         }
-        
-        context.logger.info("[BankClicker] Attempting to click bank at " + bank.getWorldLocation());
-        
-        try {
-            // Get bank composition and find bank action
+        if (pending != null && !pending.matches(bank))
+        {
+            clear();
+        }
+        if (pending != null)
+        {
+            return attemptClick(context, bank);
+        }
+        return stageHover(context, bank);
+    }
+
+    /**
+     * Returns true if a hover has been staged and a follow-up click should be executed on the next tick.
+     */
+    public static boolean isPending()
+    {
+        return pending != null;
+    }
+
+    private static Result stageHover(TaskContext context, GameObject bank)
+    {
+        String action = resolveAction(context, bank);
+        if (action == null)
+        {
+            return Result.NONE;
+        }
+        Point p = ObjectFinder.projectToClickablePoint(context, bank);
+        if (p == null || p.x < 0 || p.y < 0)
+        {
+            p = ObjectFinder.projectToCanvas(context, bank);
+        }
+        if (p == null)
+        {
+            context.logger.warn("[BankClicker] Cannot project bank to canvas");
+            return Result.NONE;
+        }
+        pending = new Pending(bank.getWorldLocation(), bank.getId(), new Point(p), action, System.currentTimeMillis());
+        context.logger.info("[BankClicker] Hover staged at " + pending.world + " targeting " + p + " action=\"" + action + "\"");
+        context.input.smoothMouseMove(p);
+        context.setBusyForMs(120);
+        return Result.STAGED;
+    }
+
+    private static Result attemptClick(TaskContext context, GameObject bank)
+    {
+        long now = System.currentTimeMillis();
+        if (now - pending.startedMs < HOVER_SETTLE_MS)
+        {
+            return Result.STAGED;
+        }
+        if (now - pending.startedMs > HOVER_TIMEOUT_MS)
+        {
+            context.logger.debug("[BankClicker] Hover timed out for " + pending.world);
+            clear();
+            return Result.FAILED;
+        }
+
+        // Try validated click
+        AtomicBoolean ok = new AtomicBoolean(false);
+        CountDownLatch latch = new CountDownLatch(1);
+        final Point at = new Point(pending.canvas);
+        final String label = pending.action;
+        context.clientThread.invoke(() -> {
+            try { ok.set(context.input.moveAndClickWithValidation(at, label)); }
+            finally { latch.countDown(); }
+        });
+        try { latch.await(400, TimeUnit.MILLISECONDS); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+        if (ok.get())
+        {
+            clear();
+            context.setBusyForMs(260);
+            return Result.CLICKED;
+        }
+
+        // Fallback: menu interact
+        AtomicBoolean interacted = new AtomicBoolean(false);
+        CountDownLatch latch2 = new CountDownLatch(1);
+        context.clientThread.invoke(() -> {
+            try { interacted.set(context.input.interactWithGameObject(bank, label)); }
+            finally { latch2.countDown(); }
+        });
+        try { latch2.await(300, TimeUnit.MILLISECONDS); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+        if (interacted.get())
+        {
+            clear();
+            context.setBusyForMs(260);
+            return Result.CLICKED;
+        }
+
+        // Last resort: blind click
+        boolean blind = context.input.clickAt(at);
+        clear();
+        if (blind)
+        {
+            context.setBusyForMs(220);
+            return Result.CLICKED;
+        }
+        return Result.FAILED;
+    }
+
+    private static String resolveAction(TaskContext context, GameObject bank)
+    {
+        try
+        {
             net.runelite.api.ObjectComposition comp = context.client.getObjectDefinition(bank.getId());
-            if (comp == null) {
-                context.logger.warn("[BankClicker] No object composition for bank");
-                return false;
-            }
-            
+            if (comp == null) return null;
             String[] actions = comp.getActions();
-            if (actions == null) {
-                context.logger.warn("[BankClicker] Bank has no actions");
-                return false;
-            }
-            
-            int bankIdx = -1;
-            String bankLabel = null;
-            for (int i = 0; i < actions.length; i++) {
-                String action = actions[i];
-                if (action != null && (action.toLowerCase().contains("bank") || action.toLowerCase().contains("use") || action.toLowerCase().contains("open") || action.toLowerCase().contains("deposit"))) {
-                    bankIdx = i;
-                    bankLabel = action;
-                    break;
+            if (actions == null) return null;
+            for (String pref : BANK_ACTIONS)
+            {
+                for (String a : actions)
+                {
+                    if (a != null && (a.equalsIgnoreCase(pref) || a.toLowerCase().contains(pref.toLowerCase())))
+                    {
+                        return a;
+                    }
                 }
             }
-            
-            if (bankIdx < 0) {
-                context.logger.warn("[BankClicker] No bank action found");
-                return false;
-            }
-            
-            context.logger.info("[BankClicker] Found bank action: " + bankLabel + " at index " + bankIdx);
-            
-            // Project to canvas point
-            java.awt.Point projPoint = ObjectFinder.projectToClickablePoint(context, bank);
-            if (projPoint == null || projPoint.x < 0 || projPoint.y < 0 || projPoint.x >= 765 || projPoint.y >= 503) {
-                projPoint = ObjectFinder.projectToCanvas(context, bank);
-            }
-            
-            if (projPoint == null) {
-                context.logger.warn("[BankClicker] Cannot project bank to canvas");
-                return false;
-            }
-            
-            context.logger.info("[BankClicker] Clicking at (" + projPoint.x + "," + projPoint.y + ") with action: " + bankLabel);
-            
-            // Use the same client-thread approach as manual clicks
-            final java.awt.Point finalClickPoint = projPoint;
-            final String finalBankLabel = bankLabel;
-            final java.util.concurrent.atomic.AtomicBoolean clickResult = new java.util.concurrent.atomic.AtomicBoolean(false);
-            final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
-            
-            context.clientThread.invoke(() -> {
-                try {
-                    boolean ok = context.input.moveAndClickWithValidation(finalClickPoint, finalBankLabel);
-                    clickResult.set(ok);
-                } catch (Exception e) {
-                    context.logger.warn("[BankClicker] moveAndClickWithValidation failed on client thread: " + e.getMessage());
-                    clickResult.set(false);
-                } finally {
-                    latch.countDown();
-                }
-            });
-            
-            // Wait briefly for the click to execute
-            try { 
-                latch.await(600, java.util.concurrent.TimeUnit.MILLISECONDS); 
-            } catch (InterruptedException ie) { 
-                Thread.currentThread().interrupt(); 
-            }
-            
-            if (clickResult.get()) {
-                context.logger.info("[BankClicker] Successfully clicked bank");
-                context.setBusyForMs(300);
-                return true;
-            } else {
-                context.logger.warn("[BankClicker] Click validation failed");
-                return false;
-            }
-            
-        } catch (Exception e) {
-            context.logger.warn("[BankClicker] Error during bank click: " + e.getMessage());
-            return false;
+        }
+        catch (Exception ignored) {}
+        return null;
+    }
+
+    private static void clear() { pending = null; }
+
+    private static final class Pending
+    {
+        final WorldPoint world;
+        final int id;
+        final Point canvas;
+        final String action;
+        final long startedMs;
+        Pending(WorldPoint w, int id, Point c, String a, long t) { this.world = w; this.id = id; this.canvas = c; this.action = a; this.startedMs = t; }
+        boolean matches(GameObject bank)
+        {
+            WorldPoint cur = bank.getWorldLocation();
+            return cur != null && cur.equals(world) && bank.getId() == id;
         }
     }
 }

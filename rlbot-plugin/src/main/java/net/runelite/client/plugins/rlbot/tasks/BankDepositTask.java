@@ -14,6 +14,8 @@ import net.runelite.api.widgets.WidgetInfo;
  */
 public class BankDepositTask implements Task
 {
+    // Revert to simple flow; no long-running async sequence here
+
     @Override
     public void run(TaskContext context)
     {
@@ -36,10 +38,30 @@ public class BankDepositTask implements Task
 
         BankDiscovery.scanAndDiscoverBanks(context);
         BankDiscovery.setLastTargetedBank(bankObject.getWorldLocation());
-        if (BankClicker.clickBank(context, bankObject))
+
+        // Staged hover -> click across ticks (mirrors TreeClicker flow)
+        BankClicker.Result clickRes = BankClicker.clickBank(context, bankObject);
+        if (clickRes == BankClicker.Result.STAGED)
         {
-            context.setBusyForMs(600);
+            // Hover staged this tick; click will occur on next tick
+            return;
         }
+        if (clickRes == BankClicker.Result.CLICKED)
+        {
+            context.setBusyForMs(300);
+            return;
+        }
+        // If projection failed or click failed, try direct menu interaction as a last resort
+        if (clickRes == BankClicker.Result.NONE || clickRes == BankClicker.Result.FAILED)
+        {
+            boolean interacted = context.input.interactWithGameObject(bankObject, "Bank");
+            if (interacted)
+            {
+                context.setBusyForMs(250);
+                return;
+            }
+        }
+        context.logger.warn("[BankDepositTask] Bank click failed (" + clickRes + ") and direct interact failed");
     }
 
     private void depositInventory(TaskContext context)
@@ -109,4 +131,6 @@ public class BankDepositTask implements Task
             return false;
         }
     }
+
+    // openAndDeposit flow removed; we rely on BankClicker and UI deposit
 }

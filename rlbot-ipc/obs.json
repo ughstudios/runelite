@@ -1,11 +1,10 @@
 {
-  "last_action_name": "ChopNearestTreeTask",
   "state": [
-    4.25,
+    7.0,
     0.0,
     0.0,
-    0.06666667,
-    0.93333334
+    0.33333334,
+    0.16666667
   ],
   "last_reward": -0.01,
   "state_names": [
@@ -15,8 +14,8 @@
     "tree_distance_norm",
     "bank_distance_norm"
   ],
-  "last_action_index": 2,
+  "last_action_index": -1,
   "done": false,
-  "seq": 97,
-  "timestamp": 1762994528951
+  "seq": 35,
+  "timestamp": 1762999119533
 }

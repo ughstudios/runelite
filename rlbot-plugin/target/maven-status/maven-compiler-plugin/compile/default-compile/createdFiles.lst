@@ -43,6 +43,7 @@ net/runelite/client/plugins/rlbot/tasks/RunHelper.class
 net/runelite/client/plugins/rlbot/tasks/CameraRotateLeftTask.class
 net/runelite/client/plugins/rlbot/input/ChatboxCollisionHandler$AdjustmentStrategy.class
 net/runelite/client/plugins/rlbot/tasks/IdleTask.class
+net/runelite/client/plugins/rlbot/tasks/BankClicker$Result.class
 net/runelite/client/plugins/rlbot/input/InputDispatcher.class
 net/runelite/client/plugins/rlbot/RLBotTelemetry.class
 net/runelite/client/plugins/rlbot/RLBotConfig.class
@@ -58,6 +59,7 @@ net/runelite/client/plugins/rlbot/tasks/TreeNavigator.class
 net/runelite/client/plugins/rlbot/tasks/BankClicker.class
 net/runelite/client/plugins/rlbot/input/RLBotInputHandler.class
 net/runelite/client/plugins/rlbot/input/MouseController.class
+net/runelite/client/plugins/rlbot/tasks/BankClicker$Pending.class
 net/runelite/client/plugins/rlbot/tasks/CameraRotateTask.class
 net/runelite/client/plugins/rlbot/tasks/MinimapPathing.class
 net/runelite/client/plugins/rlbot/tasks/context/MovementAnalyzer.class
