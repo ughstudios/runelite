@@ -23,9 +23,17 @@ public class TreeNavigator {
             return;
         }
         
+        // Refresh discovery so we have up-to-date hotspots
+        TreeDiscovery.scanAndDiscoverTrees(context);
         List<WorldPoint> availableTrees = TreeDiscovery.getAvailableTrees();
         if (!availableTrees.isEmpty()) {
-            WorldPoint targetTree = availableTrees.get((int)(Math.random() * availableTrees.size()));
+            // Prefer nearest available tree to ensure steady progress
+            WorldPoint targetTree = null;
+            int best = Integer.MAX_VALUE;
+            for (WorldPoint t : availableTrees) {
+                int d = playerPos.distanceTo(t);
+                if (d >= 0 && d < best) { best = d; targetTree = t; }
+            }
             context.logger.info("[TreeNavigator] Navigating to available tree at " + targetTree);
             WorldPathing.clickStepToward(context, targetTree, 6);
             context.setBusyForMs(500);

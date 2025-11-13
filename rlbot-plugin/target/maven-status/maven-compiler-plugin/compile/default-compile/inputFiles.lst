@@ -30,6 +30,7 @@
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/ObjectFinder.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/TreeValidator.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/RLBotAgent.java
+/Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/BankWhenFullTask.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/ObjectScanner.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/input/KeyboardController.java
 /Users/danielgleason/Desktop/Code/my_code/runescape_bot_runelite/rlbot-plugin/src/main/java/net/runelite/client/plugins/rlbot/tasks/context/InventoryTracker.java

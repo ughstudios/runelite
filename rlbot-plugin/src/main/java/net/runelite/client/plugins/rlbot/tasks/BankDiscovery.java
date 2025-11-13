@@ -22,8 +22,8 @@ public final class BankDiscovery
     private static final Set<WorldPoint> discoveredBanks = ConcurrentHashMap.newKeySet();
     private static final Set<WorldPoint> blacklistedBanks = ConcurrentHashMap.newKeySet();
     private static final Set<WorldPoint> excludedBanks = Set.of(
-        new WorldPoint(3148, 3449, 0), // cooking guild
-        new WorldPoint(3147, 3449, 0) // cooking guild
+        new WorldPoint(3148, 3449, 0), // cooking guild (exclude)
+        new WorldPoint(3147, 3449, 0)  // cooking guild (exclude)
     );
 
     private static volatile WorldPoint lastTargetedBank;
@@ -58,6 +58,11 @@ public final class BankDiscovery
                             {
                                 continue;
                             }
+                            // Ignore specific non-bank object ids that may be misclassified
+                            if (obj.getId() == 10529)
+                            {
+                                continue;
+                            }
                             ObjectComposition comp = ctx.client.getObjectDefinition(obj.getId());
                             if (comp == null)
                             {
@@ -75,16 +80,16 @@ public final class BankDiscovery
                             WorldPoint wp = obj.getWorldLocation();
                             if (wp != null)
                             {
-                                if (obj.getId() == 10583 && excludedBanks.contains(wp))
-                                {
-                                    continue;
-                                }
+                                // Exclude certain coordinates entirely regardless of object id
+                                if (isExcludedBankLocation(wp)) { continue; }
                                 discoveredBanks.add(wp);
                             }
                         }
                     }
                 }
             }
+            // Ensure excluded coordinates are not retained if they were previously discovered
+            discoveredBanks.removeIf(BankDiscovery::isExcludedBankLocation);
         }
         catch (Exception ignored)
         {
@@ -164,5 +169,10 @@ public final class BankDiscovery
     public static boolean isBlacklisted(WorldPoint location)
     {
         return location != null && blacklistedBanks.contains(location);
+    }
+
+    public static boolean isExcludedBankLocation(WorldPoint location)
+    {
+        return location != null && excludedBanks.contains(location);
     }
 }

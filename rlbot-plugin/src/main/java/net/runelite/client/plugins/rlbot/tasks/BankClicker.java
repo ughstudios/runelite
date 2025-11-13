@@ -60,7 +60,24 @@ public class BankClicker
         }
         if (p == null)
         {
-            context.logger.warn("[BankClicker] Cannot project bank to canvas");
+            // If projection fails (behind camera / off-viewport), try direct menu interaction first.
+            boolean interacted = context.input.interactWithGameObject(bank, action);
+            if (interacted)
+            {
+                context.logger.info("[BankClicker] Direct interact succeeded for action '" + action + "' (no projection)");
+                context.setBusyForMs(260);
+                return Result.CLICKED;
+            }
+            // Nudge camera to reveal the object, then retry on next tick
+            try
+            {
+                context.logger.debug("[BankClicker] Projection null; rotating camera slightly to reveal bank");
+                // small left tilt sequence to bring booth into view
+                context.input.rotateCameraLeftSmall();
+                context.input.tiltCameraUpSmall();
+                context.setBusyForMs(120);
+            }
+            catch (Exception ignored) {}
             return Result.NONE;
         }
         pending = new Pending(bank.getWorldLocation(), bank.getId(), new Point(p), action, System.currentTimeMillis());

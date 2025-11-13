@@ -1,8 +1,7 @@
 {
   "state_dim": 5,
   "actions": [
-    "BankDepositTask",
-    "NavigateToBankHotspotTask",
+    "BankWhenFullTask",
     "ChopNearestTreeTask",
     "NavigateToTreeHotspotTask",
     "IdleTask",

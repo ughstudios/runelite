@@ -55,6 +55,24 @@ class ActionIPC:
         os.replace(tmp, self.action_file)
         return self._seq
 
+    def find_index_by_name(self, name: str) -> int | None:
+        """Find action index by case-insensitive name or substring match."""
+        name = (name or "").strip().lower()
+        actions = self.load_actions()
+        if not actions or not name:
+            return None
+        # Prefer exact match, then startswith, then substring
+        for i, a in enumerate(actions):
+            if a.lower() == name:
+                return i
+        for i, a in enumerate(actions):
+            if a.lower().startswith(name):
+                return i
+        for i, a in enumerate(actions):
+            if name in a.lower():
+                return i
+        return None
+
 
 class PanelHandler(BaseHTTPRequestHandler):
     def __init__(self, ipc: ActionIPC, *args, **kwargs):
@@ -76,6 +94,16 @@ class PanelHandler(BaseHTTPRequestHandler):
                 return
             seq = self.ipc.send_action(index)
             self.send_json({"status": "ok", "seq": seq, "action": index})
+            return
+        if parsed.path == "/action_by_name":
+            params = urllib.parse.parse_qs(parsed.query)
+            name = (params.get("name") or [""])[0]
+            idx = self.ipc.find_index_by_name(name)
+            if idx is None:
+                self.send_json({"status": "error", "message": f"action not found: {name}"})
+                return
+            seq = self.ipc.send_action(int(idx))
+            self.send_json({"status": "ok", "seq": seq, "action": int(idx)})
             return
         if parsed.path == "/click":
             params = urllib.parse.parse_qs(parsed.query)
@@ -117,6 +145,16 @@ class PanelHandler(BaseHTTPRequestHandler):
                 f'<button data-idx="{idx}" class="action-btn">[{idx}] {name}</button>'
                 for idx, name in enumerate(actions)
             )
+        quick = """<div id=quick>
+  <h3>Quick Actions</h3>
+  <div class=quick-row>
+    <button class=\"q\" data-name=\"BankWhenFullTask\">Bank Now</button>
+    <button class=\"q\" data-name=\"ChopNearestTreeTask\">Chop Tree</button>
+    <button class=\"q\" data-name=\"NavigateToTreeHotspotTask\">Go To Trees</button>
+    <button class=\"q\" data-name=\"IdleTask\">Idle</button>
+  </div>
+  <p class=hint>Buttons resolve by name; they work even if indices change.</p>
+</div>"""
         html = f"""<!doctype html>
 <html>
 <head>
@@ -126,12 +164,16 @@ class PanelHandler(BaseHTTPRequestHandler):
     body {{ font-family: sans-serif; background: #1b1e23; color: #f0f0f0; margin: 1rem; }}
     .action-btn {{ margin: .25rem; padding: .5rem 1rem; border-radius: 4px; background: #2b6cb0; border: none; color: white; cursor: pointer; }}
     .action-btn:hover {{ background: #3182ce; }}
+    .q {{ margin: .25rem; padding: .5rem 1rem; border-radius: 4px; background: #805ad5; border: none; color: white; cursor: pointer; }}
+    .q:hover {{ background: #6b46c1; }}
     #status {{ margin-top: 1rem; color: #9ae6b4; }}
+    .hint {{ color: #a0aec0; font-size: .9rem; }}
   </style>
 </head>
 <body>
   <h1>RLBot Action Panel</h1>
   <p>IPC dir: {self.ipc.dir}</p>
+  {quick}
   <div id="buttons">{rows}</div>
   <h3>Manual click</h3>
   <label>X: <input id="click-x" type="number" value="500" /></label>
@@ -146,6 +188,18 @@ class PanelHandler(BaseHTTPRequestHandler):
         const data = await resp.json();
         if (data.status === "ok") {{
           document.getElementById("status").textContent = "sent seq=" + data.seq;
+        }} else {{
+          document.getElementById("status").textContent = "error: " + data.message;
+        }}
+      }});
+    }});
+    document.querySelectorAll(".q").forEach(btn => {{
+      btn.addEventListener("click", async () => {{
+        const name = btn.getAttribute("data-name");
+        const resp = await fetch("/action_by_name?name=" + encodeURIComponent(name));
+        const data = await resp.json();
+        if (data.status === "ok") {{
+          document.getElementById("status").textContent = name + " -> seq=" + data.seq + " (idx=" + data.action + ")";
         }} else {{
           document.getElementById("status").textContent = "error: " + data.message;
         }}

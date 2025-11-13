@@ -19,14 +19,16 @@ public class BankDepositTask implements Task
     @Override
     public void run(TaskContext context)
     {
-        if (context.isBusy() && !context.timedOutSince(3000))
-        {
-            return;
-        }
-
+        // If bank UI is already open, deposit immediately even if we're "busy"
         if (isBankOpen(context))
         {
             depositInventory(context);
+            return;
+        }
+
+        // Otherwise, respect busy lock to let movement/camera settle
+        if (context.isBusy() && !context.timedOutSince(3000))
+        {
             return;
         }
 
@@ -68,12 +70,18 @@ public class BankDepositTask implements Task
     {
         if (context.getInventoryFreeSlots() == 28)
         {
-            // Inventory already empty – close the bank UI.
-            if (!UiHelper.closeBankMainById(context, WidgetInfo.BANK_CONTAINER.getId()))
+            // Inventory already empty – perform a post-deposit widget click as requested (id=786434).
+            final int POST_DEPOSIT_WIDGET_ID = 786434; // group<<16 | child
+            boolean clickedWidget = clickWidgetById(context, POST_DEPOSIT_WIDGET_ID);
+            if (!clickedWidget)
             {
-                if (!UiHelper.clickCloseIfVisible(context))
+                // Fallback: close the bank UI as before if widget is unavailable
+                if (!UiHelper.closeBankMainById(context, WidgetInfo.BANK_CONTAINER.getId()))
                 {
-                    context.input.pressKey(KeyEvent.VK_ESCAPE);
+                    if (!UiHelper.clickCloseIfVisible(context))
+                    {
+                        context.input.pressKey(KeyEvent.VK_ESCAPE);
+                    }
                 }
             }
             context.setBusyForMs(200);
@@ -116,6 +124,45 @@ public class BankDepositTask implements Task
             {
                 context.logger.warn("[BankDeposit] Fallback click failed at " + p);
             }
+        }
+    }
+
+    private boolean clickWidgetById(TaskContext context, int widgetId)
+    {
+        try
+        {
+            Widget w = context.client.getWidget(widgetId);
+            if (w == null || w.isHidden())
+            {
+                context.logger.debug("[BankDeposit] Post-deposit widget not available: id=" + widgetId);
+                return false;
+            }
+            Rectangle bounds = w.getBounds();
+            // Attempt a direct CC_OP first (left click action)
+            context.clientThread.invoke(() -> {
+                try
+                {
+                    context.client.menuAction(-1, widgetId, MenuAction.CC_OP, 1, -1, "", "");
+                }
+                catch (Exception e)
+                {
+                    context.logger.warn("[BankDeposit] menuAction CC_OP failed for widget " + widgetId + ": " + e.getMessage());
+                }
+            });
+            context.setBusyForMs(120);
+            if (bounds != null && bounds.width > 0 && bounds.height > 0)
+            {
+                // Also click the center as a best-effort to ensure activation
+                java.awt.Point p = new java.awt.Point(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+                context.input.smoothMouseMove(p);
+                context.input.clickAt(p);
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            context.logger.warn("[BankDeposit] Error clicking widget id=" + widgetId + ": " + e.getMessage());
+            return false;
         }
     }
 

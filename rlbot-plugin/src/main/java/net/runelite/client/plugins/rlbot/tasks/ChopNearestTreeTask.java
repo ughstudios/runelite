@@ -6,6 +6,7 @@ import net.runelite.api.GameObject;
  * Orchestrates tree chopping by delegating to specialized classes.
  */
 public class ChopNearestTreeTask implements Task {
+    private final NavigateToTreeHotspotTask navigateToTrees = new NavigateToTreeHotspotTask();
 
     @Override
     public void run(TaskContext context) {
@@ -22,13 +23,16 @@ public class ChopNearestTreeTask implements Task {
         }
         
         int wcLevel = getWoodcuttingLevel(context);
+        // Keep tree discovery fresh so navigation has targets when none are in immediate view
+        TreeDiscovery.scanAndDiscoverTrees(context);
         String[] allowedTrees = TreeDiscovery.allowedTreeNamesForLevel(wcLevel);
         
         GameObject tree = findValidTree(context, allowedTrees);
         
         if (tree == null || TreeDiscovery.isDepleted(tree.getWorldLocation())) {
-            context.logger.info("[ChopTask] run() - PATH: Navigate to trees");
-            TreeNavigator.navigateToTrees(context);
+            context.logger.info("[ChopTask] run() - PATH: Navigate to trees (fallback)");
+            // Delegate to the navigation task which continuously discovers new trees
+            navigateToTrees.run(context);
             return;
         }
         

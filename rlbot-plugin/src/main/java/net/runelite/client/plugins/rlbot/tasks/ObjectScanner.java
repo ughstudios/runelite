@@ -68,6 +68,17 @@ final class ObjectScanner {
             if (tile == null) continue;
             for (GameObject go : tile.getGameObjects()) {
                 if (go == null) continue;
+                // Explicitly ignore known non-bank object ids that can be misclassified
+                if (go.getId() == 10529) { // not a real bank interactable
+                    continue;
+                }
+                // Exclude specific coordinates that should never count as banks
+                try {
+                    WorldPoint wp = go.getWorldLocation();
+                    if (net.runelite.client.plugins.rlbot.tasks.BankDiscovery.isExcludedBankLocation(wp)) {
+                        continue;
+                    }
+                } catch (Exception ignored) {}
                 ObjectComposition comp = client.getObjectDefinition(go.getId()); if (comp == null) continue;
                 String name = comp.getName(); if (name == null) continue; String lower = name.toLowerCase();
                 boolean looksBank = lower.contains("bank booth") || lower.contains("bank chest") || lower.contains("bank deposit") || lower.equals("bank") || lower.contains("deposit box");
@@ -80,4 +91,3 @@ final class ObjectScanner {
         return best;
     }
 }
-

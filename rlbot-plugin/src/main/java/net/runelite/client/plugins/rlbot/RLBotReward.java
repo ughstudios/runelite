@@ -39,7 +39,15 @@ final class RLBotReward
             reward -= 0.2f;
         }
 
-        if (cur.woodcutting)
+        if (cur.needsBank())
+        {
+            // Strongly discourage continuing to chop when we need to bank.
+            if (cur.woodcutting)
+            {
+                reward -= 0.4f;
+            }
+        }
+        else if (cur.woodcutting)
         {
             reward += 0.2f;
             if (!prev.woodcutting)
@@ -80,4 +88,3 @@ final class RLBotReward
         return reward;
     }
 }
-

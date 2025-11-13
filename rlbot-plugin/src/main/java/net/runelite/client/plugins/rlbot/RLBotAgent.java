@@ -19,6 +19,7 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.plugins.rlbot.input.RLBotInputHandler;
 import net.runelite.client.plugins.rlbot.ipc.ExternalControlBridge;
 import net.runelite.client.plugins.rlbot.tasks.BankDepositTask;
+import net.runelite.client.plugins.rlbot.tasks.BankWhenFullTask;
 import net.runelite.client.plugins.rlbot.tasks.CameraRotateLeftTask;
 import net.runelite.client.plugins.rlbot.tasks.CameraRotateRightTask;
 import net.runelite.client.plugins.rlbot.tasks.CameraZoomInTask;
@@ -81,8 +82,9 @@ public class RLBotAgent
         this.telemetry = telemetry;
         this.taskContext = new TaskContext(client, clientThread, logger, inputHandler, config, telemetry);
         this.tasks = new ArrayList<>();
-        tasks.add(new BankDepositTask());
-        tasks.add(new NavigateToBankHotspotTask());
+        // Combine bank navigation + deposit into a single macro to reduce
+        // dithering between two separate actions.
+        tasks.add(new BankWhenFullTask());
         tasks.add(new ChopNearestTreeTask());
         tasks.add(new NavigateToTreeHotspotTask());
         tasks.add(new IdleTask());
@@ -138,11 +140,29 @@ public class RLBotAgent
         if (requested == null)
         {
             // If no external action is requested, but we have a staged hover pending
-            // (e.g., bank click staged last tick), rerun the corresponding task
-            int bankIdx = indexOfTask(net.runelite.client.plugins.rlbot.tasks.BankDepositTask.class);
-            if (bankIdx >= 0 && net.runelite.client.plugins.rlbot.tasks.BankClicker.isPending())
+            // (e.g., bank click staged last tick), rerun the corresponding task.
+            int bankFlowIdx = indexOfTask(net.runelite.client.plugins.rlbot.tasks.BankWhenFullTask.class);
+            if (bankFlowIdx < 0)
             {
-                requested = bankIdx;
+                bankFlowIdx = indexOfTask(net.runelite.client.plugins.rlbot.tasks.BankDepositTask.class);
+            }
+            if (bankFlowIdx >= 0)
+            {
+                boolean driveBankFlow = net.runelite.client.plugins.rlbot.tasks.BankClicker.isPending();
+                if (!driveBankFlow)
+                {
+                    try {
+                        net.runelite.client.plugins.rlbot.tasks.Task t = tasks.get(bankFlowIdx);
+                        if (t instanceof net.runelite.client.plugins.rlbot.tasks.BankWhenFullTask)
+                        {
+                            driveBankFlow = ((net.runelite.client.plugins.rlbot.tasks.BankWhenFullTask) t).isActive();
+                        }
+                    } catch (Exception ignored) {}
+                }
+                if (driveBankFlow)
+                {
+                    requested = bankFlowIdx;
+                }
             }
         }
 
