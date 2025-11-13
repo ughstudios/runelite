@@ -8,16 +8,16 @@ import net.runelite.api.GameObject;
 import net.runelite.api.coords.WorldPoint;
 
 /**
- * Handles clicking on trees for woodcutting.
+ * Handles interacting with trees using a hover-first, multi-tick flow.
  */
 public class TreeClicker
 {
     private static final long HOVER_SETTLE_MS = 80L;
-    private static final long HOVER_TIMEOUT_MS = 5000L;
+    private static final long HOVER_TIMEOUT_MS = 2000L;
 
     private static PendingHover pendingHover;
 
-    enum Result
+    public enum Result
     {
         NONE,
         STAGED,
@@ -33,7 +33,7 @@ public class TreeClicker
             return Result.NONE;
         }
 
-        if (pendingHover != null && !isSameTarget(tree))
+        if (pendingHover != null && !pendingHover.matches(tree))
         {
             clearPending();
         }
@@ -58,6 +58,7 @@ public class TreeClicker
             context.logger.warn("[TreeClicker] Cannot project tree to canvas");
             return Result.NONE;
         }
+
         String action = resolveTreeAction(context, tree);
         Point targetCanvasPoint = new Point(clickPoint);
         pendingHover = new PendingHover(tree.getWorldLocation(), tree.getId(), targetCanvasPoint, action, System.currentTimeMillis());
@@ -82,12 +83,6 @@ public class TreeClicker
             return Result.STAGED;
         }
 
-        if (context.input.isClickInProgress())
-        {
-            context.logger.debug("[TreeClicker] Click already in progress");
-            return Result.STAGED;
-        }
-
         if (now - pendingHover.startedMs > HOVER_TIMEOUT_MS)
         {
             context.logger.debug("[TreeClicker] Hover timed out for " + pendingHover.worldPoint);
@@ -95,7 +90,6 @@ public class TreeClicker
             return Result.FAILED;
         }
 
-        // 1) Preferred: move + validated click
         boolean clicked = context.input.moveAndClickWithValidation(pendingHover.canvasPoint, pendingHover.actionLabel);
         if (clicked)
         {
@@ -104,40 +98,36 @@ public class TreeClicker
             return Result.CLICKED;
         }
 
-        context.logger.warn("[TreeClicker] Validated click failed; trying menu action for '" + pendingHover.actionLabel + "'");
-        AtomicBoolean interactResult = new AtomicBoolean(false);
+        context.logger.warn("[TreeClicker] Validated click failed; falling back to interaction for '" + pendingHover.actionLabel + "'");
+        AtomicBoolean interactSuccess = new AtomicBoolean(false);
         CountDownLatch latch = new CountDownLatch(1);
         context.clientThread.invoke(() -> {
             try
             {
-                interactResult.set(context.input.interactWithGameObject(tree, pendingHover.actionLabel));
+                interactSuccess.set(context.input.interactWithGameObject(tree, pendingHover.actionLabel));
             }
             finally
             {
                 latch.countDown();
             }
         });
-
         try
         {
-            latch.await(150, TimeUnit.MILLISECONDS);
+            latch.await(250, TimeUnit.MILLISECONDS);
         }
-        catch (InterruptedException ie)
+        catch (InterruptedException interrupted)
         {
             Thread.currentThread().interrupt();
         }
 
-        boolean interacted = interactResult.get();
-        if (interacted)
+        if (interactSuccess.get())
         {
-            context.logger.info("[TreeClicker] Menu interact succeeded for '" + pendingHover.actionLabel + "'");
             clearPending();
             context.setBusyForMs(220);
             return Result.CLICKED;
         }
 
-        // 3) Last resort: blind click at the staged canvas point
-        context.logger.warn("[TreeClicker] Menu interact failed; blind-clicking at " + pendingHover.canvasPoint);
+        context.logger.warn("[TreeClicker] Interaction fallback failed; executing blind click");
         boolean blind = context.input.clickAt(pendingHover.canvasPoint);
         clearPending();
         if (blind)
@@ -146,23 +136,8 @@ public class TreeClicker
             return Result.CLICKED;
         }
 
+        context.logger.error("[TreeClicker] All click attempts failed");
         return Result.FAILED;
-    }
-
-    private static boolean isSameTarget(GameObject tree)
-    {
-        if (pendingHover == null)
-        {
-            return false;
-        }
-
-        WorldPoint current = tree.getWorldLocation();
-        return current != null && current.equals(pendingHover.worldPoint);
-    }
-
-    private static void clearPending()
-    {
-        pendingHover = null;
     }
 
     private static String resolveTreeAction(TaskContext context, GameObject tree)
@@ -204,6 +179,11 @@ public class TreeClicker
         return false;
     }
 
+    private static void clearPending()
+    {
+        pendingHover = null;
+    }
+
     private static final class PendingHover
     {
         private final WorldPoint worldPoint;
@@ -219,6 +199,12 @@ public class TreeClicker
             this.canvasPoint = canvasPoint;
             this.actionLabel = actionLabel;
             this.startedMs = startedMs;
+        }
+
+        private boolean matches(GameObject tree)
+        {
+            WorldPoint current = tree.getWorldLocation();
+            return current != null && current.equals(worldPoint) && tree.getId() == treeId;
         }
     }
 }
