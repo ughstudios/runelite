@@ -6,14 +6,10 @@ import net.runelite.api.GameObject;
  * Orchestrates tree chopping by delegating to specialized classes.
  */
 public class ChopNearestTreeTask implements Task {
-    private static long lastInvokeMs = 0L;
-    private static int recentInvokeFailures = 0;
 
     @Override
     public void run(TaskContext context) {
         context.logger.info("[ChopTask] run() - ENTRY");
-        
-        lastInvokeMs = System.currentTimeMillis();
         
         if (context.isBusy() && !context.timedOutSince(4000)) {
             context.logger.info("[ChopTask] run() - EXIT (busy)");
@@ -43,10 +39,14 @@ public class ChopNearestTreeTask implements Task {
         }
         
         context.logger.info("[ChopTask] run() - PATH: Attempt to click tree");
-        boolean clicked = TreeClicker.clickTree(context, tree);
+        TreeClicker.Result clickResult = TreeClicker.clickTree(context, tree);
         
-        if (clicked) {
+        if (clickResult == TreeClicker.Result.CLICKED) {
             context.logger.info("[ChopTask] run() - SUCCESS: Tree clicked");
+            return;
+        }
+        
+        if (clickResult == TreeClicker.Result.STAGED) {
             return;
         }
         
@@ -54,12 +54,9 @@ public class ChopNearestTreeTask implements Task {
             context.logger.info("[ChopTask] run() - PATH: Camera adjustment");
             return;
         }
-        
-        context.logger.warn("[ChopTask] run() - PATH: Mark tree as depleted");
-        TreeDiscovery.markDepleted(tree.getWorldLocation());
-        
-        if (!context.isWoodcuttingAnim()) {
-            handleRecovery(context);
+
+        if (clickResult == TreeClicker.Result.FAILED) {
+            context.logger.warn("[ChopTask] run() - PATH: Click validation failed");
         }
     }
     
@@ -83,20 +80,5 @@ public class ChopNearestTreeTask implements Task {
         }
         
         return null;
-    }
-    
-    private void handleRecovery(TaskContext context) {
-        long now = System.currentTimeMillis();
-        if (now - lastInvokeMs < 4500L) {
-            recentInvokeFailures++;
-        } else {
-            recentInvokeFailures = 0;
-        }
-        
-        if (recentInvokeFailures >= 3) {
-            context.logger.info("[ChopTask] run() - PATH: Recovery movement");
-            TreeNavigator.performRecoveryMovement(context);
-            recentInvokeFailures = 0;
-        }
     }
 }

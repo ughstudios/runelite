@@ -136,20 +136,35 @@ public class RLBotInputHandler
         mouse.click();
     }
 
-    public void clickAt(Point canvasPoint)
+    public boolean clickAt(Point canvasPoint)
     {
+        if (canvasPoint == null)
+        {
+            logger.warn("clickAt invoked with null point");
+            return false;
+        }
         // best-effort chat collision handling
         if (chatboxCollisionHandler != null)
         {
             try { chatboxCollisionHandler.handleChatboxCollision(canvasPoint, null, "click"); }
             catch (Exception ignored) {}
         }
-        mouse.clickAt(canvasPoint);
+        boolean dispatched = dispatch.dispatchDirectClick(canvasPoint);
+        if (!dispatched)
+        {
+            logger.warn("Direct click dispatch failed at " + canvasPoint);
+        }
+        return dispatched;
     }
 
-    public void interactWithGameObject(net.runelite.api.GameObject gameObject, String action)
+    public boolean interactWithGameObject(net.runelite.api.GameObject gameObject, String action)
     {
-        if (interactions != null) { interactions.interactWithGameObject(gameObject, action); }
+        return interactions != null && interactions.interactWithGameObject(gameObject, action);
+    }
+
+    public boolean interactWithGameObject(net.runelite.api.GameObject gameObject, int actionIndex, String label)
+    {
+        return interactions != null && interactions.interactWithGameObject(gameObject, actionIndex, label);
     }
 
     public void rightClick()

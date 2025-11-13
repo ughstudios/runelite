@@ -82,11 +82,16 @@ final class MinimapPathing {
             ctx.logger.info("[Minimap] Clicking minimap at (" + screenPoint.x + "," + screenPoint.y + ") toward target (" + target.getX() + "," + target.getY() + ")");
             // Move and click using input handler; do not validate against world actions for minimap
             ctx.input.smoothMouseMove(screenPoint);
-            ctx.input.clickAt(screenPoint);
-            ctx.setBusyForMs(600);
+            if (ctx.input.clickAt(screenPoint))
+            {
+                ctx.setBusyForMs(600);
+            }
+            else
+            {
+                ctx.logger.warn("[Minimap] Minimap click dispatch failed at " + screenPoint);
+            }
         } catch (Exception e) {
             ctx.logger.error("[Minimap] Error clicking minimap: " + e.getMessage());
         }
     }
 }
-

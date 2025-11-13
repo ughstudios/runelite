@@ -1,0 +1,30 @@
+// Welcome to the RuneLite Development Shell
+// Everything executed here runs on the client thread by default.
+// By default client, clientThread, configManager and log are in scope
+// You can subscribe to the Event Bus by using subscribe(Event.class, ev -> handler);
+// and you can access things in the global injector module with var thing = inject(Thing.class);
+// Press Ctrl+R or F10 to execute the contents of this editor
+
+log.info("Hello {}", client.getGameState());
+
+import java.awt.Canvas;
+import java.awt.Point;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
+import javax.swing.SwingUtilities;
+
+Canvas canvas = client.getCanvas();
+
+Point target = new Point(550, 259); // change to desired canvas coordinates
+long now = System.currentTimeMillis();
+MouseEvent move = new MouseEvent(canvas, MouseEvent.MOUSE_MOVED, now, 0, target.x, target.y, 0, false, 0);
+MouseEvent press = new MouseEvent(canvas, MouseEvent.MOUSE_PRESSED, now + 5, InputEvent.BUTTON1_DOWN_MASK, target.x, target.y, 1, false, MouseEvent.BUTTON1);
+MouseEvent release = new MouseEvent(canvas, MouseEvent.MOUSE_RELEASED, now + 55, InputEvent.BUTTON1_DOWN_MASK, target.x, target.y, 1, false, MouseEvent.BUTTON1);
+MouseEvent click = new MouseEvent(canvas, MouseEvent.MOUSE_CLICKED, now + 56, InputEvent.BUTTON1_DOWN_MASK, target.x, target.y, 1, false, MouseEvent.BUTTON1);
+
+try { SwingUtilities.invokeAndWait(() -> canvas.dispatchEvent(move)); } catch (Exception ignored) {}
+try { SwingUtilities.invokeAndWait(() -> canvas.dispatchEvent(press)); } catch (Exception ignored) {}
+try { SwingUtilities.invokeAndWait(() -> canvas.dispatchEvent(release)); } catch (Exception ignored) {}
+try { SwingUtilities.invokeAndWait(() -> canvas.dispatchEvent(click)); } catch (Exception ignored) {}
+
+log.info("Clicked at {}", target);

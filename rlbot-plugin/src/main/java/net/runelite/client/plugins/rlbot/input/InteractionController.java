@@ -109,15 +109,24 @@ final class InteractionController
         return true;
     }
 
-    void interactWithGameObject(GameObject gameObject, String action)
+    boolean interactWithGameObject(GameObject gameObject, String action)
     {
+        if (gameObject == null)
+        {
+            logger.warn("[InteractionController] Cannot interact with null GameObject");
+            return false;
+        }
+
+        java.util.concurrent.atomic.AtomicBoolean success = new java.util.concurrent.atomic.AtomicBoolean(false);
+        CountDownLatch latch = new CountDownLatch(1);
+
         clientThread.invoke(() -> {
             try
             {
                 net.runelite.api.ObjectComposition composition = client.getObjectDefinition(gameObject.getId());
-                if (composition == null) { return; }
+                if (composition == null) { logger.warn("[InteractionController] No composition for object id=" + gameObject.getId()); return; }
                 String[] actions = composition.getActions();
-                if (actions == null) { return; }
+                if (actions == null) { logger.warn("[InteractionController] No actions for object id=" + gameObject.getId()); return; }
                 int actionIndex = -1;
                 String desired = action == null ? "" : action.trim();
                 String[] synonyms;
@@ -144,7 +153,7 @@ final class InteractionController
                     }
                     if (actionIndex != -1) { break; }
                 }
-                if (actionIndex == -1) { return; }
+                if (actionIndex == -1) { logger.warn("[InteractionController] Action not found for '" + action + "' on id=" + gameObject.getId()); return; }
                 net.runelite.api.MenuAction menuAction;
                 switch (actionIndex)
                 {
@@ -157,13 +166,98 @@ final class InteractionController
                 }
                 net.runelite.api.coords.WorldPoint wp = gameObject.getWorldLocation();
                 net.runelite.api.coords.LocalPoint lp = net.runelite.api.coords.LocalPoint.fromWorld(client, wp);
-                if (lp == null) { return; }
+                if (lp == null) { logger.warn("[InteractionController] LocalPoint null for object at " + wp); return; }
                 int sceneX = lp.getSceneX();
                 int sceneY = lp.getSceneY();
                 client.menuAction(sceneX, sceneY, menuAction, gameObject.getId(), 0, desired, "");
+                success.set(true);
             }
-            catch (Exception ignored) {}
+            catch (Exception e)
+            {
+                logger.warn("[InteractionController] interactWithGameObject failed: " + e.getMessage());
+            }
+            finally
+            {
+                latch.countDown();
+            }
         });
+
+        try
+        {
+            latch.await(150, TimeUnit.MILLISECONDS);
+        }
+        catch (InterruptedException ie)
+        {
+            Thread.currentThread().interrupt();
+        }
+
+        return success.get();
+    }
+
+    /**
+     * Directly invoke a game object action by index (0..4), bypassing name matching.
+     * Returns true if the menu action was queued on the client thread.
+     */
+    boolean interactWithGameObject(GameObject gameObject, int actionIndex, String label)
+    {
+        if (gameObject == null)
+        {
+            logger.warn("[InteractionController] Cannot interact (index) with null GameObject");
+            return false;
+        }
+        if (actionIndex < 0 || actionIndex > 4)
+        {
+            logger.warn("[InteractionController] Invalid action index: " + actionIndex);
+            return false;
+        }
+
+        java.util.concurrent.atomic.AtomicBoolean success = new java.util.concurrent.atomic.AtomicBoolean(false);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        clientThread.invoke(() -> {
+            try
+            {
+                net.runelite.api.MenuAction menuAction;
+                switch (actionIndex)
+                {
+                    case 0: menuAction = net.runelite.api.MenuAction.GAME_OBJECT_FIRST_OPTION; break;
+                    case 1: menuAction = net.runelite.api.MenuAction.GAME_OBJECT_SECOND_OPTION; break;
+                    case 2: menuAction = net.runelite.api.MenuAction.GAME_OBJECT_THIRD_OPTION; break;
+                    case 3: menuAction = net.runelite.api.MenuAction.GAME_OBJECT_FOURTH_OPTION; break;
+                    case 4: menuAction = net.runelite.api.MenuAction.GAME_OBJECT_FIFTH_OPTION; break;
+                    default: return; // should be unreachable due to guard above
+                }
+                net.runelite.api.coords.WorldPoint wp = gameObject.getWorldLocation();
+                net.runelite.api.coords.LocalPoint lp = net.runelite.api.coords.LocalPoint.fromWorld(client, wp);
+                if (lp == null)
+                {
+                    logger.warn("[InteractionController] LocalPoint null for object at " + wp);
+                    return;
+                }
+                int sceneX = lp.getSceneX();
+                int sceneY = lp.getSceneY();
+                String option = (label == null) ? "" : label;
+                client.menuAction(sceneX, sceneY, menuAction, gameObject.getId(), 0, option, "");
+                success.set(true);
+            }
+            catch (Exception e)
+            {
+                logger.warn("[InteractionController] interactWithGameObject(index) failed: " + e.getMessage());
+            }
+            finally
+            {
+                latch.countDown();
+            }
+        });
+
+        try
+        {
+            latch.await(150, TimeUnit.MILLISECONDS);
+        }
+        catch (InterruptedException ie)
+        {
+            Thread.currentThread().interrupt();
+        }
+        return success.get();
     }
 }
-

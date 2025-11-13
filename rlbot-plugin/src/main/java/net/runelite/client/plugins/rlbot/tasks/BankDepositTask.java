@@ -86,8 +86,14 @@ public class BankDepositTask implements Task
             Rectangle b = depositAll.getBounds();
             java.awt.Point p = new java.awt.Point(b.x + b.width / 2, b.y + b.height / 2);
             context.input.smoothMouseMove(p);
-            context.input.clickAt(p);
-            context.setBusyForMs(400);
+            if (context.input.clickAt(p))
+            {
+                context.setBusyForMs(400);
+            }
+            else
+            {
+                context.logger.warn("[BankDeposit] Fallback click failed at " + p);
+            }
         }
     }
 

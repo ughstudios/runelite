@@ -54,21 +54,30 @@ public class RLBotCursorOverlay extends Overlay
         }
 
         Point mousePos = null;
-        try
-        {
-            net.runelite.api.Point p = client.getMouseCanvasPosition();
-            if (p != null)
-            {
-                mousePos = new Point(p.getX(), p.getY());
-            }
-        }
-        catch (Exception ignored)
-        {
-        }
 
-        if (mousePos == null)
+        // Prefer synthetic (bot-driven) location so overlay reflects bot movement
+        Point synthetic = plugin.getLastSyntheticMouseLocation();
+        if (synthetic != null)
         {
-            mousePos = plugin.getLastMouseLocation();
+            mousePos = new Point(synthetic);
+        }
+        else
+        {
+            try
+            {
+                net.runelite.api.Point p = client.getMouseCanvasPosition();
+                if (p != null)
+                {
+                    mousePos = new Point(p.getX(), p.getY());
+                }
+            }
+            catch (Exception ignored) {}
+
+            if (mousePos == null)
+            {
+                // Fallback to last known (may be system-location-based)
+                mousePos = plugin.getLastMouseLocation();
+            }
         }
         if (mousePos == null) {
             try {

@@ -73,7 +73,6 @@ final class MouseController
                     Point stepPoint = new Point(x, y);
                     dispatch.dispatchMouseMove(canvas, stepPoint);
                     lastCanvasMovePoint = stepPoint;
-                    try { Thread.sleep(8); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
                 }
             }
             finally
@@ -96,6 +95,18 @@ final class MouseController
         {
             try { SwingUtilities.invokeAndWait(() -> { /* flush */ }); } catch (Exception ignored) {}
         }
+    }
+
+    void moveSync(Point canvasPoint)
+    {
+        Canvas canvas = dispatch.getCanvas();
+        if (canvas == null)
+        {
+            logger.error("[Mouse] Canvas is null, cannot moveSync");
+            return;
+        }
+        dispatch.dispatchMouseMoveSync(canvas, canvasPoint);
+        lastCanvasMovePoint = canvasPoint;
     }
 
     void click()
@@ -142,16 +153,37 @@ final class MouseController
                 logger.error("[Mouse] Canvas is null, cannot clickAt");
                 return;
             }
-            dispatch.dispatchMouseMove(canvas, canvasPoint);
-            if (!SwingUtilities.isEventDispatchThread())
-            {
-                try { SwingUtilities.invokeAndWait(() -> { /* flush */ }); } catch (Exception ignored) {}
-            }
-            dispatch.dispatchMouseClick(canvas, canvasPoint);
+            dispatch.dispatchMouseMoveSync(canvas, canvasPoint);
+            dispatch.dispatchMouseClickSync(canvas, canvasPoint);
             lastCanvasMovePoint = null;
         }, "rlbot-click");
         clicker.setDaemon(true);
         clicker.start();
+    }
+
+    void clickAtSync(Point canvasPoint)
+    {
+        Canvas canvas = dispatch.getCanvas();
+        if (canvas == null)
+        {
+            logger.error("[Mouse] Canvas is null, cannot clickAtSync");
+            return;
+        }
+        // Only click; use moveSync first if you need to reposition
+        dispatch.dispatchMouseClickSync(canvas, canvasPoint);
+        lastCanvasMovePoint = null;
+    }
+
+    void clickOnlySync(Point canvasPoint)
+    {
+        Canvas canvas = dispatch.getCanvas();
+        if (canvas == null)
+        {
+            logger.error("[Mouse] Canvas is null, cannot clickOnlySync");
+            return;
+        }
+        dispatch.dispatchMouseClickSync(canvas, canvasPoint);
+        lastCanvasMovePoint = null;
     }
 
     void rightClickCurrent()
@@ -189,4 +221,3 @@ final class MouseController
         return null;
     }
 }
-

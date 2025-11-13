@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import socket
+import time
 import urllib.parse
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -76,6 +77,18 @@ class PanelHandler(BaseHTTPRequestHandler):
             seq = self.ipc.send_action(index)
             self.send_json({"status": "ok", "seq": seq, "action": index})
             return
+        if parsed.path == "/click":
+            params = urllib.parse.parse_qs(parsed.query)
+            try:
+                x = int(params.get("x", [None])[0])
+                y = int(params.get("y", [None])[0])
+            except Exception:
+                self.send_json({"status": "error", "message": "invalid coordinates"})
+                return
+            click_file = self.ipc.dir / "click_request.json"
+            click_file.write_text(json.dumps({"x": x, "y": y, "ts": int(time.time())}))
+            self.send_json({"status": "ok", "coords": [x, y]})
+            return
         self.send_response(404)
         self.end_headers()
 
@@ -120,6 +133,10 @@ class PanelHandler(BaseHTTPRequestHandler):
   <h1>RLBot Action Panel</h1>
   <p>IPC dir: {self.ipc.dir}</p>
   <div id="buttons">{rows}</div>
+  <h3>Manual click</h3>
+  <label>X: <input id="click-x" type="number" value="500" /></label>
+  <label>Y: <input id="click-y" type="number" value="360" /></label>
+  <button id="click-btn">Click at coords</button>
   <p id="status">Ready</p>
   <script>
     document.querySelectorAll(".action-btn").forEach(btn => {{
@@ -133,6 +150,17 @@ class PanelHandler(BaseHTTPRequestHandler):
           document.getElementById("status").textContent = "error: " + data.message;
         }}
       }});
+    }});
+    document.getElementById("click-btn").addEventListener("click", async () => {{
+      const x = document.getElementById("click-x").value;
+      const y = document.getElementById("click-y").value;
+      const resp = await fetch(`/click?x=${{encodeURIComponent(x)}}&y=${{encodeURIComponent(y)}}`);
+      const data = await resp.json();
+      if (data.status === "ok") {{
+        document.getElementById("status").textContent = "click request saved (" + data.coords + ")";
+      }} else {{
+        document.getElementById("status").textContent = "error: " + data.message;
+      }}
     }});
   </script>
 </body>

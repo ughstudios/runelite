@@ -140,4 +140,9 @@ public class RLBotPlugin extends Plugin
         }
         return lastMouseLocation;
     }
+
+    public Point getLastSyntheticMouseLocation()
+    {
+        return lastSyntheticMouseLocation;
+    }
 }

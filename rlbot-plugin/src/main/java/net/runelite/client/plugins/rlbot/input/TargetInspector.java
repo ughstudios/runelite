@@ -25,10 +25,24 @@ final class TargetInspector
         this.client = client;
     }
 
+    private String actionKey(String expectedAction)
+    {
+        if (expectedAction == null) { return ""; }
+        String e = expectedAction.toLowerCase();
+        if (e.contains("chop")) return "chop";
+        if (e.contains("cut")) return "cut";
+        if (e.contains("bank")) return "bank";
+        if (e.contains("open")) return "open";
+        if (e.contains("deposit")) return "deposit";
+        if (e.contains("use")) return "use";
+        return e;
+    }
+
     boolean validateTargetAtPoint(Point canvasPoint, String expectedAction)
     {
         try
         {
+            final String key = actionKey(expectedAction);
             final int plane = client.getPlane();
             Scene scene = client.getScene();
             if (scene == null) { return false; }
@@ -53,7 +67,7 @@ final class TargetInspector
                         if (actions == null) { continue; }
                         for (String a : actions)
                         {
-                            if (a != null && a.toLowerCase().contains(expectedAction.toLowerCase()))
+                            if (a != null && a.toLowerCase().contains(key))
                             {
                                 return true;
                             }
@@ -77,7 +91,7 @@ final class TargetInspector
                         {
                             for (String a : actions)
                             {
-                                if (a != null && a.toLowerCase().contains(expectedAction.toLowerCase()))
+                                if (a != null && a.toLowerCase().contains(key))
                                 {
                                     return true;
                                 }
@@ -97,7 +111,7 @@ final class TargetInspector
                         if (actions == null) { continue; }
                         for (String a : actions)
                         {
-                            if (a != null && a.toLowerCase().contains(expectedAction.toLowerCase()))
+                            if (a != null && a.toLowerCase().contains(key))
                             {
                                 return true;
                             }
@@ -209,6 +223,7 @@ final class TargetInspector
     {
         try
         {
+            final String key = actionKey(expectedAction);
             final int plane = client.getPlane();
             Scene scene = client.getScene();
             if (scene == null) { return null; }
@@ -232,7 +247,7 @@ final class TargetInspector
                         boolean match = false;
                         for (String a : comp.getActions())
                         {
-                            if (a != null && a.toLowerCase().contains(expectedAction.toLowerCase())) { match = true; break; }
+                            if (a != null && a.toLowerCase().contains(key)) { match = true; break; }
                         }
                         if (!match) { continue; }
                         net.runelite.api.coords.LocalPoint lp = go.getLocalLocation();

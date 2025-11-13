@@ -91,6 +91,28 @@ final class InputDispatcher
         SwingUtilities.invokeLater(() -> c.dispatchEvent(evt));
     }
 
+    void dispatchMouseMoveSync(Component c, Point realCanvasPoint)
+    {
+        Point p = toStretched(realCanvasPoint);
+        long when = System.currentTimeMillis();
+        MouseEvent evt = new MouseEvent(
+            c,
+            MouseEvent.MOUSE_MOVED,
+            when,
+            0,
+            p.x,
+            p.y,
+            0,
+            false,
+            0
+        );
+        if (plugin != null)
+        {
+            plugin.updateLastSyntheticMouseLocation(realCanvasPoint);
+        }
+        try { SwingUtilities.invokeAndWait(() -> c.dispatchEvent(evt)); } catch (Exception ignored) {}
+    }
+
     void dispatchMouseClick(Component c, Point realCanvasPoint)
     {
         Point p = toStretched(realCanvasPoint);
@@ -106,6 +128,76 @@ final class InputDispatcher
         SwingUtilities.invokeLater(() -> c.dispatchEvent(press));
         SwingUtilities.invokeLater(() -> c.dispatchEvent(release));
         SwingUtilities.invokeLater(() -> c.dispatchEvent(click));
+    }
+
+    void dispatchMouseClickSync(Component c, Point realCanvasPoint)
+    {
+        Point p = toStretched(realCanvasPoint);
+        long when = System.currentTimeMillis();
+        int mods = InputEvent.BUTTON1_DOWN_MASK;
+        MouseEvent press = new MouseEvent(c, MouseEvent.MOUSE_PRESSED, when, mods, p.x, p.y, 1, false, MouseEvent.BUTTON1);
+        MouseEvent release = new MouseEvent(c, MouseEvent.MOUSE_RELEASED, when + 50, mods, p.x, p.y, 1, false, MouseEvent.BUTTON1);
+        MouseEvent click = new MouseEvent(c, MouseEvent.MOUSE_CLICKED, when + 51, mods, p.x, p.y, 1, false, MouseEvent.BUTTON1);
+        if (plugin != null)
+        {
+            plugin.updateLastSyntheticMouseLocation(realCanvasPoint);
+        }
+        try { SwingUtilities.invokeAndWait(() -> c.dispatchEvent(press)); } catch (Exception ignored) {}
+        try { SwingUtilities.invokeAndWait(() -> c.dispatchEvent(release)); } catch (Exception ignored) {}
+        try { SwingUtilities.invokeAndWait(() -> c.dispatchEvent(click)); } catch (Exception ignored) {}
+    }
+
+    /**
+     * Dispatches the exact mouse event sequence (move -> press -> release -> click)
+     * synchronously on the EDT, mirroring the manual JShell snippet that is known
+     * to produce valid in-game clicks.
+     *
+     * @param realCanvasPoint point in real canvas coordinates
+     * @return true if every event was delivered successfully, false otherwise
+     */
+    boolean dispatchDirectClick(Point realCanvasPoint)
+    {
+        Canvas canvas = getCanvas();
+        if (canvas == null)
+        {
+            logger.error("Canvas is null, cannot dispatch direct click");
+            return false;
+        }
+
+        Point stretched = toStretched(realCanvasPoint);
+        long now = System.currentTimeMillis();
+        MouseEvent move = new MouseEvent(canvas, MouseEvent.MOUSE_MOVED, now, 0,
+            stretched.x, stretched.y, 0, false, 0);
+        MouseEvent press = new MouseEvent(canvas, MouseEvent.MOUSE_PRESSED, now + 5L,
+            InputEvent.BUTTON1_DOWN_MASK, stretched.x, stretched.y, 1, false, MouseEvent.BUTTON1);
+        MouseEvent release = new MouseEvent(canvas, MouseEvent.MOUSE_RELEASED, now + 55L,
+            InputEvent.BUTTON1_DOWN_MASK, stretched.x, stretched.y, 1, false, MouseEvent.BUTTON1);
+        MouseEvent click = new MouseEvent(canvas, MouseEvent.MOUSE_CLICKED, now + 56L,
+            InputEvent.BUTTON1_DOWN_MASK, stretched.x, stretched.y, 1, false, MouseEvent.BUTTON1);
+
+        return dispatchSequentially(canvas, realCanvasPoint, move, press, release, click);
+    }
+
+    private boolean dispatchSequentially(Component component, Point realCanvasPoint, MouseEvent... events)
+    {
+        for (MouseEvent event : events)
+        {
+            if (plugin != null)
+            {
+                plugin.updateLastSyntheticMouseLocation(realCanvasPoint);
+            }
+            try
+            {
+                SwingUtilities.invokeAndWait(() -> component.dispatchEvent(event));
+            }
+            catch (Exception e)
+            {
+                logger.warn("Failed dispatching synthetic mouse event id=" + event.getID()
+                    + " at " + realCanvasPoint + ": " + e.getMessage());
+                return false;
+            }
+        }
+        return true;
     }
 
     void dispatchMouseRightClick(Component c, Point realCanvasPoint)

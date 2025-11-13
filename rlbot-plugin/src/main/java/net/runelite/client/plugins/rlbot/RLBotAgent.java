@@ -1,9 +1,16 @@
 package net.runelite.client.plugins.rlbot;
 
+import com.google.gson.Gson;
 import com.google.inject.Singleton;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
 import net.runelite.api.Client;
@@ -52,6 +59,10 @@ public class RLBotAgent
 
     private final AtomicInteger externalPenaltyMilli = new AtomicInteger(0);
 
+    private final Gson gson = new Gson();
+    private final Path clickRequestFile;
+    private long lastClickTimestamp = -1L;
+
     // Snapshot moved to RLBotState
 
     @Inject
@@ -81,6 +92,16 @@ public class RLBotAgent
         tasks.add(new net.runelite.client.plugins.rlbot.tasks.CameraZoomOutTask());
         this.actionCounts = new int[tasks.size()];
         this.episodeStartMs = System.currentTimeMillis();
+
+        Path ipcDir = Paths.get(config.gymIpcDir());
+        this.clickRequestFile = ipcDir.resolve("click_request.json");
+        try
+        {
+            Files.createDirectories(ipcDir);
+        }
+        catch (IOException ignored)
+        {
+        }
     }
 
     public void onTick()
@@ -100,6 +121,8 @@ public class RLBotAgent
             return;
         }
         lastStepMillis = now;
+
+        handleClickRequest();
 
         if (external == null)
         {
@@ -234,5 +257,64 @@ public class RLBotAgent
     public float getLastReward()
     {
         return lastReward;
+    }
+
+    private void handleClickRequest()
+    {
+        if (clickRequestFile == null || !Files.exists(clickRequestFile))
+        {
+            return;
+        }
+
+        try
+        {
+            String content = Files.readString(clickRequestFile, StandardCharsets.UTF_8);
+            if (content == null || content.isBlank())
+            {
+                return;
+            }
+            Map<?, ?> payload = gson.fromJson(content, Map.class);
+            if (payload == null)
+            {
+                return;
+            }
+            Number ts = (Number) payload.get("ts");
+            Number x = (Number) payload.get("x");
+            Number y = (Number) payload.get("y");
+            if (ts == null || x == null || y == null)
+            {
+                return;
+            }
+            long timestamp = ts.longValue();
+            if (timestamp <= lastClickTimestamp)
+            {
+                return;
+            }
+            lastClickTimestamp = timestamp;
+            java.awt.Point target = new java.awt.Point(x.intValue(), y.intValue());
+            boolean success = taskContext.input.clickAt(target);
+            if (success)
+            {
+                logger.info("[IPC] Executed manual click at " + target);
+            }
+            else
+            {
+                logger.warn("[IPC] Failed to dispatch manual click at " + target);
+            }
+        }
+        catch (Exception e)
+        {
+            logger.warn("[IPC] Failed executing manual click request: " + e.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                Files.deleteIfExists(clickRequestFile);
+            }
+            catch (IOException ignored)
+            {
+            }
+        }
     }
 }

@@ -33,9 +33,12 @@ final class UiHelper
                 java.awt.Rectangle b = closeButton.getBounds();
                 java.awt.Point p = new java.awt.Point(b.x + b.width / 2, b.y + b.height / 2);
                 ctx.input.smoothMouseMove(p);
-                ctx.input.clickAt(p);
-                ctx.setBusyForMs(200);
-                return true;
+                if (ctx.input.clickAt(p))
+                {
+                    ctx.setBusyForMs(200);
+                    return true;
+                }
+                ctx.logger.warn("[UiHelper] Failed to click close button at " + p);
             }
         }
         catch (Exception ignored)
@@ -61,9 +64,12 @@ final class UiHelper
                 {
                     java.awt.Point p = new java.awt.Point(b.x + b.width / 2, b.y + b.height / 2);
                     ctx.input.smoothMouseMove(p);
-                    ctx.input.clickAt(p);
-                    ctx.setBusyForMs(200);
-                    return true;
+                    if (ctx.input.clickAt(p))
+                    {
+                        ctx.setBusyForMs(200);
+                        return true;
+                    }
+                    ctx.logger.warn("[UiHelper] Failed to click bank close at " + p);
                 }
             }
         }

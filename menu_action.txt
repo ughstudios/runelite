@@ -1,0 +1,96 @@
+  import net.runelite.api.*;
+  import net.runelite.api.coords.*;
+  import net.runelite.api.events.*;
+  import net.runelite.api.MenuAction;
+
+  // ---- configure these ----
+  String targetName = "Oak";           // substring match on object name
+  String desiredAction = "Chop down";  // exact menu action text
+  WorldPoint overridePoint = null;     // optionally pin to a specific world point
+  // -------------------------
+
+  GameObject best = null;
+  int bestDist = Integer.MAX_VALUE;
+  Player me = client.getLocalPlayer();
+  if (me == null) {
+      log.warn("Not logged in / no player.");
+      return;
+  }
+  WorldPoint meWp = me.getWorldLocation();
+
+  Scene scene = client.getScene();
+  for (Tile[][] plane : scene.getTiles()) {
+      for (Tile[] col : plane) {
+          for (Tile tile : col) {
+              if (tile == null) continue;
+              for (GameObject obj : tile.getGameObjects()) {
+                  if (obj == null) continue;
+                  ObjectComposition comp = client.getObjectDefinition(obj.getId());
+                  if (comp == null || comp.getName() == null) continue;
+                  if (!comp.getName().toLowerCase().contains(targetName.toLowerCase())) continue;
+                  if (overridePoint != null && !obj.getWorldLocation().equals(overridePoint)) continue;
+
+                  String[] actions = comp.getActions();
+                  if (actions == null) continue;
+                  boolean match = false;
+                  int actionIndex = -1;
+                  for (int i = 0; i < actions.length; i++) {
+                      String act = actions[i];
+                      if (act != null && act.equalsIgnoreCase(desiredAction)) {
+                          match = true;
+                          actionIndex = i;
+                          break;
+                      }
+                  }
+                  if (!match) continue;
+
+                  int dist = obj.getWorldLocation().distanceTo(meWp);
+                  if (dist < bestDist) {
+                      bestDist = dist;
+                      best = obj;
+                  }
+              }
+          }
+      }
+  }
+
+  if (best == null) {
+      log.warn("No matching object/action found.");
+      return;
+  }
+
+  LocalPoint lp = LocalPoint.fromWorld(client, best.getWorldLocation());
+  if (lp == null) {
+      log.warn("LocalPoint null for object.");
+      return;
+  }
+
+  int sceneX = lp.getSceneX();
+  int sceneY = lp.getSceneY();
+  int actionIdx = client.getObjectDefinition(best.getId())
+      .getActions() == null ? 0 :
+      java.util.Arrays.asList(client.getObjectDefinition(best.getId()).getActions())
+          .indexOf(desiredAction);
+
+  MenuAction menuAction;
+  switch (actionIdx) {
+      case 0: menuAction = MenuAction.GAME_OBJECT_FIRST_OPTION; break;
+      case 1: menuAction = MenuAction.GAME_OBJECT_SECOND_OPTION; break;
+      case 2: menuAction = MenuAction.GAME_OBJECT_THIRD_OPTION; break;
+      case 3: menuAction = MenuAction.GAME_OBJECT_FOURTH_OPTION; break;
+      case 4: menuAction = MenuAction.GAME_OBJECT_FIFTH_OPTION; break;
+      default:
+          log.warn("Unsupported action index " + actionIdx);
+          return;
+  }
+
+  client.invokeMenuAction(
+      desiredAction,
+      client.getObjectDefinition(best.getId()).getName(),
+      best.getId(),
+      menuAction.getId(),
+      sceneX,
+      sceneY
+  );
+
+  log.info("Invoked '{}' on {} at {}", desiredAction, best.getWorldLocation(), best.getId());
